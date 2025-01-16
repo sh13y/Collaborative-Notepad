@@ -41,6 +41,7 @@ Here are some features that will make you say “Wow!”:
 - Create new notes with unique URLs.
 - Edit notes in real-time with friends.
 - Set custom URLs for your notes.
+- Toggle between light and dark modes for late-night note sessions.
 - Responsive design that looks good on any device (even your grandma's old tablet).
 
 ## Technologies Used
@@ -84,7 +85,8 @@ Your server should now be running on `http://localhost:3000`.
 1. Open your browser and navigate to `http://localhost:3000`.
 2. Create a new note or enter a custom URL.
 3. Invite your friends to join by sharing the URL.
-4. Start typing away while pretending to be productive!
+4. Toggle dark mode using the theme switch if you're coding at midnight.
+5. Start typing away while pretending to be productive!
 
 ## Contributing
 We love contributions! If you want to add features or fix bugs, feel free to fork the repository and submit a pull request. Just remember:

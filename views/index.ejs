@@ -11,11 +11,15 @@
             display: flex;
             flex-direction: column; /* Stack header, content, and footer vertically */
             overflow-x: hidden; /* Prevent horizontal scrolling */
+            transition: background-color 0.3s, color 0.3s; /* Smooth transition for colors */
         }
-        body {
-            font-family: Arial, sans-serif;
+        body.light-mode {
             background-color: #ffffff; /* Classic white background */
             color: #333333; /* Dark text for readability */
+        }
+        body.dark-mode {
+            background-color: #2c3e50; /* Dark blue background */
+            color: #ecf0f1; /* Light text for readability */
         }
         header {
             background-color: #2c3e50; /* Dark blue header */
@@ -34,17 +38,24 @@
         }
         .container {
             flex-grow: 1; /* Allow content area to grow and take available space */
-            padding: 20px;
+            padding: 20px; /* Padding around container */
+            box-sizing: border-box; /* Include padding in width/height calculations */
         }
         textarea {
             width: 100%;
-            height: 300px;
+            height: calc(100vh - 160px); /* Full height minus header and footer heights */
             padding: 10px; /* Padding inside the textarea */
             border-radius: 5px; /* Rounded corners */
             border: 1px solid #bdc3c7; /* Light grey border */
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
             font-size: 16px; /* Increase font size for better readability */
             box-sizing: border-box; /* Ensure padding is included in width/height */
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s; /* Smooth transition for textarea */
+        }
+        body.dark-mode textarea {
+            background-color: #34495e; /* Darker background for textarea in dark mode */
+            color: #ecf0f1; /* Light text for textarea in dark mode */
+            border-color: #7f8c8d; /* Darker border for textarea in dark mode */
         }
         .input-group {
             display: flex; /* Use flexbox to align input and button */
@@ -58,9 +69,15 @@
             border: 1px solid #bdc3c7; /* Light grey border */
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
             font-size: 16px; /* Consistent font size with textarea */
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s; /* Smooth transition for input field */
+        }
+        body.dark-mode input[type="text"] {
+            background-color: #34495e; /* Darker background for input in dark mode */
+            color: #ecf0f1; /* Light text for input in dark mode */
+            border-color: #7f8c8d; /* Darker border for input in dark mode */
         }
         button {
-            background-color: #3498db; /* Classic blue button */
+            background-color: #314e6b; /* Classic blue button */
             color: white;
             border: none;
             padding: 10px; /* Same padding as input for uniformity */
@@ -86,7 +103,7 @@
         }
     </style>
 </head>
-<body>
+<body class="light-mode"> <!-- Default to light mode -->
 
 <header>
     <h1>Collaborative Notepad</h1>
@@ -95,6 +112,7 @@
            <input type="text" id="customUrl" placeholder="Enter custom URL" />
            <button id="setCustomUrl">Set Custom URL</button>
            <button onclick="window.location.href='/new'" style="margin-left: 10px;">Create New Note</button>
+           <button id="toggleMode" style="margin-left: 10px;">Switch to Dark Mode</button> <!-- Mode toggle button -->
        </div>
     </div>
 </header>
@@ -105,7 +123,7 @@
 
 <footer>
     <div>&copy; 2025 Collaborative Notepad. All rights reserved.</div>
-    <div>Made with ❤ by sh13y in ceylon</div>
+    <div>Made in ceylon with ❤ by sh13y</div>
     <div>
         <a href="/about">About</a>
         <a href="/privacy">Privacy</a>
@@ -166,6 +184,22 @@
            window.location.href = `/notes/${customUrl}`; // Redirect to new custom URL
        } else {
            alert(result.message); // Show error message if failed
+       }
+   });
+
+   // Toggle light/dark mode functionality
+   document.getElementById('toggleMode').addEventListener('click', () => {
+       const body = document.body;
+       const toggleButton = document.getElementById('toggleMode');
+
+       if (body.classList.contains('light-mode')) {
+           body.classList.remove('light-mode');
+           body.classList.add('dark-mode');
+           toggleButton.textContent = 'Switch to Light Mode'; // Update button text
+       } else {
+           body.classList.remove('dark-mode');
+           body.classList.add('light-mode');
+           toggleButton.textContent = 'Switch to Dark Mode'; // Update button text
        }
    });
 </script>
