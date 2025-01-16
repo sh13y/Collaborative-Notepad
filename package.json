@@ -2,9 +2,6 @@
   "name": "collaborative-notepad",
   "version": "1.0.0",
   "main": "server.js",
-  "engines": {
-  "node": "22.x" 
-  },
   "scripts": {
     "start": "node server.js"
   },
@@ -19,5 +16,8 @@
     "express": "^4.21.2",
     "mongoose": "^8.9.5",
     "socket.io": "^4.8.1"
+  },
+  "engines": {
+    "node": "22.x" 
   }
 }
