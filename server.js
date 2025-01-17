@@ -10,7 +10,12 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log('MongoDB connected'))
+    .catch((err) => {
+        console.error('MongoDB connection error:', err);
+        process.exit(1); // Exit the process if MongoDB connection fails
+    });
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -30,13 +35,14 @@ const noteSchema = new mongoose.Schema({
 });
 const Note = mongoose.model('Note', noteSchema);
 
+const { nanoid } = require('nanoid');
 // Serve the main page with a unique URL
 app.get('/new', async (req, res) => {
     let uniqueUrl;
     let noteExists = true;
 
     while (noteExists) {
-        uniqueUrl = Math.random().toString(36).substring(2, 15); // Generate unique URL
+        uniqueUrl = nanoid(10); // Generate a 10-character unique ID
         noteExists = await Note.exists({ url: uniqueUrl });
     }
 
@@ -53,9 +59,18 @@ app.get('/notes/:url', async (req, res) => {
 });
 
 // Set custom URL for a note
+// Set custom URL for a note
 app.post('/setCustomUrl/:originalUrl', async (req, res) => {
     const { url } = req.body; // New custom URL from request body
     const originalUrl = req.params.originalUrl; // Original note's URL from request parameters
+
+    // Regular expression to validate custom URL format
+    const urlPattern = /^[a-zA-Z0-9-_]+$/;  // Only alphanumeric characters, hyphens, and underscores
+
+    // Check if the custom URL matches the pattern
+    if (!urlPattern.test(url)) {
+        return res.json({ success: false, message: 'Invalid URL format. Only alphanumeric characters, hyphens, and underscores are allowed.' });
+    }
 
     // Find the current note by its original URL
     const currentNote = await Note.findOne({ url: originalUrl });
@@ -76,6 +91,7 @@ app.post('/setCustomUrl/:originalUrl', async (req, res) => {
 
     res.json({ success: true, message: 'Custom URL set successfully!' });
 });
+
 
 // Socket.IO for real-time collaboration
 io.on('connection', (socket) => {
