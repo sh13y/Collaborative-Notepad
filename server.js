@@ -9,6 +9,13 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+const path = require('path');
+// Specify views directory
+app.set('views', path.join(__dirname, 'views'));
+// Set the view engine to EJS
+app.set('view engine', 'ejs');
+
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('MongoDB connected'))
