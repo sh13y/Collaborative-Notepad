@@ -35,14 +35,13 @@ const noteSchema = new mongoose.Schema({
 });
 const Note = mongoose.model('Note', noteSchema);
 
-const { nanoid } = require('nanoid');
 // Serve the main page with a unique URL
 app.get('/new', async (req, res) => {
     let uniqueUrl;
     let noteExists = true;
 
     while (noteExists) {
-        uniqueUrl = nanoid(10); // Generate a 10-character unique ID
+        uniqueUrl = Math.random().toString(36).substring(2, 15); // Generate unique URL
         noteExists = await Note.exists({ url: uniqueUrl });
     }
 
