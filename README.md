@@ -53,3 +53,9 @@ MIT Licensed - which means you can do pretty much anything except blame us if so
 
 Made with ❤️ and probably too much caffeine.
 P.S. If you're still reading this, you deserve a cookie 🍪
+
+## Deployment Adventure
+
+After 9 hours of relentless patience, debugging, and sheer determination (not to mention a bit of music), **Collaborative Notepad** is finally live on the [internet](https://colabnote.isuru.eu.org/)! Who knew that the journey from `npm start` to "deployment success" could feel like a Netflix series binge? 😅
+
+Take a moment to appreciate the beauty of the internet: it took 9 hours... but hey, better late than never, right?
