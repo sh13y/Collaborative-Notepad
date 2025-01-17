@@ -28,13 +28,17 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap; /* Allow header elements to wrap on small screens */
         }
         header h1 {
             margin: 0;
+            font-size: 1.5rem; /* Smaller font size for mobile */
         }
         .nav-container {
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px; /* Space between the buttons */
         }
         .container {
             flex-grow: 1; /* Allow content area to grow and take available space */
@@ -61,6 +65,8 @@
             display: flex; /* Use flexbox to align input and button */
             align-items: stretch; /* Make them the same height */
             margin-top: 10px; /* Space between textarea and input group */
+            flex-wrap: wrap; /* Wrap elements on smaller screens */
+            gap: 10px; /* Space between elements */
         }
         input[type="text"] {
             flex-grow: 1; /* Allow input to take remaining space */
@@ -95,11 +101,38 @@
             justify-content: space-between; /* Space between left and right content */
             align-items: center; /* Center vertically */
             padding: 10px 20px; /* Padding around footer content */
+            flex-wrap: wrap; /* Allow footer content to wrap */
+            gap: 10px; /* Space between footer elements */
         }
         footer a {
             color: white;
             text-decoration: none; /* Remove underline from links */
             margin-left: 10px; /* Spacing between links */
+        }
+
+        /* Mobile responsiveness */
+        @media screen and (max-width: 768px) {
+            header h1 {
+                font-size: 1.2rem; /* Smaller font size for header on mobile */
+            }
+            textarea {
+                height: calc(100vh - 180px); /* Adjust textarea height for mobile */
+            }
+            .nav-container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .input-group {
+                width: 100%;
+            }
+            input[type="text"], button {
+                width: 100%; /* Make input and button take full width */
+                margin-left: 0; /* Remove left margin for mobile */
+            }
+            footer {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
 </head>
@@ -111,8 +144,8 @@
         <div class="input-group">
            <input type="text" id="customUrl" placeholder="Enter custom URL" />
            <button id="setCustomUrl">Set Custom URL</button>
-           <button onclick="window.location.href='/new'" style="margin-left: 10px;">Create New Note</button>
-           <button id="toggleMode" style="margin-left: 10px;">Switch to Dark Mode</button> <!-- Mode toggle button -->
+           <button onclick="window.location.href='/new'" style="margin-left: 0px;">Create New Note</button>
+           <button id="toggleMode" style="margin-left: 0px;">Switch to Dark Mode</button> <!-- Mode toggle button -->
        </div>
     </div>
 </header>
@@ -127,7 +160,7 @@
     <div>
         <a href="/about">About</a>
         <a href="/privacy">Privacy</a>
-<a href="/contact">Contact</a>
+        <a href="/contact">Contact</a>
     </div>
 </footer>
 
@@ -236,5 +269,7 @@ window.onload = function() {
 
 </script>
 
+
 </body>
 </html>
+
