@@ -147,8 +147,20 @@
 
     // Listen for updates from other users
     socket.on('noteUpdated', (content) => {
-        document.getElementById('noteInput').value = content;
-    });
+    const textarea = document.getElementById('noteInput');
+    const cursorPosition = textarea.selectionStart; // Save cursor position
+
+    // Only update if content is different (to prevent unnecessary overwriting)
+    if (textarea.value !== content) {
+        textarea.value = content;
+    }
+
+    // Restore cursor position after update
+    textarea.selectionStart = cursorPosition;
+    textarea.selectionEnd = cursorPosition;
+});
+
+
 
    // Debounce function with a shorter delay of 500ms
    function debounce(func, delay) {
@@ -158,19 +170,27 @@
        };
    }
 
-   // Update note on input change with a 500ms debounce
-   document.getElementById('noteInput').addEventListener('input', debounce(() => {
-       const content = document.getElementById('noteInput').value;
-       socket.emit('updateNote', { url, content });
-   }, 500)); // Set delay to 500ms
+    let isUpdateInProgress = false;
+
+    document.getElementById('noteInput').addEventListener('input', debounce(() => {
+        const content = document.getElementById('noteInput').value;
+
+        if (content !== lastContent && !isUpdateInProgress) {
+            isUpdateInProgress = true;
+            lastContent = content;
+            socket.emit('updateNote', { url, content });
+        }
+    }, 500)); // 500ms debounce
+
 
    // Set custom URL functionality
    document.getElementById('setCustomUrl').addEventListener('click', async () => {
        const customUrl = document.getElementById('customUrl').value.trim(); // Trim whitespace
-       if (!customUrl) {
-           alert("Please enter a valid custom URL."); // Alert if empty
-           return; 
-       }
+       if (customUrl === url) { // Prevent overwriting with the same URL
+            alert("You're already using this URL.");
+            return;
+}
+
 
        const response = await fetch(`/setCustomUrl/${url}`, { // Pass original URL as part of the path
            method: 'POST',
@@ -189,19 +209,33 @@
 
    // Toggle light/dark mode functionality
    document.getElementById('toggleMode').addEventListener('click', () => {
-       const body = document.body;
-       const toggleButton = document.getElementById('toggleMode');
+    const body = document.body;
+    const toggleButton = document.getElementById('toggleMode');
 
-       if (body.classList.contains('light-mode')) {
-           body.classList.remove('light-mode');
-           body.classList.add('dark-mode');
-           toggleButton.textContent = 'Switch to Light Mode'; // Update button text
-       } else {
-           body.classList.remove('dark-mode');
-           body.classList.add('light-mode');
-           toggleButton.textContent = 'Switch to Dark Mode'; // Update button text
-       }
-   });
+    if (body.classList.contains('light-mode')) {
+        body.classList.remove('light-mode');
+        body.classList.add('dark-mode');
+        toggleButton.textContent = 'Switch to Light Mode';
+        localStorage.setItem('theme', 'dark-mode'); // Save preference
+    } else {
+        body.classList.remove('dark-mode');
+        body.classList.add('light-mode');
+        toggleButton.textContent = 'Switch to Dark Mode';
+        localStorage.setItem('theme', 'light-mode'); // Save preference
+    }
+});
+
+// Load theme preference on page load
+window.onload = function() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.getElementById('noteInput').focus();
+        document.body.classList.remove('light-mode', 'dark-mode');
+        document.body.classList.add(savedTheme);
+        document.getElementById('toggleMode').textContent = savedTheme === 'dark-mode' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
+    }
+};
+
 </script>
 
 </body>
