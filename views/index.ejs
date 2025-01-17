@@ -170,18 +170,16 @@
        };
    }
 
-    let isUpdateInProgress = false;
+    let lastContent = '';
 
     document.getElementById('noteInput').addEventListener('input', debounce(() => {
         const content = document.getElementById('noteInput').value;
-
-        if (content !== lastContent && !isUpdateInProgress) {
-            isUpdateInProgress = true;
+        
+        if (content !== lastContent) { // Only send update if text actually changed
             lastContent = content;
             socket.emit('updateNote', { url, content });
         }
-    }, 500)); // 500ms debounce
-
+    }, 500));
 
    // Set custom URL functionality
    document.getElementById('setCustomUrl').addEventListener('click', async () => {
