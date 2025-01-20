@@ -2,274 +2,372 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Collaborative Notepad</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Responsive viewport -->
+    <title>Modern Collaborative Notepad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'><path fill='%233498db' d='M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z'/></svg>"/>
     <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --dark-bg: #1a1a2e;
+            --dark-secondary: #16213e;
+            --light-bg: #f8f9fa;
+            --light-text: #e1e1e1;
+            --dark-text: #2d3436;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
         html, body {
-            height: 100%; /* Full height for sticky footer */
+            height: 100%;
             margin: 0;
             display: flex;
-            flex-direction: column; /* Stack header, content, and footer vertically */
-            overflow-x: hidden; /* Prevent horizontal scrolling */
-            transition: background-color 0.3s, color 0.3s; /* Smooth transition for colors */
+            flex-direction: column;
+            transition: var(--transition);
         }
+
         body.light-mode {
-            background-color: #ffffff; /* Classic white background */
-            color: #333333; /* Dark text for readability */
+            background-color: var(--light-bg);
+            color: var(--dark-text);
         }
+
         body.dark-mode {
-            background-color: #2c3e50; /* Dark blue background */
-            color: #ecf0f1; /* Light text for readability */
+            background-color: var(--dark-bg);
+            color: var(--light-text);
         }
+
         header {
-            background-color: #2c3e50; /* Dark blue header */
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
-            padding: 15px 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap; /* Allow header elements to wrap on small screens */
-        }
-        header h1 {
-            margin: 0;
-            font-size: 1.5rem; /* Smaller font size for mobile */
-        }
-        .nav-container {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px; /* Space between the buttons */
-        }
-        .container {
-            flex-grow: 1; /* Allow content area to grow and take available space */
-            padding: 20px; /* Padding around container */
-            box-sizing: border-box; /* Include padding in width/height calculations */
-        }
-        textarea {
-            width: 100%;
-            height: calc(100vh - 160px); /* Full height minus header and footer heights */
-            padding: 10px; /* Padding inside the textarea */
-            border-radius: 5px; /* Rounded corners */
-            border: 1px solid #bdc3c7; /* Light grey border */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-            font-size: 16px; /* Increase font size for better readability */
-            box-sizing: border-box; /* Ensure padding is included in width/height */
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s; /* Smooth transition for textarea */
-        }
-        body.dark-mode textarea {
-            background-color: #34495e; /* Darker background for textarea in dark mode */
-            color: #ecf0f1; /* Light text for textarea in dark mode */
-            border-color: #7f8c8d; /* Darker border for textarea in dark mode */
-        }
-        .input-group {
-            display: flex; /* Use flexbox to align input and button */
-            align-items: stretch; /* Make them the same height */
-            margin-top: 10px; /* Space between textarea and input group */
-            flex-wrap: wrap; /* Wrap elements on smaller screens */
-            gap: 10px; /* Space between elements */
-        }
-        input[type="text"] {
-            flex-grow: 1; /* Allow input to take remaining space */
-            padding: 10px; /* Padding for input */
-            border-radius: 5px; /* Rounded corners */
-            border: 1px solid #bdc3c7; /* Light grey border */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-            font-size: 16px; /* Consistent font size with textarea */
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s; /* Smooth transition for input field */
-        }
-        body.dark-mode input[type="text"] {
-            background-color: #34495e; /* Darker background for input in dark mode */
-            color: #ecf0f1; /* Light text for input in dark mode */
-            border-color: #7f8c8d; /* Darker border for input in dark mode */
-        }
-        button {
-            background-color: #314e6b; /* Classic blue button */
-            color: white;
-            border: none;
-            padding: 10px; /* Same padding as input for uniformity */
-            cursor: pointer;
-            border-radius: 5px; /* Rounded corners for buttons */
-            margin-left: 10px; /* Space between input and button */
-        }
-        button:hover {
-            background-color: #2980b9; /* Darker blue on hover */
-        }
-        footer {
-            background-color: #2c3e50; /* Dark blue footer */
-            color: white;
-            display: flex; /* Use flexbox for layout */
-            justify-content: space-between; /* Space between left and right content */
-            align-items: center; /* Center vertically */
-            padding: 10px 20px; /* Padding around footer content */
-            flex-wrap: wrap; /* Allow footer content to wrap */
-            gap: 10px; /* Space between footer elements */
-        }
-        footer a {
-            color: white;
-            text-decoration: none; /* Remove underline from links */
-            margin-left: 10px; /* Spacing between links */
         }
 
-        /* Mobile responsiveness */
-        @media screen and (max-width: 768px) {
-            header h1 {
-                font-size: 1.2rem; /* Smaller font size for header on mobile */
-            }
-            textarea {
-                height: calc(100vh - 180px); /* Adjust textarea height for mobile */
-            }
-            .nav-container {
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .url-control {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        input {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .container {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        textarea {
+            width: 100%;
+            height: calc(100vh - 250px);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: none;
+            resize: none;
+            font-size: 1rem;
+            line-height: 1.6;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        body.light-mode textarea {
+            background-color: white;
+            color: var(--dark-text);
+        }
+
+        body.dark-mode textarea {
+            background-color: var(--dark-secondary);
+            color: var(--light-text);
+        }
+
+        textarea:focus {
+            outline: 2px solid var(--primary-color);
+        }
+
+        footer {
+            padding: 1rem 2rem;
+            background: var(--dark-secondary);
+            color: var(--light-text);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-links a {
+            color: var(--light-text);
+            text-decoration: none;
+            margin-left: 1.5rem;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .header-content, .controls {
                 flex-direction: column;
-                align-items: flex-start;
+                gap: 1rem;
             }
-            .input-group {
+
+            .url-control {
                 width: 100%;
+                flex-direction: column;
             }
-            input[type="text"], button {
-                width: 100%; /* Make input and button take full width */
-                margin-left: 0; /* Remove left margin for mobile */
-            }
-            footer {
+
+            .footer-content {
                 flex-direction: column;
                 text-align: center;
+                gap: 1rem;
+            }
+
+            .footer-links a {
+                margin: 0 0.5rem;
+            }
+
+            textarea {
+                height: calc(100vh - 350px);
             }
         }
     </style>
 </head>
-<body class="light-mode"> <!-- Default to light mode -->
+<body class="light-mode">
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-edit"></i>
+                <h1>Modern Notepad</h1>
+            </div>
+            <div class="controls">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>Connected</span>
+                </div>
+                <div class="url-control">
+                    <input type="text" id="customUrl" placeholder="Enter custom URL" />
+                    <button id="setCustomUrl">
+                        <i class="fas fa-link"></i>
+                        Set URL
+                    </button>
+                </div>
+                <button onclick="window.location.href='/new'">
+                    <i class="fas fa-plus"></i>
+                    New Note
+                </button>
+                <button id="toggleMode">
+                    <i class="fas fa-moon"></i>
+                    Dark Mode
+                </button>
+            </div>
+        </div>
+    </header>
 
-<header>
-    <h1>Collaborative Notepad</h1>
-    <div class="nav-container">
-        <div class="input-group">
-           <input type="text" id="customUrl" placeholder="Enter custom URL" />
-           <button id="setCustomUrl">Set Custom URL</button>
-           <button onclick="window.location.href='/new'" style="margin-left: 0px;">Create New Note</button>
-           <button id="toggleMode" style="margin-left: 0px;">Switch to Dark Mode</button> <!-- Mode toggle button -->
-       </div>
+    <div class="container">
+        <textarea id="noteInput" placeholder="Start typing your note here..."></textarea>
     </div>
-</header>
 
-<div class="container">
-    <textarea id="noteInput" placeholder="Type your note here..."></textarea>
-</div>
+    <footer>
+        <div class="footer-content">
+            <div>&copy; 2025 Modern Notepad</div>
+            <div>Made with <i class="fas fa-heart" style="color: #e74c3c;"></i> by sh13y</div>
+            <div class="footer-links">
+                <a href="/about">About</a>
+                <a href="/privacy">Privacy</a>
+                <a href="/contact">Contact</a>
+            </div>
+        </div>
+    </footer>
 
-<footer>
-    <div>&copy; 2025 Collaborative Notepad. All rights reserved.</div>
-    <div>Made in ceylon with ❤ by sh13y</div>
-    <div>
-        <a href="/about">About</a>
-        <a href="/privacy">Privacy</a>
-        <a href="/contact">Contact</a>
-    </div>
-</footer>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const url = window.location.pathname.split('/').pop();
+        let typingTimeout;
 
-<script src="/socket.io/socket.io.js"></script>
-<script>
-    const socket = io();
-    const url = window.location.pathname.split('/').pop(); // Get the unique URL from the path
-    let typingTimeout;
+        socket.emit('joinNote', url);
 
-    // Join the specific note room
-    socket.emit('joinNote', url);
+        socket.on('loadNote', (note) => {
+            document.getElementById('noteInput').value = note.content;
+        });
 
-    // Load existing note content
-    socket.on('loadNote', (note) => {
-        document.getElementById('noteInput').value = note.content;
-    });
+        socket.on('noteUpdated', (content) => {
+            const textarea = document.getElementById('noteInput');
+            const cursorPosition = textarea.selectionStart;
 
-    // Listen for updates from other users
-    socket.on('noteUpdated', (content) => {
-    const textarea = document.getElementById('noteInput');
-    const cursorPosition = textarea.selectionStart; // Save cursor position
+            if (textarea.value !== content) {
+                textarea.value = content;
+            }
 
-    // Only update if content is different (to prevent unnecessary overwriting)
-    if (textarea.value !== content) {
-        textarea.value = content;
-    }
+            textarea.selectionStart = cursorPosition;
+            textarea.selectionEnd = cursorPosition;
+        });
 
-    // Restore cursor position after update
-    textarea.selectionStart = cursorPosition;
-    textarea.selectionEnd = cursorPosition;
-});
-
-
-
-   // Debounce function with a shorter delay of 500ms
-   function debounce(func, delay) {
-       return function(...args) {
-           clearTimeout(typingTimeout);
-           typingTimeout = setTimeout(() => func.apply(this, args), delay);
-       };
-   }
-
-    let lastContent = '';
-
-    document.getElementById('noteInput').addEventListener('input', debounce(() => {
-        const content = document.getElementById('noteInput').value;
-        
-        if (content !== lastContent) { // Only send update if text actually changed
-            lastContent = content;
-            socket.emit('updateNote', { url, content });
+        function debounce(func, delay) {
+            return function(...args) {
+                clearTimeout(typingTimeout);
+                typingTimeout = setTimeout(() => func.apply(this, args), delay);
+            };
         }
-    }, 500));
 
-   // Set custom URL functionality
-   document.getElementById('setCustomUrl').addEventListener('click', async () => {
-       const customUrl = document.getElementById('customUrl').value.trim(); // Trim whitespace
-       if (customUrl === url) { // Prevent overwriting with the same URL
-            alert("You're already using this URL.");
-            return;
-}
+        let lastContent = '';
 
+        document.getElementById('noteInput').addEventListener('input', debounce(() => {
+            const content = document.getElementById('noteInput').value;
+            
+            if (content !== lastContent) {
+                lastContent = content;
+                socket.emit('updateNote', { url, content });
+            }
+        }, 500));
 
-       const response = await fetch(`/setCustomUrl/${url}`, { // Pass original URL as part of the path
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({ url: customUrl }) // Send new custom URL in body
-       });
+        document.getElementById('setCustomUrl').addEventListener('click', async () => {
+            const customUrl = document.getElementById('customUrl').value.trim();
+            if (customUrl === url) {
+                alert("You're already using this URL.");
+                return;
+            }
 
-       const result = await response.json();
+            const response = await fetch(`/setCustomUrl/${url}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: customUrl })
+            });
 
-       if (result.success) {
-           window.location.href = `/notes/${customUrl}`; // Redirect to new custom URL
-       } else {
-           alert(result.message); // Show error message if failed
-       }
-   });
+            const result = await response.json();
 
-   // Toggle light/dark mode functionality
-   document.getElementById('toggleMode').addEventListener('click', () => {
-    const body = document.body;
-    const toggleButton = document.getElementById('toggleMode');
+            if (result.success) {
+                window.location.href = `/notes/${customUrl}`;
+            } else {
+                alert(result.message);
+            }
+        });
 
-    if (body.classList.contains('light-mode')) {
-        body.classList.remove('light-mode');
-        body.classList.add('dark-mode');
-        toggleButton.textContent = 'Switch to Light Mode';
-        localStorage.setItem('theme', 'dark-mode'); // Save preference
-    } else {
-        body.classList.remove('dark-mode');
-        body.classList.add('light-mode');
-        toggleButton.textContent = 'Switch to Dark Mode';
-        localStorage.setItem('theme', 'light-mode'); // Save preference
-    }
-});
+        document.getElementById('toggleMode').addEventListener('click', () => {
+            const body = document.body;
+            const toggleButton = document.getElementById('toggleMode');
+            const icon = toggleButton.querySelector('i');
 
-// Load theme preference on page load
-window.onload = function() {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        document.getElementById('noteInput').focus();
-        document.body.classList.remove('light-mode', 'dark-mode');
-        document.body.classList.add(savedTheme);
-        document.getElementById('toggleMode').textContent = savedTheme === 'dark-mode' ? 'Switch to Light Mode' : 'Switch to Dark Mode';
-    }
-};
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                toggleButton.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+                localStorage.setItem('theme', 'dark-mode');
+            } else {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                toggleButton.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+                localStorage.setItem('theme', 'light-mode');
+            }
+        });
 
-</script>
-
-
+        window.onload = function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.getElementById('noteInput').focus();
+                document.body.classList.remove('light-mode', 'dark-mode');
+                document.body.classList.add(savedTheme);
+                const toggleButton = document.getElementById('toggleMode');
+                toggleButton.innerHTML = savedTheme === 'dark-mode' ? 
+                    '<i class="fas fa-sun"></i> Light Mode' : 
+                    '<i class="fas fa-moon"></i> Dark Mode';
+            }
+        };
+    </script>
 </body>
 </html>
-
