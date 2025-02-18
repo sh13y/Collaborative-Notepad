@@ -44,10 +44,26 @@ cd collaborative-notepad
 # Install dependencies (grab some water, this might take a while)
 npm install
 
+# Set up your environment
+cp .env.example .env
+# Now edit .env with your MongoDB connection string
+
 # Start the magic
 npm start
 
 # Visit http://localhost:3000 and prepare to be amazed
+```
+
+### 🌍 Environment Setup
+
+The project uses a `.env` file for configuration. Copy `.env.example` to `.env` and update the following variables:
+
+```env
+# Required: Your MongoDB connection string
+MONGODB_URI=mongodb+srv://your_username:your_password@your_cluster.mongodb.net/your_database
+
+# Optional: Server port (defaults to 3000)
+PORT=3000
 ```
 
 ## 🎮 How to Use (For Humans and AI Alike)
