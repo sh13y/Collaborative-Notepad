@@ -257,6 +257,16 @@ footer {
     justify-content: center;
 }
 
+#copyLink {
+    width: 40px;
+    padding: 0;
+    transition: var(--transition);
+}
+
+#copyLink:hover {
+    background: var(--cambridge-blue);
+}
+
 @media (max-width: 768px) {
     header {
         padding: 0.75rem;
@@ -277,14 +287,26 @@ footer {
         width: 100%;
         flex-direction: row;
         height: 40px;
+        gap: 0.5rem;
+        padding: 0.5rem;
     }
 
     .url-control input {
         flex: 1;
+        min-width: 0;
     }
 
     .url-control button {
         flex: 0 0 auto;
+        min-width: fit-content;
+    }
+
+    #setCustomUrl {
+        padding: 0 0.75rem;
+    }
+
+    #copyLink {
+        width: 30px;
     }
 
     .action-buttons {

@@ -29,6 +29,9 @@
                         <i class="fas fa-link"></i>
                         Set URL
                     </button>
+                    <button id="copyLink" title="Copy note link">
+                        <i class="fas fa-copy"></i>
+                    </button>
                 </div>
                 <div class="action-buttons">
                     <div class="status-indicator">
@@ -186,6 +189,30 @@
                 }
             }
         };
+
+        document.getElementById('copyLink').addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(window.location.href);
+                const button = document.getElementById('copyLink');
+                const icon = button.querySelector('i');
+                
+                // Visual feedback
+                icon.classList.remove('fa-copy');
+                icon.classList.add('fa-check');
+                button.style.background = 'var(--sunset)';
+                icon.style.color = 'var(--delft-blue)';
+                
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    icon.classList.remove('fa-check');
+                    icon.classList.add('fa-copy');
+                    button.style.background = 'var(--burnt-sienna)';
+                    icon.style.color = 'var(--eggshell)';
+                }, 2000);
+            } catch (err) {
+                alert('Failed to copy link. Please try again.');
+            }
+        });
     </script>
 </body>
 </html>
