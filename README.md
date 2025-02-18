@@ -7,6 +7,7 @@ Welcome to my pride and joy - a real-time collaborative notepad that's more fun 
 ## 👀 Look at This Beauty!
 
 ![Collaborative Notepad Screenshot](assets/screenshot.png)
+
 *Yes, it actually looks this good. No, I didn't use filters!*
 
 ## 🎭 The Drama Behind the Project
