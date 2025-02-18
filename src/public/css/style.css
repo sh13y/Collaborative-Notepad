@@ -241,7 +241,7 @@ footer {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--cambridge-blue);
+    background: #fefae0;
     animation: pulse 2s infinite;
     transition: background-color 0.3s ease, animation-duration 0.3s ease;
 }
