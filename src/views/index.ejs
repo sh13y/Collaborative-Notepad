@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Collaborative Notepad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 384 512'><path fill='%2381b29a' d='M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z'/></svg>"/>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="light-mode">
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-edit"></i>
+                <h1>Collaborative Notepad</h1>
+            </div>
+            <div class="controls">
+                <div class="url-control">
+                    <input type="text" id="customUrl" placeholder="Enter custom URL" />
+                    <button id="setCustomUrl">
+                        <i class="fas fa-link"></i>
+                        Set URL
+                    </button>
+                </div>
+                <div class="action-buttons">
+                    <div class="status-indicator">
+                        <div class="status-dot"></div>
+                        <span id="userCount">1</span>
+                </div>
+                <button onclick="window.location.href='/new'">
+                    <i class="fas fa-plus"></i>
+                    New Note
+                </button>
+                    <button id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <textarea id="notepad" spellcheck="false" placeholder="Start typing..."><%= note.content %></textarea>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="copyright">
+                © 2025 | made in ceylon with ❤️ by sh13y
+            </div>
+            <div class="footer-links">
+                <!-- <a href="https://github.com/sh13y/Collaborative-Notepad" target="_blank">
+                    <i class="fab fa-github"></i>
+                    Star On GitHub
+                </a> -->
+                <a href="http://paypal.me/shieyz" target="_blank">
+                    <i class="fab fa-paypal"></i>
+                    Fix My Back Pain
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const url = window.location.pathname.split('/').pop();
+        let typingTimeout;
+
+        socket.emit('joinNote', url);
+
+        socket.on('loadNote', (note) => {
+            document.getElementById('notepad').value = note.content;
+        });
+
+        socket.on('noteUpdated', (content) => {
+            const textarea = document.getElementById('notepad');
+            const cursorPosition = textarea.selectionStart;
+
+            if (textarea.value !== content) {
+                textarea.value = content;
+            }
+
+            textarea.selectionStart = cursorPosition;
+            textarea.selectionEnd = cursorPosition;
+        });
+
+        socket.on('userCount', (count) => {
+            const userCountElement = document.getElementById('userCount');
+            const statusDot = document.querySelector('.status-dot');
+            const userIcon = document.querySelector('.status-indicator i');
+            
+            userCountElement.textContent = count;
+            
+            if (count > 1) {
+                statusDot.style.backgroundColor = 'var(--sunset)';
+                userIcon.style.color = 'var(--sunset)';
+                statusDot.style.animationDuration = '1s';
+            } else {
+                statusDot.style.backgroundColor = 'var(--cambridge-blue)';
+                userIcon.style.color = 'var(--cambridge-blue)';
+                statusDot.style.animationDuration = '2s';
+            }
+        });
+
+        function debounce(func, delay) {
+            return function(...args) {
+                clearTimeout(typingTimeout);
+                typingTimeout = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
+        let lastContent = '';
+
+        document.getElementById('notepad').addEventListener('input', debounce(() => {
+            const content = document.getElementById('notepad').value;
+            
+            if (content !== lastContent) {
+                lastContent = content;
+                socket.emit('updateNote', { url, content });
+            }
+        }, 500));
+
+        document.getElementById('setCustomUrl').addEventListener('click', async () => {
+            const customUrl = document.getElementById('customUrl').value.trim();
+            if (customUrl === url) {
+                alert("You're already using this URL.");
+                return;
+            }
+
+            const response = await fetch(`/setCustomUrl/${url}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: customUrl })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                window.location.href = `/notes/${customUrl}`;
+            } else {
+                alert(result.message);
+            }
+        });
+
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            const body = document.body;
+            const icon = document.querySelector('#themeToggle i');
+
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark-mode');
+            } else {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light-mode');
+            }
+        });
+
+        window.onload = function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.getElementById('notepad').focus();
+                document.body.classList.remove('light-mode', 'dark-mode');
+                document.body.classList.add(savedTheme);
+                const icon = document.querySelector('#themeToggle i');
+                if (savedTheme === 'dark-mode') {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            }
+        };
+    </script>
+</body>
+</html>

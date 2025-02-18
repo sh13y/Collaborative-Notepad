@@ -1,0 +1,357 @@
+:root {
+    --eggshell: #fefae0;
+    --burnt-sienna: #bc6c25;
+    --delft-blue: #283618;
+    --cambridge-blue: #606c38;
+    --sunset: #fefae0;
+    --shadow: 0 4px 6px rgba(40, 54, 24, 0.1);
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+html, body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    transition: var(--transition);
+    overflow: hidden;
+}
+
+body.light-mode {
+    background-color: var(--eggshell);
+    color: var(--delft-blue);
+}
+
+body.dark-mode {
+    background-color: var(--delft-blue);
+    color: var(--eggshell);
+}
+
+header {
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--cambridge-blue), var(--delft-blue));
+    color: var(--eggshell);
+    box-shadow: var(--shadow);
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.logo i {
+    font-size: 1.8rem;
+}
+
+.controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.url-control, .action-buttons, .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(244, 241, 222, 0.1);
+    padding: 0.5rem;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    height: 40px;
+}
+
+.url-control {
+    height: 40px;
+}
+
+.action-buttons {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+}
+
+.action-buttons button:first-of-type {
+    min-width: 120px;
+    height: 30px;
+}
+
+.status-indicator {
+    height: 30px;
+    padding: 0 0.5rem;
+    background: none;
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    flex: 0 0 auto;
+    cursor: default;
+}
+
+.status-indicator:hover {
+    background: rgba(244, 241, 222, 0.15);
+    border-radius: 6px;
+}
+
+input {
+    background: var(--eggshell);
+    border: none;
+    padding: 0 1rem;
+    border-radius: 6px;
+    outline: none;
+    transition: var(--transition);
+    color: var(--delft-blue);
+    height: 30px;
+}
+
+button {
+    background: var(--burnt-sienna);
+    color: var(--eggshell);
+    border: none;
+    height: 30px;
+    padding: 0 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+button:hover {
+    background: var(--sunset);
+    color: var(--delft-blue);
+    transform: translateY(-1px);
+}
+
+.container {
+    flex: 1;
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    overflow: hidden;
+    min-height: 0;
+    position: relative;
+}
+
+textarea {
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    border-radius: 12px;
+    border: none;
+    resize: none;
+    font-size: 1rem;
+    line-height: 1.6;
+    font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+    overflow-y: auto;
+}
+
+body.light-mode textarea {
+    background-color: white;
+    color: var(--delft-blue);
+    border: 2px solid var(--cambridge-blue);
+}
+
+body.dark-mode textarea {
+    background-color: var(--delft-blue);
+    color: var(--eggshell);
+    border: 2px solid var(--cambridge-blue);
+}
+
+textarea:focus {
+    outline: 2px solid var(--cambridge-blue);
+}
+
+footer {
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--cambridge-blue), var(--delft-blue));
+    color: var(--eggshell);
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-links {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.footer-links a {
+    color: var(--eggshell);
+    text-decoration: none;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.footer-links a:hover {
+    color: var(--sunset);
+}
+
+.status-indicator i {
+    color: var(--cambridge-blue);
+    font-size: 1rem;
+}
+
+#userCount {
+    font-weight: 600;
+    color: var(--sunset);
+    min-width: 1rem;
+    text-align: center;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--cambridge-blue);
+    animation: pulse 2s infinite;
+    transition: background-color 0.3s ease, animation-duration 0.3s ease;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+#themeToggle {
+    width: 30px;
+    padding: 0;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 0.75rem;
+    }
+
+    .header-content {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .controls {
+        flex-direction: column;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    .url-control {
+        width: 100%;
+        flex-direction: row;
+        height: 40px;
+    }
+
+    .url-control input {
+        flex: 1;
+    }
+
+    .url-control button {
+        flex: 0 0 auto;
+    }
+
+    .action-buttons {
+        width: 100%;
+        flex-direction: row;
+        height: 40px;
+        justify-content: space-between;
+        gap: 0.5rem;
+        background: rgba(244, 241, 222, 0.1);
+        padding: 0.5rem;
+    }
+
+    .action-buttons button:first-of-type {
+        flex: 2;
+        height: 30px;
+        min-width: 120px;
+    }
+
+    .status-indicator {
+        height: 30px;
+        padding: 0 0.5rem;
+        background: none;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        flex: 0 0 auto;
+    }
+
+    .action-buttons #themeToggle {
+        width: 30px;
+        height: 30px;
+        flex: 0 0 auto;
+        padding: 0;
+    }
+
+    .container {
+        padding: 0.75rem;
+    }
+
+    textarea {
+        width: 100%;
+        height: 100%;
+        min-height: 200px;
+        padding: 1rem;
+        font-size: 0.95rem;
+    }
+
+    footer {
+        padding: 0.75rem;
+        margin-top: auto;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0;
+    }
+
+    .footer-links {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .footer-links a {
+        margin: 0;
+    }
+} 
