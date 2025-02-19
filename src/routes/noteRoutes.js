@@ -18,7 +18,11 @@ router.get('/new', async (req, res) => {
             noteExists = await Note.exists({ url: uniqueUrl });
         }
 
-        const note = new Note({ content: '', url: uniqueUrl });
+        const note = new Note({ 
+            content: '', 
+            url: uniqueUrl,
+            activeUsers: 0 
+        });
         await note.save();
         res.redirect(`/notes/${uniqueUrl}`);
     } catch (error) {

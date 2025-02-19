@@ -8,6 +8,10 @@
   ],
   "routes": [
     {
+      "src": "/_vercel/insights/script.js",
+      "dest": "/_vercel/insights/script.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "/src/server.js"
     }

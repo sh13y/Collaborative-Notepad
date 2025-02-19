@@ -1,48 +1,74 @@
 const Note = require('../models/Note');
 
 const setupSocket = (io) => {
-    // Track connected users for each note
-    const noteUsers = new Map();
-
-    io.on('connection', (socket) => {
+    io.on('connection', async (socket) => {
         let currentNoteUrl = null;
 
-        socket.on('joinNote', (url) => {
-            currentNoteUrl = url;
-            socket.join(url);
+        socket.on('joinNote', async (url) => {
+            try {
+                currentNoteUrl = url;
+                socket.join(url);
 
-            // Initialize user count for this note if not exists
-            if (!noteUsers.has(url)) {
-                noteUsers.set(url, new Set());
+                // Increment active users count in MongoDB
+                const note = await Note.findOneAndUpdate(
+                    { url },
+                    { $inc: { activeUsers: 1 } },
+                    { new: true }
+                );
+
+                if (note) {
+                    // Send initial note content to the joining client
+                    socket.emit('loadNote', note);
+                    // Broadcast updated user count to all clients in this note
+                    io.to(url).emit('userCount', note.activeUsers);
+                }
+            } catch (error) {
+                console.error('Error handling join:', error);
             }
-            noteUsers.get(url).add(socket.id);
-
-            // Get current note content and user count
-            Note.findOne({ url }).then(note => {
-                socket.emit('loadNote', note);
-                // Broadcast updated user count to all clients in this note
-                const userCount = noteUsers.get(url).size;
-                io.to(url).emit('userCount', userCount);
-            });
         });
 
         socket.on('updateNote', async (data) => {
-            await Note.updateOne({ url: data.url }, { content: data.content });
-            io.to(data.url).emit('noteUpdated', data.content);
+            try {
+                const note = await Note.findOneAndUpdate(
+                    { url: data.url },
+                    { content: data.content },
+                    { new: true }
+                );
+                if (note) {
+                    io.to(data.url).emit('noteUpdated', note.content);
+                }
+            } catch (error) {
+                console.error('Error updating note:', error);
+            }
         });
 
-        socket.on('disconnect', () => {
-            if (currentNoteUrl && noteUsers.has(currentNoteUrl)) {
-                // Remove user from the note
-                noteUsers.get(currentNoteUrl).delete(socket.id);
-                
-                // If no users left in the note, clean up
-                if (noteUsers.get(currentNoteUrl).size === 0) {
-                    noteUsers.delete(currentNoteUrl);
-                } else {
-                    // Broadcast updated user count
-                    const userCount = noteUsers.get(currentNoteUrl).size;
-                    io.to(currentNoteUrl).emit('userCount', userCount);
+        socket.on('disconnect', async () => {
+            if (currentNoteUrl) {
+                try {
+                    // Add a small delay to handle page refreshes
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+
+                    // Decrement active users count in MongoDB
+                    const note = await Note.findOneAndUpdate(
+                        { url: currentNoteUrl },
+                        { $inc: { activeUsers: -1 } },
+                        { new: true }
+                    );
+
+                    if (note) {
+                        // Ensure activeUsers never goes below 0
+                        if (note.activeUsers < 0) {
+                            await Note.updateOne(
+                                { url: currentNoteUrl },
+                                { activeUsers: 0 }
+                            );
+                            io.to(currentNoteUrl).emit('userCount', 0);
+                        } else {
+                            io.to(currentNoteUrl).emit('userCount', note.activeUsers);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error handling disconnect:', error);
                 }
             }
         });
