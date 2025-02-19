@@ -117,7 +117,7 @@ First, try turning it off and on again. If that doesn't work:
 ## 💝 Support My Chair Fund
 
 If this project has saved you from the horrors of email attachments or helped you procrastinate effectively, consider:
-- [Helping Me Get a Chair](http://paypal.me/shieyz) (Seriously, 20 hours of coding on a bad chair is NOT fun)
+- [Back Pain Relief Fund 🪑🤕](http://paypal.me/shieyz) (Seriously, 20 hours of coding on a bad chair is NOT fun)
 - Starring this repo (it's free and makes the pain slightly more bearable)
 - Telling your developer friends to maintain good posture (we all need this reminder)
 
