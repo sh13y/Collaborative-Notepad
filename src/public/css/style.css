@@ -53,15 +53,20 @@ header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .logo h1 {
     font-size: 1.5rem;
     font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .logo i {
     font-size: 1.8rem;
+    flex-shrink: 0;
 }
 
 .controls {
@@ -70,7 +75,7 @@ header {
     align-items: center;
 }
 
-.url-control, .action-buttons, .status-indicator {
+.url-control {
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -81,7 +86,39 @@ header {
     height: 40px;
 }
 
-.url-control {
+.url-control input {
+    flex: 1;
+    min-width: 0;
+}
+
+.url-control button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+#setCustomUrl {
+    min-width: fit-content;
+    padding: 0 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#setCustomUrl i {
+    font-size: 1rem;
+}
+
+.action-buttons, .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(244, 241, 222, 0.1);
+    padding: 0.5rem;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
     height: 40px;
 }
 
@@ -277,6 +314,14 @@ footer {
         gap: 0.75rem;
     }
 
+    .logo h1 {
+        font-size: 1.25rem;
+    }
+
+    .logo i {
+        font-size: 1.5rem;
+    }
+
     .controls {
         flex-direction: column;
         gap: 0.75rem;
@@ -294,6 +339,7 @@ footer {
     .url-control input {
         flex: 1;
         min-width: 0;
+        font-size: 0.9rem;
     }
 
     .url-control button {
@@ -303,6 +349,12 @@ footer {
 
     #setCustomUrl {
         padding: 0 0.75rem;
+        font-size: 0.9rem;
+        min-width: 90px;
+    }
+
+    #setCustomUrl i {
+        font-size: 0.9rem;
     }
 
     #copyLink {
@@ -374,5 +426,29 @@ footer {
 
     .footer-links a {
         margin: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo h1 {
+        font-size: 1.1rem;
+    }
+
+    .logo i {
+        font-size: 1.3rem;
+    }
+
+    .url-control input {
+        font-size: 0.85rem;
+    }
+
+    #setCustomUrl {
+        font-size: 0.85rem;
+        padding: 0 0.5rem;
+        min-width: 80px;
+    }
+
+    #setCustomUrl i {
+        font-size: 0.85rem;
     }
 } 
