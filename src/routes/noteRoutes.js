@@ -34,7 +34,13 @@ router.get('/new', async (req, res) => {
 router.get('/notes/:url', async (req, res) => {
     try {
         const note = await Note.findOne({ url: req.params.url });
-        if (!note) return res.status(404).send('Note not found');
+        if (!note) {
+            // Flash a message and redirect to new note
+            return res.render('not-found', {
+                message: 'Note not found! Creating a new note for you...',
+                redirectUrl: '/new'
+            });
+        }
         res.render('index', { note });
     } catch (error) {
         res.status(500).json({ error: 'Error fetching note' });
