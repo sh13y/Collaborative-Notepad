@@ -79,12 +79,23 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
+    store: MongoStore.create({ 
+        mongoUrl: process.env.MONGODB_URI,
+        ttl: 24 * 60 * 60 // Session TTL in seconds (1 day)
+    }),
     cookie: {
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
-    }
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours
+        path: '/'
+    },
+    name: 'sessionId', // Custom cookie name
+    proxy: true // Trust the reverse proxy
 }));
+
+// Add this before your routes
+app.set('trust proxy', 1); // Trust first proxy
 
 // Routes
 app.use('/', noteRoutes);
