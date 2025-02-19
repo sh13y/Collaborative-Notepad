@@ -2,7 +2,16 @@
 
 > "The best ideas come from collaboration, water, and probably a bit of back pain." - Me, after my 20-hour coding marathon
 
-Welcome to my pride and joy - a real-time collaborative notepad that's more fun than trying to teach your grandma how to use Zoom! 
+Welcome to my pride and joy - a real-time collaborative notepad that's more fun than trying to teach your grandma how to Zoom! 
+
+## 🎯 Version 2.0.0 Updates
+- **Enhanced Error Handling** - Friendly error pages with auto-redirect
+- **Improved UI/UX** - Smoother animations and transitions
+- **Better Mobile Support** - Fully responsive on all devices
+- **Multiple Deployment Options** - Support for Vercel, Netlify, and Render
+- **Dark/Light Mode** - Save your eyes, save the world
+- **Real-time Collaboration** - See who's typing in real-time
+- **Custom URLs** - Create memorable links like "my-awesome-note"
 
 ## 👀 Look at This Beauty!
 
@@ -22,6 +31,7 @@ After 20 hours of relentless coding, countless water refills, one serious back p
 - **User Counter** - See how many people are enjoying this while you can't even sit properly
 - **Responsive Design** - Works on everything from your fancy iPhone to that potato you call a laptop
 - **Auto-Save** - Because we all have trust issues after that one time we lost our work
+- **Error Handling** - Friendly error pages that won't scare your users away
 
 ## 🛠️ Tech Stack (The Cool Kids Club)
 
@@ -54,26 +64,43 @@ npm start
 # Visit http://localhost:3000 and prepare to be amazed
 ```
 
-### 🌍 Environment Setup
+## 🌍 Deployment Options
 
-The project uses a `.env` file for configuration. Copy `.env.example` to `.env` and update the following variables:
+### 1. Render (Recommended)
+```bash
+# Just push to GitHub and connect with Render
+# Set environment variables in Render dashboard:
+- MONGODB_URI=your_mongodb_uri
+- NODE_ENV=production
+```
 
-```env
-# Required: Your MongoDB connection string
-MONGODB_URI=mongodb+srv://your_username:your_password@your_cluster.mongodb.net/your_database
+### 2. Vercel
+```bash
+# Install Vercel CLI
+npm i -g vercel
 
-# Optional: Server port (defaults to 3000)
-PORT=3000
+# Deploy
+vercel
+```
+
+### 3. Netlify
+```bash
+# Install Netlify CLI
+npm i -g netlify-cli
+
+# Deploy
+netlify deploy
 ```
 
 ## 🎮 How to Use (For Humans and AI Alike)
 
-1. Visit [ColabNote](https://colabnote.isuru.eu.org)
+1. Visit the deployed URL
 2. Start typing like you're writing the next great novel
 3. Share the URL with friends (yes, you need friends for this part)
 4. Watch the magic happen in real-time
 5. Toggle dark mode when you're feeling mysterious
-6. Profit! 💰
+6. Create custom URLs for your notes
+7. Enjoy the smooth error handling when something goes wrong
 
 ## 🤔 Why This Project Exists
 
@@ -100,7 +127,7 @@ MIT Licensed - Which means you can do whatever you want with it, just don't blam
 
 ---
 
-Made with ❤️, 😅, and way too much back pain by [sh13y](https://github.com/sh13y)
+Crafted with ❤️, powered by ☕, debugged with 😅, and developed despite 🪑 protests by [sh13y](https://github.com/sh13y)
 
 P.S. If you've read this far, you deserve a cookie 🍪 and probably need a hobby (and a better chair than mine).
 
