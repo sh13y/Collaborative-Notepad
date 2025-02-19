@@ -6,46 +6,129 @@
     <link rel="stylesheet" href="/css/style.css">
     <style>
         .login-container {
-            max-width: 400px;
-            margin: 50px auto;
-            padding: 2rem;
+            max-width: min(400px, 90%);  /* Use min() for responsive width */
+            margin: min(50px, 10vh) auto;
+            padding: clamp(1rem, 5vw, 2rem);
             background: var(--eggshell);
             border-radius: 12px;
             box-shadow: var(--shadow);
             text-align: center;
         }
         .login-container h2 {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             color: var(--delft-blue);
+            font-size: clamp(1.5rem, 4vw, 2rem);
         }
         .login-form {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 1.5rem;
+            width: 100%;
         }
         .login-form input {
-            padding: 0.5rem;
-            border: 1px solid var(--cambridge-blue);
-            border-radius: 4px;
-            text-align: left;
+            width: 100%;
+            padding: 1rem;  /* Simplified padding */
+            font-size: 1rem;
+            border: 2px solid var(--cambridge-blue);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: var(--eggshell);
+            text-align: left;  /* Ensure text aligns left */
+        }
+        .login-form input:focus {
+            outline: none;
+            border-color: var(--delft-blue);
+            box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.1);
         }
         .login-form input::placeholder {
             text-align: center;
             color: var(--cambridge-blue);
             opacity: 0.7;
-            text-align-last: center;
         }
         .login-form button {
             background: var(--cambridge-blue);
             color: var(--eggshell);
-            padding: 0.5rem;
+            padding: clamp(0.8rem, 2vw, 1rem);
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .login-form button:hover {
+            background: var(--delft-blue);
+            transform: translateY(-1px);
+        }
+        .login-form button:active {
+            transform: translateY(1px);
         }
         .error {
             color: var(--burnt-sienna);
             margin-bottom: 1rem;
+            padding: 0.8rem;
+            border-radius: 8px;
+            background: rgba(188, 108, 37, 0.1);
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+        }
+        .password-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 15px;  /* Adjusted position */
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--cambridge-blue);
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;  /* Fixed size */
+            padding: 8px;  /* Larger click area */
+            z-index: 2;  /* Ensure icon stays above input */
+        }
+        
+        .password-toggle:hover {
+            opacity: 1;
+            color: var(--delft-blue);
+        }
+        
+        /* Dark mode adjustments */
+        body.dark-mode .login-container {
+            background: var(--delft-blue);
+        }
+        body.dark-mode .login-container h2 {
+            color: var(--eggshell);
+        }
+        body.dark-mode .login-form input {
+            background: var(--delft-blue);
+            border-color: var(--cambridge-blue);
+            color: var(--eggshell);
+        }
+        body.dark-mode .login-form input::placeholder {
+            color: var(--cambridge-blue);
+        }
+        body.dark-mode .password-toggle {
+            color: var(--cambridge-blue);
+        }
+        body.dark-mode .password-toggle:hover {
+            color: var(--eggshell);
+        }
+        /* Mobile optimizations */
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 5vh auto;
+                border-radius: 8px;
+            }
+            .login-form {
+                gap: 1rem;
+            }
         }
     </style>
 </head>
@@ -56,9 +139,27 @@
             <div class="error"><%= error %></div>
         <% } %>
         <form class="login-form" method="POST" action="/admin/login">
-            <input type="password" name="password" placeholder="Enter password" required>
+            <div class="password-container">
+                <input type="password" name="password" id="password" placeholder="Enter password" required>
+                <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+            </div>
             <button type="submit"><%= firstTime ? 'Set Password' : 'Login' %></button>
         </form>
     </div>
+
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+
+        togglePassword.addEventListener('click', function (e) {
+            // Toggle the type attribute
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            
+            // Toggle the eye icon
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+    </script>
 </body>
 </html> 
