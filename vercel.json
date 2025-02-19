@@ -4,9 +4,27 @@
     {
       "src": "src/server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "src/public/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/socket.io/(.*)",
+      "dest": "src/server.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+        "Access-Control-Allow-Headers": "X-Requested-With,Content-Type,Accept",
+        "Access-Control-Allow-Credentials": "true"
+      }
+    },
+    {
+      "src": "/css/(.*)",
+      "dest": "/src/public/css/$1"
+    },
     {
       "src": "/_vercel/insights/script.js",
       "dest": "/_vercel/insights/script.js"

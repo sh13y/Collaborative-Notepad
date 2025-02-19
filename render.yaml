@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: collaborative-notepad
+    env: node
+    buildCommand: npm install
+    startCommand: node src/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false 

@@ -13,12 +13,12 @@ const setupSocket = require('./utils/socketHandler');
 // Initialize express app
 const app = express();
 const server = http.createServer(app);
+
+// Initialize Socket.IO
 const io = socketIo(server, {
-    connectionStateRecovery: {
-        // the backup duration of the sessions and the packets
-        maxDisconnectionDuration: 2 * 60 * 1000,
-        // whether to skip middlewares upon successful recovery
-        skipMiddlewares: true,
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
     }
 });
 
@@ -42,4 +42,6 @@ setupSocket(io);
 
 // Start server
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server started on port ${PORT}`)); 
+server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+
+module.exports = app; 

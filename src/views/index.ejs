@@ -71,9 +71,18 @@
         </div>
     </footer>
 
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
         const socket = io();
+        
+        socket.on('connect', () => {
+            console.log('Connected to server:', socket.id);
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Connection error:', error);
+        });
+
         const url = window.location.pathname.split('/').pop();
         let typingTimeout;
 
