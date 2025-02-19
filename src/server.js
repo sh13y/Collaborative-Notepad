@@ -5,12 +5,15 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const compression = require('compression');
 const helmet = require('helmet');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
 require('dotenv').config();
 
 // Import custom modules
 const connectDB = require('./config/database');
 const noteRoutes = require('./routes/noteRoutes');
 const setupSocket = require('./utils/socketHandler');
+const adminRoutes = require('./routes/adminRoutes');
 
 // Initialize express app
 const app = express();
@@ -56,6 +59,9 @@ const io = socketIo(server, {
     cookie: false
 });
 
+// Make io available app-wide
+app.set('io', io);
+
 // Connect to MongoDB
 connectDB();
 
@@ -68,8 +74,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+// Add session middleware
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+
 // Routes
 app.use('/', noteRoutes);
+app.use('/', adminRoutes);
 
 // Setup WebSocket
 setupSocket(io);

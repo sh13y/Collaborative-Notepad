@@ -7,6 +7,18 @@ const setupSocket = (io) => {
         return roomData ? roomData.size : 0;
     };
 
+    // Function to broadcast admin stats
+    const broadcastAdminStats = () => {
+        const rooms = io.sockets.adapter.rooms;
+        const activeNotes = Array.from(rooms.keys())
+            .filter(room => !room.startsWith('/'))
+            .length;
+            
+        io.emit('adminStats', {
+            activeNotes
+        });
+    };
+
     io.on('connection', async (socket) => {
         console.log('Client connected:', socket.id);
         let currentNoteUrl = null;
@@ -28,6 +40,9 @@ const setupSocket = (io) => {
                     // Broadcast updated user count to all clients in this note
                     io.to(url).emit('userCount', userCount);
                 }
+                
+                // Broadcast updated stats to admin
+                broadcastAdminStats();
             } catch (error) {
                 console.error('Error handling join:', error);
                 socket.emit('error', 'Failed to join note');
@@ -56,6 +71,8 @@ const setupSocket = (io) => {
                 const userCount = getRoomSize(currentNoteUrl);
                 io.to(currentNoteUrl).emit('userCount', userCount);
             }
+            // Broadcast updated stats to admin after disconnect
+            broadcastAdminStats();
             console.log('Client disconnected:', socket.id);
         });
 

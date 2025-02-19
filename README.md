@@ -12,6 +12,9 @@ Welcome to my pride and joy - a real-time collaborative notepad that's more fun 
 - **Dark/Light Mode** - Save your eyes, save the world
 - **Real-time Collaboration** - See who's typing in real-time
 - **Custom URLs** - Create memorable links like "my-awesome-note"
+- **Admin Dashboard** - Monitor active notes and usage statistics
+- **Secure Admin Access** - Password-protected admin panel
+- **Real-time Stats** - Live updates of active notes and users
 
 ## 👀 Look at This Beauty!
 
@@ -32,6 +35,12 @@ After 20 hours of relentless coding, countless water refills, one serious back p
 - **Responsive Design** - Works on everything from your fancy iPhone to that potato you call a laptop
 - **Auto-Save** - Because we all have trust issues after that one time we lost our work
 - **Error Handling** - Friendly error pages that won't scare your users away
+- **Admin Features**:
+  - Secure admin login with password protection
+  - Real-time monitoring of active notes
+  - View all notes with content previews
+  - Track total and active note counts
+  - Simple password management
 
 ## 🛠️ Tech Stack (The Cool Kids Club)
 
@@ -41,6 +50,8 @@ After 20 hours of relentless coding, countless water refills, one serious back p
 - **Express** - The backend framework that makes everything express(ly) better
 - **EJS** - Templates that don't make you cry
 - **CSS Magic** - Making things pretty since... well, since I learned CSS
+- **bcrypt** - Keeping admin passwords safe and sound
+- **express-session** - Managing admin sessions like a boss
 
 ## 🏃‍♂️ Quick Start (Even Your Cat Could Do It)
 
@@ -101,6 +112,8 @@ netlify deploy
 5. Toggle dark mode when you're feeling mysterious
 6. Create custom URLs for your notes
 7. Enjoy the smooth error handling when something goes wrong
+8. Access admin panel at `/admin` (first visit sets up password)
+9. Monitor your notepad empire from the admin dashboard
 
 ## 🤔 Why This Project Exists
 

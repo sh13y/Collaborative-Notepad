@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - Collaborative Notepad</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--eggshell);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            text-align: left;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow), 0 6px 12px rgba(40, 54, 24, 0.1);
+        }
+        .stat-card h3 {
+            color: var(--delft-blue);
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        .stat-card p, 
+        .stat-card .active-notes-count {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--cambridge-blue);
+            margin: 0;
+        }
+        .notes-list {
+            background: var(--eggshell);
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        .note-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--cambridge-blue);
+        }
+        .admin-controls {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+        .admin-controls button {
+            background: var(--burnt-sienna);
+            color: var(--eggshell);
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .error-message {
+            background: var(--burnt-sienna);
+            color: var(--eggshell);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .note-item a {
+            color: var(--cambridge-blue);
+            text-decoration: none;
+        }
+        
+        .note-item a:hover {
+            text-decoration: underline;
+        }
+        
+        .admin-controls a {
+            text-decoration: none;
+        }
+        
+        .admin-controls button {
+            background: var(--burnt-sienna);
+            color: var(--eggshell);
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .active-notes-count {
+            transition: all 0.3s ease;
+        }
+        
+        @keyframes countUpdate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .count-updated {
+            animation: countUpdate 0.3s ease;
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <div class="dashboard-container">
+        <h1>Admin Dashboard</h1>
+        
+        <% if (locals.error) { %>
+            <div class="error-message">
+                <%= error %>
+            </div>
+        <% } %>
+        
+        <div class="admin-controls">
+            <form action="/admin/reset-password" method="POST">
+                <button type="submit">Reset Admin Password</button>
+            </form>
+            <a href="/admin/logout"><button>Logout</button></a>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Active Notes</h3>
+                <p class="active-notes-count"><%= typeof activeNotesCount !== 'undefined' ? activeNotesCount : 0 %></p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Notes</h3>
+                <p><%= typeof notes !== 'undefined' ? notes.length : 0 %></p>
+            </div>
+        </div>
+
+        <div class="notes-list">
+            <h2>All Notes</h2>
+            <% if (notes && notes.length > 0) { %>
+                <% notes.forEach(note => { %>
+                    <div class="note-item">
+                        <h3>
+                            <a href="/notes/<%= note.url %>" target="_blank">
+                                <%= note.url %>
+                            </a>
+                        </h3>
+                        <p>Last Updated: <%= new Date(note.updatedAt).toLocaleString() %></p>
+                        <p>Content Preview: <%= note.content ? note.content.substring(0, 100) : '' %>...</p>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p>No notes found</p>
+            <% } %>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script>
+        const socket = io({
+            transports: ['websocket'],
+            upgrade: false
+        });
+
+        const activeNotesCount = document.querySelector('.active-notes-count');
+        let lastCount = activeNotesCount.textContent;
+
+        socket.on('adminStats', (data) => {
+            if (lastCount !== data.activeNotes.toString()) {
+                activeNotesCount.classList.add('count-updated');
+                setTimeout(() => {
+                    activeNotesCount.classList.remove('count-updated');
+                }, 300);
+                lastCount = data.activeNotes.toString();
+            }
+            activeNotesCount.textContent = data.activeNotes;
+        });
+    </script>
+</body>
+</html> 
