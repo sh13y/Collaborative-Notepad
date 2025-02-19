@@ -57,15 +57,22 @@
         .admin-controls {
             margin-bottom: 2rem;
             display: flex;
-            gap: 1rem;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
         }
         .admin-controls button {
             background: var(--burnt-sienna);
             color: var(--eggshell);
-            padding: 0.5rem 1rem;
+            padding: 1rem 1.5rem;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+        .admin-controls button:hover {
+            background: var(--delft-blue);
         }
         .error-message {
             background: var(--burnt-sienna);
@@ -91,7 +98,7 @@
         .admin-controls button {
             background: var(--burnt-sienna);
             color: var(--eggshell);
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1rem;
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -111,11 +118,31 @@
         .count-updated {
             animation: countUpdate 0.3s ease;
         }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 4rem;
+        }
     </style>
 </head>
 <body class="light-mode">
     <div class="dashboard-container">
-        <h1>Admin Dashboard</h1>
+        <div class="header">
+            <h1>Admin Dashboard</h1>
+            <div class="admin-controls">
+                <form action="/admin/reset-password" method="POST">
+                    <button type="submit">Reset Admin Password</button>
+                </form>
+                <a href="/admin/logout">
+                    <button>Logout</button>
+                </a>
+            </div>
+        </div>
         
         <% if (locals.error) { %>
             <div class="error-message">
@@ -123,13 +150,6 @@
             </div>
         <% } %>
         
-        <div class="admin-controls">
-            <form action="/admin/reset-password" method="POST">
-                <button type="submit">Reset Admin Password</button>
-            </form>
-            <a href="/admin/logout"><button>Logout</button></a>
-        </div>
-
         <div class="stats">
             <div class="stat-card">
                 <h3>Active Notes</h3>
