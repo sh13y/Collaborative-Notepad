@@ -127,7 +127,7 @@ MIT Licensed - Which means you can do whatever you want with it, just don't blam
 
 ---
 
-Crafted with ❤️, powered by ☕, debugged with 😅, and developed despite 🪑 protests by [sh13y](https://github.com/sh13y)
+Engineered with ❤️ from the floor, debugged with 💪, powered by 💧, and brought to you by [sh13y](https://github.com/sh13y) – the developer who turned back pain into a feature, not a bug 🪑✨
 
 P.S. If you've read this far, you deserve a cookie 🍪 and probably need a hobby (and a better chair than mine).
 
