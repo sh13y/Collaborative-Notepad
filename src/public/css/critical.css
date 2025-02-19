@@ -1,0 +1,82 @@
+/* Only include styles needed for above-the-fold content */
+:root {
+    --eggshell: #fefae0;
+    --burnt-sienna: #bc6c25;
+    --delft-blue: #283618;
+    --cambridge-blue: #606c38;
+    --sunset: #fefae0;
+    --shadow: 0 4px 6px rgba(40, 54, 24, 0.1);
+    --transition: all 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--eggshell);
+    color: var(--delft-blue);
+}
+
+header {
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--cambridge-blue), var(--delft-blue));
+    color: var(--eggshell);
+}
+
+.container {
+    flex: 1;
+    padding: 1rem;
+    display: flex;
+}
+
+textarea {
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    border-radius: 12px;
+    border: none;
+    font-size: 1rem;
+}
+
+/* Add icon fallbacks */
+.fa-edit::before {
+    content: "✎";
+}
+
+.fa-github::before {
+    content: "⎈";
+}
+
+.fa-paypal::before {
+    content: "💰";
+}
+
+.fa-moon::before {
+    content: "🌙";
+}
+
+.fa-sun::before {
+    content: "☀️";
+}
+
+.fa-copy::before {
+    content: "📋";
+}
+
+.fa-check::before {
+    content: "✓";
+}
+
+.fa-plus::before {
+    content: "+";
+}
+
+.fa-link::before {
+    content: "🔗";
+} 

@@ -8,6 +8,7 @@ const setupSocket = (io) => {
     };
 
     io.on('connection', async (socket) => {
+        console.log('Client connected:', socket.id);
         let currentNoteUrl = null;
 
         socket.on('joinNote', async (url) => {
@@ -29,6 +30,7 @@ const setupSocket = (io) => {
                 }
             } catch (error) {
                 console.error('Error handling join:', error);
+                socket.emit('error', 'Failed to join note');
             }
         });
 
@@ -38,32 +40,29 @@ const setupSocket = (io) => {
                 socket.to(data.url).emit('noteUpdated', data.content);
                 
                 // Then save to database
-                await Note.updateOne(
+                await Note.findOneAndUpdate(
                     { url: data.url },
-                    { content: data.content }
+                    { content: data.content },
+                    { new: true }
                 );
             } catch (error) {
                 console.error('Error updating note:', error);
+                socket.emit('error', 'Failed to update note');
             }
         });
 
-        const handleDisconnect = async () => {
+        socket.on('disconnect', () => {
             if (currentNoteUrl) {
-                try {
-                    // Get updated count after disconnect
-                    const userCount = getRoomSize(currentNoteUrl) - 1; // Subtract 1 as the disconnect hasn't processed yet
-                    
-                    // Broadcast the new user count
-                    io.to(currentNoteUrl).emit('userCount', Math.max(0, userCount));
-                } catch (error) {
-                    console.error('Error handling disconnect:', error);
-                }
+                const userCount = getRoomSize(currentNoteUrl);
+                io.to(currentNoteUrl).emit('userCount', userCount);
             }
-        };
+            console.log('Client disconnected:', socket.id);
+        });
 
-        // Handle both disconnect and disconnecting events
-        socket.on('disconnect', handleDisconnect);
-        socket.on('disconnecting', handleDisconnect);
+        // Error handling
+        socket.on('error', (error) => {
+            console.error('Socket error:', error);
+        });
     });
 };
 
