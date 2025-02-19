@@ -135,6 +135,6 @@ P.P.S. Yes, this README took longer to write than some of the actual features, m
 
 ## Deployment Adventure
 
-After 20 hours of relentless patience, debugging, and sheer determination (not to mention a lot of water and back stretches), **Collaborative Notepad** is finally live on the [internet](https://colabnote.isuru.eu.org/)! Who knew that the journey from `npm start` to "deployment success" could feel like a chiropractor's waiting list? 😅
+After 20 hours of relentless patience, debugging, and sheer determination (not to mention a lot of water and back stretches), **Collaborative Notepad** is finally live on the [internet](https://collabnote.link/)! Who knew that the journey from `npm start` to "deployment success" could feel like a chiropractor's waiting list? 😅
 
 Take a moment to appreciate the beauty of the internet: it took 20 hours and my spine... but hey, better late than never, right?
