@@ -2,137 +2,255 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Collaborative Notepad</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%23fefae0' d='M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z'/></svg>"/>
     <style>
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 1rem;
+        :root {
+            --header-height: 4rem;
+            --transition-speed: 0.3s;
+            --light-cambridge: rgba(146, 154, 119, 0.1);
+            --light-delft: rgba(40, 54, 24, 0.05);
         }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--eggshell);
+            color: var(--delft-blue);
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            box-sizing: border-box;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .header {
+            position: sticky;
+            top: 0;
+            background: var(--eggshell);
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: clamp(2rem, 5vw, 3rem);
+            color: var(--delft-blue);
+            font-weight: 700;
+        }
+
         .stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
         }
+
         .stat-card {
-            background: var(--eggshell);
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            text-align: left;
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
+            background: var(--light-delft);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: var(--transition-speed) ease;
         }
+
         .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow), 0 6px 12px rgba(40, 54, 24, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
         }
+
         .stat-card h3 {
             color: var(--delft-blue);
             font-size: 1.2rem;
-            margin: 0;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
         }
-        .stat-card p, 
+
+        .stat-card p,
         .stat-card .active-notes-count {
-            font-size: 2rem;
-            font-weight: bold;
+            font-size: 2.5rem;
+            font-weight: 700;
             color: var(--cambridge-blue);
             margin: 0;
         }
+
         .notes-list {
-            background: var(--eggshell);
-            padding: 1rem;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
+            background: var(--light-delft);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
+        .notes-list h2 {
+            margin-top: 0;
+            color: var(--delft-blue);
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+        }
+
         .note-item {
-            padding: 1rem;
-            border-bottom: 1px solid var(--cambridge-blue);
-        }
-        .admin-controls {
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1.5rem;
-        }
-        .admin-controls button {
-            background: var(--burnt-sienna);
-            color: var(--eggshell);
-            padding: 1rem 1.5rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background 0.3s ease;
-        }
-        .admin-controls button:hover {
-            background: var(--delft-blue);
-        }
-        .error-message {
-            background: var(--burnt-sienna);
-            color: var(--eggshell);
-            padding: 1rem;
+            padding: 1.5rem;
             border-radius: 8px;
+            background: var(--eggshell);
             margin-bottom: 1rem;
+            transition: var(--transition-speed) ease;
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
-        
+
+        .note-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .note-item h3 {
+            margin: 0 0 0.5rem 0;
+        }
+
         .note-item a {
             color: var(--cambridge-blue);
             text-decoration: none;
+            font-weight: 600;
         }
-        
+
         .note-item a:hover {
-            text-decoration: underline;
+            color: var(--delft-blue);
         }
-        
-        .admin-controls a {
-            text-decoration: none;
+
+        .note-item p {
+            margin: 0.5rem 0;
+            color: var(--delft-blue);
+            opacity: 0.8;
         }
-        
+
+        .admin-controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
         .admin-controls button {
             background: var(--burnt-sienna);
             color: var(--eggshell);
-            padding: 0.75rem 1rem;
+            padding: 0.8rem 1.5rem;
             border: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            width: 100%;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: var(--transition-speed) ease;
+            min-width: 150px;
         }
-        
-        .active-notes-count {
-            transition: all 0.3s ease;
+
+        .admin-controls button:hover {
+            background: var(--delft-blue);
+            transform: translateY(-2px);
         }
-        
+
+        .error-message {
+            background: var(--burnt-sienna);
+            color: var(--eggshell);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
         @keyframes countUpdate {
             0% { transform: scale(1); }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
-        
+
         .count-updated {
             animation: countUpdate 0.3s ease;
         }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1rem;
+                margin: 0;
+                max-width: 100%;
+            }
+
+            .header-content {
+                padding: 0 1rem;
+                margin: 0;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 1.5rem;
+            }
+
+            .notes-list {
+                padding: 1rem;
+                margin: 0;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .note-item {
+                padding: 1rem;
+                margin: 0 0 1rem 0;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .admin-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .admin-controls button {
+                width: 100%;
+            }
         }
-        .header h1 {
-            margin: 0;
-            font-size: 4rem;
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .stat-card p,
+            .stat-card .active-notes-count {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body class="light-mode">
-    <div class="dashboard-container">
-        <div class="header">
+    <header class="header">
+        <div class="header-content">
             <h1>Admin Dashboard</h1>
             <div class="admin-controls">
                 <form action="/admin/reset-password" method="POST">
@@ -143,7 +261,9 @@
                 </a>
             </div>
         </div>
-        
+    </header>
+
+    <div class="dashboard-container">
         <% if (locals.error) { %>
             <div class="error-message">
                 <%= error %>
