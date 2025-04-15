@@ -68,14 +68,14 @@
                     <div class="status-indicator">
                         <div class="status-dot"></div>
                         <span id="userCount">1</span>
-                </div>
-                <button onclick="window.location.href='/new'">
-                    <i class="fas fa-plus"></i>
-                    New Note
-                </button>
+                    </div>
+                    <button id="newNoteBtn">
+                        <i class="fas fa-plus"></i>
+                        New Note
+                    </button>
                     <button id="themeToggle">
-                    <i class="fas fa-moon"></i>
-                </button>
+                        <i class="fas fa-moon"></i>
+                    </button>
                 </div>
             </div>
         </div>
@@ -120,6 +120,16 @@
 
         socket.on('connect_error', (error) => {
             console.error('Connection error:', error);
+        });
+
+        // Add New Note button functionality
+        document.getElementById('newNoteBtn').addEventListener('click', () => {
+            try {
+                window.location.href = '/new';
+            } catch (error) {
+                console.error('Error navigating to new note:', error);
+                alert('Failed to create new note. Please try again.');
+            }
         });
 
         const url = window.location.pathname.split('/').pop();

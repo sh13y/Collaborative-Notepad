@@ -9,24 +9,35 @@ router.get('/', (req, res) => {
 
 // Serve the main page with a unique URL
 router.get('/new', async (req, res) => {
+    console.log('Received request to create new note');
     try {
         let uniqueUrl;
         let noteExists = true;
 
         while (noteExists) {
             uniqueUrl = Math.random().toString(36).substring(2, 15);
+            console.log('Generated unique URL:', uniqueUrl);
             noteExists = await Note.exists({ url: uniqueUrl });
         }
 
+        console.log('Creating new note with URL:', uniqueUrl);
         const note = new Note({ 
             content: '', 
             url: uniqueUrl,
             activeUsers: 0 
         });
         await note.save();
-        res.redirect(`/notes/${uniqueUrl}`);
+        console.log('New note saved successfully:', uniqueUrl);
+        
+        const redirectUrl = `/notes/${uniqueUrl}`;
+        console.log('Redirecting to:', redirectUrl);
+        res.redirect(redirectUrl);
     } catch (error) {
-        res.status(500).json({ error: 'Error creating new note' });
+        console.error('Error creating new note:', error);
+        res.status(500).render('not-found', {
+            message: 'Failed to create new note. Please try again.',
+            redirectUrl: '/'
+        });
     }
 });
 
