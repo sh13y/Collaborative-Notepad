@@ -205,7 +205,7 @@
             const result = await response.json();
 
             if (result.success) {
-                window.location.href = `/notes/${customUrl}`;
+                window.location.href = `/${customUrl}`;
             } else {
                 alert(result.message);
             }
