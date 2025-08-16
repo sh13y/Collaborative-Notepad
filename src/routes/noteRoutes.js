@@ -29,9 +29,9 @@ router.get('/new', async (req, res) => {
         await note.save();
         console.log('New note saved successfully:', uniqueUrl);
         
-        const redirectUrl = `/notes/${uniqueUrl}`;
-        console.log('Redirecting to:', redirectUrl);
-        res.redirect(redirectUrl);
+    const redirectUrl = `/${uniqueUrl}`;
+    console.log('Redirecting to:', redirectUrl);
+    res.redirect(redirectUrl);
     } catch (error) {
         console.error('Error creating new note:', error);
         res.status(500).render('not-found', {
