@@ -42,7 +42,17 @@ router.get('/new', async (req, res) => {
 });
 
 // Serve the note editing page
-router.get('/notes/:url', async (req, res) => {
+// Reserved admin paths to prevent conflicts
+const reservedAdminPaths = ['admin', 'admin/login', 'admin/dashboard', 'admin/logout'];
+
+router.get('/:url', async (req, res) => {
+    // Prevent access to reserved admin paths as notes
+    if (reservedAdminPaths.includes(req.params.url)) {
+        return res.status(404).render('not-found', {
+            message: 'Not found',
+            redirectUrl: '/new'
+        });
+    }
     try {
         const note = await Note.findOne({ url: req.params.url });
         if (!note) {
