@@ -43,11 +43,11 @@ router.get('/new', async (req, res) => {
 
 // Serve the note editing page
 // Reserved admin paths to prevent conflicts
-const reservedAdminPaths = ['admin', 'admin/login', 'admin/dashboard', 'admin/logout'];
+const reservedAdminPaths = ['admin'];
 
 router.get('/:url', async (req, res) => {
     // Prevent access to reserved admin paths as notes
-    if (reservedAdminPaths.includes(req.params.url)) {
+    if (reservedAdminPaths.includes(req.params.url) || req.params.url.startsWith('admin/')) {
         return res.status(404).render('not-found', {
             message: 'Not found',
             redirectUrl: '/new'

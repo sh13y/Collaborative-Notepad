@@ -97,9 +97,9 @@ app.use(session({
 // Add this before your routes
 app.set('trust proxy', 1); // Trust first proxy
 
-// Routes
-app.use('/', noteRoutes);
+// Routes - Admin routes should come first to avoid conflicts
 app.use('/', adminRoutes);
+app.use('/', noteRoutes);
 
 // Setup WebSocket
 setupSocket(io);

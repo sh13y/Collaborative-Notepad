@@ -11,17 +11,17 @@
   "license": "MIT",
   "description": "A real-time collaborative notepad application with Socket.IO for instant synchronization and MongoDB for persistent storage",
   "dependencies": {
+    "bcrypt": "^5.1.0",
     "body-parser": "^1.20.3",
+    "compression": "^1.7.4",
+    "connect-mongo": "^5.0.0",
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
-    "mongoose": "^8.9.5",
-    "socket.io": "^4.8.1",
-    "compression": "^1.7.4",
+    "express-session": "^1.18.2",
     "helmet": "^7.1.0",
-    "bcrypt": "^5.1.0",
-    "express-session": "^1.17.3",
-    "connect-mongo": "^5.0.0"
+    "mongoose": "^8.9.5",
+    "socket.io": "^4.8.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.0"
