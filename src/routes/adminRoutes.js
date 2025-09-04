@@ -4,26 +4,21 @@ const Admin = require('../models/Admin');
 const Note = require('../models/Note');
 const bcrypt = require('bcrypt');
 
-// Test route to verify admin routes are working
-router.get('/admin/test', (req, res) => {
-    res.json({ message: 'Admin routes are working!', session: req.session });
-});
-
 // Middleware to check if admin is logged in
 const requireAuth = async (req, res, next) => {
-    console.log('RequireAuth middleware - Session isAdmin:', req.session.isAdmin);
-    console.log('RequireAuth middleware - Session ID:', req.sessionID);
+    // Add debugging for production
+    if (process.env.NODE_ENV !== 'production') {
+        console.log('Auth check - URL:', req.url, 'isAdmin:', req.session.isAdmin);
+    }
+    
     if (!req.session.isAdmin) {
-        console.log('Not authenticated, redirecting to login');
         return res.redirect('/admin/login');
     }
-    console.log('Authenticated, proceeding to dashboard');
     next();
 };
 
 // Admin login page
 router.get('/admin/login', async (req, res) => {
-    console.log('Admin login page accessed');
     try {
         const adminExists = await Admin.findOne({});
         res.render('admin/login', { firstTime: !adminExists });
@@ -43,12 +38,10 @@ router.post('/admin/login', async (req, res) => {
         
         if (!admin) {
             // First time setup
-            console.log('First time setup - creating admin');
             const hashedPassword = await bcrypt.hash(password, 10);
             admin = new Admin({ password: hashedPassword });
             await admin.save();
             req.session.isAdmin = true;
-            console.log('Admin created, session set, redirecting to /admin');
             return res.redirect('/admin');
         }
         
@@ -56,7 +49,6 @@ router.post('/admin/login', async (req, res) => {
         const match = await bcrypt.compare(password, admin.password);
         if (match) {
             req.session.isAdmin = true;
-            console.log('Login successful, session set, redirecting to /admin');
             res.redirect('/admin');
         } else {
             res.render('admin/login', { error: 'Invalid password' });
@@ -67,14 +59,8 @@ router.post('/admin/login', async (req, res) => {
     }
 });
 
-// Admin dashboard - should handle just /admin (not /admin/ with trailing slash)
-router.get('/admin/', requireAuth, async (req, res) => {
-    res.redirect('/admin');
-});
-
 // Admin dashboard
 router.get('/admin', requireAuth, async (req, res) => {
-    console.log('Admin dashboard route accessed');
     try {
         // Get all notes, sorted by last updated
         const notes = await Note.find({})

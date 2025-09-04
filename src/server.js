@@ -79,10 +79,10 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ 
+    store: process.env.MONGODB_URI ? MongoStore.create({ 
         mongoUrl: process.env.MONGODB_URI,
         ttl: 24 * 60 * 60 // Session TTL in seconds (1 day)
-    }),
+    }) : undefined, // Fallback to memory store if no MongoDB
     cookie: {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
@@ -91,7 +91,7 @@ app.use(session({
         path: '/'
     },
     name: 'sessionId', // Custom cookie name
-    proxy: true // Trust the reverse proxy
+    proxy: process.env.NODE_ENV === 'production' // Trust the reverse proxy in production
 }));
 
 // Add this before your routes

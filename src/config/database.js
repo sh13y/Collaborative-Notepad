@@ -3,11 +3,16 @@ require('dotenv').config();
 
 const connectDB = async () => {
     try {
+        if (!process.env.MONGODB_URI) {
+            console.log('No MongoDB URI provided, running without database');
+            return;
+        }
         await mongoose.connect(process.env.MONGODB_URI);
         console.log('MongoDB connected');
     } catch (err) {
-        console.log('MongoDB connection error:', err);
-        process.exit(1);
+        console.log('MongoDB connection error:', err.message);
+        console.log('Continuing without database connection...');
+        // Don't exit, continue without database
     }
 };
 
