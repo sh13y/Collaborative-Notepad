@@ -93,6 +93,10 @@
             margin: 0;
         }
 
+        .empty-notes-count {
+            color: var(--burnt-sienna) !important;
+        }
+
         .notes-list {
             background: var(--light-delft);
             padding: 2rem;
@@ -159,6 +163,36 @@
             font-weight: 600;
             transition: var(--transition-speed) ease;
             min-width: 150px;
+        }
+
+        #deleteEmptyNotesBtn {
+            background: var(--cambridge-blue);
+        }
+
+        #deleteEmptyNotesBtn:hover {
+            background: var(--delft-blue);
+            transform: translateY(-2px);
+        }
+
+        #deleteEmptyNotesBtn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #cleanupOldNotesBtn {
+            background: var(--burnt-sienna);
+        }
+
+        #cleanupOldNotesBtn:hover {
+            background: var(--delft-blue);
+            transform: translateY(-2px);
+        }
+
+        #cleanupOldNotesBtn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .admin-controls button:hover {
@@ -253,10 +287,12 @@
         <div class="header-content">
             <h1>Admin Dashboard</h1>
             <div class="admin-controls">
-                <form action="/admin/reset-password" method="POST">
+                <form action="/<%= secretAdminPath %>/reset-password" method="POST">
                     <button type="submit">Reset Admin Password</button>
                 </form>
-                <a href="/admin/logout" style="text-decoration:none">
+                <button id="deleteEmptyNotesBtn">Delete Empty Notes</button>
+                <button id="cleanupOldNotesBtn">Cleanup Old Empty Notes</button>
+                <a href="/<%= secretAdminPath %>/logout" style="text-decoration:none">
                     <button>Logout</button>
                 </a>
             </div>
@@ -278,6 +314,18 @@
             <div class="stat-card">
                 <h3>Total Notes</h3>
                 <p><%= typeof notes !== 'undefined' ? notes.length : 0 %></p>
+            </div>
+            <div class="stat-card">
+                <h3>Empty Notes</h3>
+                <p class="empty-notes-count"><%= typeof emptyNotesCount !== 'undefined' ? emptyNotesCount : 0 %></p>
+            </div>
+            <div class="stat-card">
+                <h3>Old Empty Notes (7+ days)</h3>
+                <p class="empty-notes-count" id="oldEmptyCount">-</p>
+            </div>
+            <div class="stat-card">
+                <h3>Recent Empty Notes (&lt;7 days)</h3>
+                <p class="empty-notes-count" id="recentEmptyCount">-</p>
             </div>
         </div>
 
@@ -321,6 +369,132 @@
             }
             activeNotesCount.textContent = data.activeNotes;
         });
+
+        // Load cleanup stats on page load
+        async function loadCleanupStats() {
+            try {
+                const response = await fetch('/<%= secretAdminPath %>/cleanup-stats');
+                const stats = await response.json();
+                
+                if (stats.success) {
+                    document.getElementById('oldEmptyCount').textContent = stats.oldEmptyNotes;
+                    document.getElementById('recentEmptyCount').textContent = stats.recentEmptyNotes;
+                }
+            } catch (error) {
+                console.error('Error loading cleanup stats:', error);
+            }
+        }
+
+        // Load stats when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCleanupStats();
+            
+            // Add event listeners for buttons
+            const deleteEmptyNotesBtn = document.getElementById('deleteEmptyNotesBtn');
+            const cleanupOldNotesBtn = document.getElementById('cleanupOldNotesBtn');
+            
+            if (deleteEmptyNotesBtn) {
+                deleteEmptyNotesBtn.addEventListener('click', deleteEmptyNotes);
+            }
+            
+            if (cleanupOldNotesBtn) {
+                cleanupOldNotesBtn.addEventListener('click', cleanupOldEmptyNotes);
+            }
+        });
+
+        // Function to cleanup old empty notes
+        async function cleanupOldEmptyNotes() {
+            const button = document.getElementById('cleanupOldNotesBtn');
+            const originalText = button.textContent;
+            
+            // Confirm action
+            if (!confirm('Are you sure you want to delete all empty notes older than 7 days? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                // Disable button and show loading
+                button.disabled = true;
+                button.textContent = 'Cleaning...';
+                
+                const response = await fetch('/<%= secretAdminPath %>/cleanup-old-empty-notes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`Success! Cleaned up ${result.deletedCount} old empty notes.`);
+                    // Refresh the page to update the notes list
+                    window.location.reload();
+                } else {
+                    alert(`Error: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error cleaning up old notes:', error);
+                alert('Error cleaning up old notes. Please try again.');
+            } finally {
+                // Re-enable button
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
+
+        // Function to delete empty notes
+        async function deleteEmptyNotes() {
+            console.log('Delete empty notes button clicked');
+            const button = document.getElementById('deleteEmptyNotesBtn');
+            const originalText = button.textContent;
+            
+            // Confirm action
+            if (!confirm('Are you sure you want to delete all empty notes? This action cannot be undone.')) {
+                console.log('User cancelled delete operation');
+                return;
+            }
+            
+            try {
+                // Disable button and show loading
+                button.disabled = true;
+                button.textContent = 'Deleting...';
+                
+                console.log('Making fetch request to:', '/<%= secretAdminPath %>/delete-empty-notes');
+                
+                const response = await fetch('/<%= secretAdminPath %>/delete-empty-notes', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('Delete result:', result);
+                
+                if (result.success) {
+                    alert(`Success! Deleted ${result.deletedCount} empty notes.`);
+                    // Refresh the page to update the notes list
+                    window.location.reload();
+                } else {
+                    alert(`Error: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error deleting empty notes:', error);
+                alert('Error deleting empty notes. Please try again.');
+            } finally {
+                // Re-enable button
+                button.disabled = false;
+                button.textContent = originalText;
+            }
+        }
     </script>
 </body>
 </html> 

@@ -200,7 +200,7 @@
         <% if (locals.error) { %>
             <div class="error"><%= error %></div>
         <% } %>
-        <form class="login-form" method="POST" action="/admin/login">
+        <form class="login-form" method="POST" action="/<%= secretAdminPath %>/login">
             <div class="password-container">
                 <input type="password" name="password" id="password" placeholder="Enter password" required>
                 <i class="fas fa-eye password-toggle" id="togglePassword"></i>
