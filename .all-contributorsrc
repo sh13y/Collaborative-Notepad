@@ -1,0 +1,28 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "mdrehan369",
+      "name": "MD Rehan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/121730065?v=4",
+      "profile": "https://mdrehandeveloper.xyz",
+      "contributions": [
+        "code",
+        "ideas",
+        "bug"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "Collaborative-Notepad",
+  "projectOwner": "sh13y"
+}
