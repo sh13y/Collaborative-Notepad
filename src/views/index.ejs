@@ -182,12 +182,12 @@
 
         document.getElementById('notepad').addEventListener('input', debounce(() => {
             const content = document.getElementById('notepad').value;
-            
+
             if (content !== lastContent) {
                 lastContent = content;
                 socket.emit('updateNote', { url, content });
             }
-        }, 500));
+        }, 100));
 
         document.getElementById('setCustomUrl').addEventListener('click', async () => {
             const customUrl = document.getElementById('customUrl').value.trim();
