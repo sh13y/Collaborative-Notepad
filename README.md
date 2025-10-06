@@ -487,6 +487,22 @@ First, try turning it off and on again. If that doesn't work:
 3. [Open an issue](https://github.com/sh13y/collaborative-notepad/issues)
 4. Or better yet, fix it and submit a PR!
 
+## 🌟 Contributors
+
+Special thanks to these amazing contributors who made this project better:
+
+### 🚀 Performance & Architecture
+- **[@mdrehan369](https://github.com/mdrehan369)** - Implemented intelligent database batching system, reducing database load by ~95% and solving the core performance bottleneck. A true optimization wizard! 🎯
+
+### 🎨 UI/UX Improvements  
+- **[@D4rk-Pho3nix](https://github.com/D4rk-Pho3nix)** - Working on collaborative cursor indicators for enhanced real-time presence awareness 🎯
+
+- **[@Radhika-dodain](https://github.com/Radhika-dodain)** - Adding text formatting options (bold, italic, underline, highlight) to enhance the editing experience ✨
+
+- **[@almostcoderr](https://github.com/almostcoderr)** - Exploring additional dark mode enhancements and theme improvements 🌙
+
+*Want to see your name here? Check out our [Contributing Guide](CONTRIBUTING.md) and join the fun! All skill levels welcome! 🚀*
+
 ## 💝 Support My Chair Fund
 
 If this project has saved you from the horrors of email attachments or helped you procrastinate effectively, consider:
