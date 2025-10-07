@@ -105,8 +105,17 @@
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
+        let browserId = localStorage.getItem('browserId');
+        if (!browserId) {
+            browserId = crypto.randomUUID();
+            localStorage.setItem('browserId', browserId);
+        }
+
         // Initialize socket with proper configuration
         const socket = io({
+            query: {
+                browserId: browserId
+            },
             transports: ['websocket'],
             upgrade: false,
             reconnection: true,
