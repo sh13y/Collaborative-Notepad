@@ -543,6 +543,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://mdrehandeveloper.xyz"><img src="https://avatars.githubusercontent.com/u/121730065?v=4?s=100" width="100px;" alt="MD Rehan"/><br /><sub><b>MD Rehan</b></sub></a><br /><a href="https://github.com/sh13y/Collaborative-Notepad/commits?author=mdrehan369" title="Code">💻</a> <a href="#ideas-mdrehan369" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/sh13y/Collaborative-Notepad/issues?q=author%3Amdrehan369" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/saifxyzyz"><img src="https://avatars.githubusercontent.com/u/114160449?v=4?s=100" width="100px;" alt="Mohammed Saif"/><br /><sub><b>Mohammed Saif</b></sub></a><br /><a href="https://github.com/sh13y/Collaborative-Notepad/commits?author=saifxyzyz" title="Code">💻</a> <a href="#design-saifxyzyz" title="Design">🎨</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Dipanjana25"><img src="https://avatars.githubusercontent.com/u/95460551?v=4?s=100" width="100px;" alt="Dipanjana Dasgupta"/><br /><sub><b>Dipanjana Dasgupta</b></sub></a><br /><a href="https://github.com/sh13y/Collaborative-Notepad/commits?author=Dipanjana25" title="Code">💻</a> <a href="https://github.com/sh13y/Collaborative-Notepad/issues?q=author%3ADipanjana25" title="Bug reports">🐛</a></td>
     </tr>
   </tbody>
 </table>
