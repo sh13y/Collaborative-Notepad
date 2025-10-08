@@ -36,7 +36,18 @@ const setupSocket = (io) => {
   // Track room sizes
   const getRoomSize = (room) => {
     const roomData = io.sockets.adapter.rooms.get(room);
-    return roomData ? roomData.size : 0;
+    if (!roomData) return 0;
+
+    const uniqueBrowsers = new Set();
+
+    for (const socketId of roomData) {
+      const socket = io.sockets.sockets.get(socketId);
+      if (socket && socket.handshake.query.browserId) {
+        uniqueBrowsers.add(socket.handshake.query.browserId);
+      }
+    }
+
+    return uniqueBrowsers.size;
   };
 
   // Function to broadcast admin stats
@@ -52,9 +63,10 @@ const setupSocket = (io) => {
   };
 
   io.on('connection', async (socket) => {
-    console.log('Client connected:', socket.id);
-    let currentNoteUrl = null;
+    const browserId = socket.handshake.query.browserId || socket.id; 
+    console.log('Client connected:', socket.id, 'Browser ID:', browserId);
 
+    let currentNoteUrl = null;
     socket.on('joinNote', async (url) => {
       try {
         currentNoteUrl = url;
