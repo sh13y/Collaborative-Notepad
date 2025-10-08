@@ -1,6 +1,6 @@
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 # 🚀 Collaborative Notepad: Real-Time Notes for Everyone
 
@@ -542,6 +542,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tbody>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://mdrehandeveloper.xyz"><img src="https://avatars.githubusercontent.com/u/121730065?v=4?s=100" width="100px;" alt="MD Rehan"/><br /><sub><b>MD Rehan</b></sub></a><br /><a href="https://github.com/sh13y/Collaborative-Notepad/commits?author=mdrehan369" title="Code">💻</a> <a href="#ideas-mdrehan369" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/sh13y/Collaborative-Notepad/issues?q=author%3Amdrehan369" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/saifxyzyz"><img src="https://avatars.githubusercontent.com/u/114160449?v=4?s=100" width="100px;" alt="Mohammed Saif"/><br /><sub><b>Mohammed Saif</b></sub></a><br /><a href="https://github.com/sh13y/Collaborative-Notepad/commits?author=saifxyzyz" title="Code">💻</a> <a href="#design-saifxyzyz" title="Design">🎨</a></td>
     </tr>
   </tbody>
 </table>
