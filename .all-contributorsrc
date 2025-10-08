@@ -17,6 +17,16 @@
         "ideas",
         "bug"
       ]
+    },
+    {
+      "login": "saifxyzyz",
+      "name": "Mohammed Saif",
+      "avatar_url": "https://avatars.githubusercontent.com/u/114160449?v=4",
+      "profile": "https://github.com/saifxyzyz",
+      "contributions": [
+        "code",
+        "design"
+      ]
     }
   ],
   "contributorsPerLine": 7,
