@@ -212,6 +212,47 @@ textarea {
     overflow-y: auto;
 }
 
+.status-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem auto 0;
+    width: 100%;
+    max-width: 1200px;
+    font-size: 0.9rem;
+    border-top: 1px solid var(--cambridge-blue);
+}
+
+body.dark-mode .status-bar {
+    border-top: 1px solid var(--eggshell);
+}
+
+.status-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: inherit;
+}
+
+.status-item i {
+    font-size: 0.9rem;
+    color: inherit;
+}
+
+.status-text {
+    white-space: nowrap;
+}
+
 body.light-mode textarea {
     background-color: white;
     color: var(--delft-blue);
@@ -404,6 +445,26 @@ footer {
         min-height: 200px;
         padding: 1rem;
         font-size: 0.95rem;
+    }
+    .status-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.75rem 0;
+        border-top: 1px solid var(--cambridge-blue);
+    }
+
+    body.dark-mode .status-bar {
+        border-top: 1px solid var(--eggshell);
+    }
+
+    .status-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .status-item {
+        font-size: 0.85rem;
     }
 
     footer {
