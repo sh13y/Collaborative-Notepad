@@ -6,13 +6,31 @@
     --sunset: #fefae0;
     --shadow: 0 4px 6px rgba(40, 54, 24, 0.1);
     --transition: all 0.3s ease;
+    --mint-green: #9ef01a;
+  --gold-accent: #ffd166;
+  --sky-accent: #90e0ef;
+  --rose-accent: #f28482;
+  --midnight: #1b263b;
+  --deep-forest: #0b3d20;
+
+  /*  Glass & Effects */
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 12px rgba(255, 214, 102, 0.4);
+  --glass-bg: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --transition: all 0.3s ease;
+
+  --text-muted: rgba(255, 255, 255, 0.7);
+  --text-strong: #fefae0;
+  --text-dark: #1a1a1a;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-family: 'Fira Code', 'Consolas',"Inter", "Poppins", sans-serif, 'Monaco', 'Courier New', monospace;
+    transition: var(--transition);
 }
 
 html, body {
@@ -22,6 +40,16 @@ html, body {
     display: flex;
     flex-direction: column;
     transition: var(--transition);
+}
+
+body {
+  background: linear-gradient(135deg, #1b263b 0%, #0b3d20 100%);
+  color: var(--text-strong);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  line-height: 1.6;
+  overflow-x: hidden;
 }
 
 body.light-mode {
@@ -37,8 +65,25 @@ body.dark-mode {
 header {
     padding: 1rem;
     background: linear-gradient(135deg, var(--cambridge-blue), var(--delft-blue));
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 2rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px) saturate(180%);
+    border-bottom: 2px solid rgba(255, 214, 102, 0.2);
+    box-shadow: var(--shadow-soft);
+    position: sticky;
+    top: 0;
+    z-index: 10;
     color: var(--eggshell);
     box-shadow: var(--shadow);
+}
+
+header h1 {
+  font-size: 1.8rem;
+  color: var(--gold-accent);
+  letter-spacing: 1px;
 }
 
 .header-content {
@@ -67,6 +112,9 @@ header {
 .logo i {
     font-size: 1.8rem;
     flex-shrink: 0;
+    color: var(--gold-accent);
+    margin-right: 8px;
+    animation: float 3s ease-in-out infinite;
 }
 
 .controls {
@@ -84,6 +132,23 @@ header {
     border-radius: 8px;
     backdrop-filter: blur(10px);
     height: 40px;
+}
+
+.url-control,
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-soft);
+  border-radius: 12px;
+  margin: 1rem auto;
+  width: 90%;
+  max-width: 800px;
 }
 
 .url-control input {
@@ -155,11 +220,19 @@ input {
     background: var(--eggshell);
     border: none;
     padding: 0 1rem;
-    border-radius: 6px;
+    border-radius: 10px;
     outline: none;
     transition: var(--transition);
     color: var(--delft-blue);
     height: 30px;
+}
+
+input {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--eggshell);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  width: 100%;
+  max-width: 500px;
 }
 
 button {
@@ -175,12 +248,27 @@ button {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    background: linear-gradient(135deg, var(--burnt-sienna), var(--cambridge-blue));
+    color: var(--eggshell);
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 button:hover {
     background: var(--sunset);
     color: var(--delft-blue);
+    background: linear-gradient(135deg, var(--cambridge-blue), var(--burnt-sienna));
+    box-shadow: var(--shadow-glow);
     transform: translateY(-1px);
+}
+input::placeholder {
+  color: var(--text-muted);
+}
+
+input:focus {
+  border: 1px solid var(--gold-accent);
+  box-shadow: 0 0 8px rgba(255, 214, 102, 0.3);
 }
 
 .container {
@@ -210,6 +298,31 @@ textarea {
     transition: var(--transition);
     box-shadow: var(--shadow);
     overflow-y: auto;
+    display: block;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--eggshell);
+    backdrop-filter: blur(6px);
+}
+
+textarea:focus {
+  border: 1px solid var(--gold-accent);
+  box-shadow: 0 0 10px rgba(255, 214, 102, 0.3);
+  outline: none;
+}
+
+/* === Scrollbar === */
+textarea::-webkit-scrollbar {
+  width: 8px;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  background: var(--cambridge-blue);
+  border-radius: 10px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+  background: var(--burnt-sienna);
 }
 
 body.light-mode textarea {
@@ -232,6 +345,15 @@ footer {
     padding: 1rem;
     background: linear-gradient(135deg, var(--cambridge-blue), var(--delft-blue));
     color: var(--eggshell);
+    margin-top: auto;
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(10px) saturate(150%);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+    text-align: center;
+    padding: 1rem 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
 }
 
 .footer-content {
@@ -246,6 +368,7 @@ footer {
     display: flex;
     gap: 1.5rem;
     align-items: center;
+    margin-bottom: 0.5rem;
 }
 
 .footer-links a {
@@ -254,12 +377,168 @@ footer {
     transition: var(--transition);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.5rem;font-weight: 500;
+    position: relative;
+}
+.footer-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background: var(--gold-accent);
+  transition: width 0.3s ease;
+}
+
+.footer-links a:hover::after {
+  width: 100%;
 }
 
 .footer-links a:hover {
-    color: var(--sunset);
+  color: var(--rose-accent);
 }
+
+
+/* ==== Modern Footer ==== */
+.footer-glass {
+  width: 100%;
+  background: rgba(20, 20, 40, 0.35);
+  backdrop-filter: blur(12px) saturate(160%);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--eggshell, #fefae0);
+  padding: 1rem 2rem;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  font-family: 'Fira Code', monospace;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  opacity: 0.85;
+  transition: all 0.3s ease;
+}
+
+.footer-left:hover {
+  opacity: 1;
+}
+
+.footer-left .highlight {
+  color: #ffb703;
+  font-weight: 600;
+}
+
+.spin-icon {
+  color: #fefae0;
+  animation: spin-slow 10s linear infinite;
+  font-size: 1.2rem;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.footer-link {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+  color: #fefae0;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.5rem 0.9rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.footer-link i {
+  font-size: 1rem;
+}
+
+.footer-link:hover {
+  background: linear-gradient(90deg, #f4a261, #e76f51);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.footer-link.donate {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffd166;
+}
+
+.footer-link.donate:hover {
+  background: linear-gradient(90deg, #ffb703, #fb8500);
+  color: #fff;
+}
+
+/* ==== General UI Upgrades ==== */
+body {
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+header {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+#notepad {
+  border-radius: 16px;
+  padding: 1.2rem;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #fefae0;
+  outline: none;
+  transition: background 0.4s ease, border 0.4s ease;
+}
+
+#notepad:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid #f4a261;
+}
+
+button {
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+
+.light-mode {
+  background: #fefae0;
+  color: #001219;
+}
+
+.dark-mode {
+  background: #001219;
+  color: #fefae0;
+}
+
 
 .status-indicator i {
     color: var(--cambridge-blue);
@@ -281,6 +560,21 @@ footer {
     animation: pulse 2s infinite;
     transition: background-color 0.3s ease, animation-duration 0.3s ease;
 }
+
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 1.5rem;
+  }
+
+  .url-control, .action-buttons {
+    flex-direction: column;
+  }
+
+  textarea {
+    width: 95%;
+  }
+}
+
 
 @keyframes pulse {
     0% { transform: scale(1); opacity: 1; }

@@ -85,23 +85,24 @@
         <textarea id="notepad" spellcheck="false" placeholder="Start typing..."><%= note.content %></textarea>
     </div>
 
-    <footer>
-        <div class="footer-content">
-            <div class="copyright">
-                © 2025 | made in ceylon with ❤️ by sh13y
-            </div>
-            <div class="footer-links">
-                <!-- <a href="https://github.com/sh13y/Collaborative-Notepad" target="_blank">
-                    <i class="fab fa-github"></i>
-                    Star On GitHub
-                </a> -->
-                <a href="http://paypal.me/shieyz" target="_blank">
-                    <i class="fab fa-paypal"></i>
-                    Back Pain Relief Fund 🪑🤕
-                </a>
-            </div>
-        </div>
-    </footer>
+    <footer class="footer-glass">
+  <div class="footer-inner">
+    <div class="footer-left">
+      <i class="fas fa-pen-nib spin-icon"></i>
+      <span>© 2025 | Made in <span class="highlight">Ceylon</span> with ❤️ by <strong>sh13y</strong></span>
+    </div>
+    <div class="footer-right">
+      <a href="https://github.com/sh13y/Collaborative-Notepad" target="_blank" class="footer-link">
+        <i class="fab fa-github"></i>
+        <span>Star on GitHub</span>
+      </a>
+      <a href="http://paypal.me/shieyz" target="_blank" class="footer-link donate">
+        <i class="fab fa-paypal"></i>
+        <span>Back Pain Relief Fund 🪑🤕</span>
+      </a>
+    </div>
+  </div>
+</footer>
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
