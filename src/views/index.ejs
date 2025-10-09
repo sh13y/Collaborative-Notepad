@@ -1,318 +1,459 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Collaborative Notepad</title>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WH07CK2H38"></script>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-WH07CK2H38"
+    ></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-        gtag('config', 'G-WH07CK2H38');
+      gtag("config", "G-WH07CK2H38");
     </script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%23fefae0' d='M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z'/></svg>"/>
-    <link rel="stylesheet" href="/css/style.css">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%23fefae0' d='M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z'/></svg>"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
     <!-- Vercel Web Analytics -->
     <script>
-        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments) };
+      window.va =
+        window.va ||
+        function () {
+          (window.vaq = window.vaq || []).push(arguments);
+        };
     </script>
     <script defer src="/_vercel/insights/script.js"></script>
     <!-- Preload critical fonts -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400&display=swap" as="style">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style">
-    
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400&display=swap"
+      as="style"
+    />
+    <link
+      rel="preload"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      as="style"
+    />
+
     <!-- Load fonts with media="print" trick -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
-    
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      media="print"
+      onload="this.media='all'"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap"
+      media="print"
+      onload="this.media='all'"
+    />
+
     <!-- Defer non-critical scripts -->
-    <script defer src="https://www.googletagmanager.com/gtag/js?id=G-WH07CK2H38"></script>
+    <script
+      defer
+      src="https://www.googletagmanager.com/gtag/js?id=G-WH07CK2H38"
+    ></script>
     <script defer src="/_vercel/insights/script.js"></script>
-    
+
     <!-- Load Socket.IO with module type -->
     <script type="module">
-        import { io } from "https://cdn.socket.io/4.7.4/socket.io.esm.min.js";
-        window.io = io;
+      import { io } from "https://cdn.socket.io/4.7.4/socket.io.esm.min.js";
+      window.io = io;
     </script>
-    
+
     <!-- Update Font Awesome loading -->
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" onload="this.media='all'">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
-</head>
-<body class="light-mode">
+    <link
+      rel="preload"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      as="style"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      media="print"
+      onload="this.media='all'"
+    />
+    <link
+      rel="preload"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/webfonts/fa-brands-400.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/webfonts/fa-solid-900.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+  </head>
+  <body class="light-mode">
     <header>
-        <div class="header-content">
-            <div class="logo">
-                <i class="fas fa-edit"></i>
-                <h1>Collaborative Notepad</h1>
-            </div>
-            <div class="controls">
-                <div class="url-control">
-                    <input type="text" id="customUrl" placeholder="Enter custom URL" />
-                    <button id="setCustomUrl">
-                        <i class="fas fa-link"></i>
-                        <span>Set URL</span>
-                    </button>
-                    <button id="copyLink" title="Copy note link">
-                        <i class="fas fa-copy"></i>
-                    </button>
-                </div>
-                <div class="action-buttons">
-                    <div class="status-indicator">
-                        <div class="status-dot"></div>
-                        <span id="userCount">1</span>
-                    </div>
-                    <button id="newNoteBtn">
-                        <i class="fas fa-plus"></i>
-                        New Note
-                    </button>
-                    <button id="themeToggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                                    </div>
-            </div>
+      <div class="header-content">
+        <div class="logo">
+          <i class="fas fa-edit"></i>
+          <h1>Collaborative Notepad</h1>
         </div>
+        <div class="controls">
+          <div class="url-control">
+            <input type="text" id="customUrl" placeholder="Enter custom URL" />
+            <button id="setCustomUrl">
+              <i class="fas fa-link"></i>
+              <span>Set URL</span>
+            </button>
+            <button id="copyLink" title="Copy note link">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+          <div class="action-buttons">
+            <div class="status-indicator">
+              <div class="status-dot"></div>
+              <span id="userCount">1</span>
+            </div>
+            <button id="newNoteBtn">
+              <i class="fas fa-plus"></i>
+              New Note
+            </button>
+            <button id="themeToggle">
+              <i class="fas fa-moon"></i>
+            </button>
+          </div>
+          <div class="action-buttons">
+            <button id="exportPdfBtn" title="Export note as PDF (Ctrl + P)">
+              <i class="fas fa-file-pdf"></i>
+              <span>Export as PDF</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </header>
 
     <div class="container">
-      <textarea id="notepad" spellcheck="false" placeholder="Start typing..."><%= note.content %></textarea>
+      <textarea id="notepad" spellcheck="false" placeholder="Start typing...">
+        <%= note.content %>
+      </textarea>
       <button id="copyContent" title="Copy note content">
         <i class="fas fa-copy"></i>
       </button>
     </div>
 
-
     <footer>
-        <div class="footer-content">
-            <div class="copyright">
-                © 2025 | made in ceylon with ❤️ by sh13y
-            </div>
-            <div class="footer-links">
-                <!-- <a href="https://github.com/sh13y/Collaborative-Notepad" target="_blank">
+      <div class="footer-content">
+        <div class="copyright">© 2025 | made in ceylon with ❤️ by sh13y</div>
+        <div class="footer-links">
+          <!-- <a href="https://github.com/sh13y/Collaborative-Notepad" target="_blank">
                     <i class="fab fa-github"></i>
                     Star On GitHub
                 </a> -->
-                <a href="http://paypal.me/shieyz" target="_blank">
-                    <i class="fab fa-paypal"></i>
-                    Back Pain Relief Fund 🪑🤕
-                </a>
-            </div>
+          <a href="http://paypal.me/shieyz" target="_blank">
+            <i class="fab fa-paypal"></i>
+            Back Pain Relief Fund 🪑🤕
+          </a>
         </div>
+      </div>
     </footer>
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
-        let browserId = localStorage.getItem('browserId');
-        if (!browserId) {
-            browserId = crypto.randomUUID();
-            localStorage.setItem('browserId', browserId);
+      let browserId = localStorage.getItem("browserId");
+      if (!browserId) {
+        browserId = crypto.randomUUID();
+        localStorage.setItem("browserId", browserId);
+      }
+
+      // Initialize socket with proper configuration
+      const socket = io({
+        query: {
+          browserId: browserId,
+        },
+        transports: ["websocket"],
+        upgrade: false,
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+      });
+
+      socket.on("connect", () => {
+        console.log("Connected to server:", socket.id);
+      });
+
+      socket.on("connect_error", (error) => {
+        console.error("Connection error:", error);
+      });
+
+      // Add New Note button functionality
+      document.getElementById("newNoteBtn").addEventListener("click", () => {
+        try {
+          window.location.href = "/new";
+        } catch (error) {
+          console.error("Error navigating to new note:", error);
+          alert("Failed to create new note. Please try again.");
+        }
+      });
+
+      const url = window.location.pathname.split("/").pop();
+      let typingTimeout;
+
+      socket.emit("joinNote", url);
+
+      socket.on("loadNote", (note) => {
+        document.getElementById("notepad").value = note.content;
+      });
+
+      socket.on("noteUpdated", (content) => {
+        const textarea = document.getElementById("notepad");
+        const cursorPosition = textarea.selectionStart;
+
+        if (textarea.value !== content) {
+          textarea.value = content;
         }
 
-        // Initialize socket with proper configuration
-        const socket = io({
-            query: {
-                browserId: browserId
-            },
-            transports: ['websocket'],
-            upgrade: false,
-            reconnection: true,
-            reconnectionAttempts: 5,
-            reconnectionDelay: 1000
-        });
-        
-        socket.on('connect', () => {
-            console.log('Connected to server:', socket.id);
-        });
+        textarea.selectionStart = cursorPosition;
+        textarea.selectionEnd = cursorPosition;
+      });
 
-        socket.on('connect_error', (error) => {
-            console.error('Connection error:', error);
-        });
+      socket.on("userCount", (count) => {
+        const userCountElement = document.getElementById("userCount");
+        const statusDot = document.querySelector(".status-dot");
+        const userIcon = document.querySelector(".status-indicator i");
 
-        // Add New Note button functionality
-        document.getElementById('newNoteBtn').addEventListener('click', () => {
-            try {
-                window.location.href = '/new';
-            } catch (error) {
-                console.error('Error navigating to new note:', error);
-                alert('Failed to create new note. Please try again.');
-            }
-        });
+        userCountElement.textContent = count;
 
-        const url = window.location.pathname.split('/').pop();
-        let typingTimeout;
-
-        socket.emit('joinNote', url);
-
-        socket.on('loadNote', (note) => {
-            document.getElementById('notepad').value = note.content;
-        });
-
-        socket.on('noteUpdated', (content) => {
-            const textarea = document.getElementById('notepad');
-            const cursorPosition = textarea.selectionStart;
-
-            if (textarea.value !== content) {
-                textarea.value = content;
-            }
-
-            textarea.selectionStart = cursorPosition;
-            textarea.selectionEnd = cursorPosition;
-        });
-
-        socket.on('userCount', (count) => {
-            const userCountElement = document.getElementById('userCount');
-            const statusDot = document.querySelector('.status-dot');
-            const userIcon = document.querySelector('.status-indicator i');
-            
-            userCountElement.textContent = count;
-            
-            if (count > 1) {
-                statusDot.style.backgroundColor = '#fefae0';
-                userIcon.style.color = '#fefae0';
-                statusDot.style.animationDuration = '1s';
-            } else {
-                statusDot.style.backgroundColor = '#fefae0';
-                userIcon.style.color = '#fefae0';
-                statusDot.style.animationDuration = '2s';
-            }
-        });
-
-        function debounce(func, delay) {
-            return function(...args) {
-                clearTimeout(typingTimeout);
-                typingTimeout = setTimeout(() => func.apply(this, args), delay);
-            };
+        if (count > 1) {
+          statusDot.style.backgroundColor = "#fefae0";
+          userIcon.style.color = "#fefae0";
+          statusDot.style.animationDuration = "1s";
+        } else {
+          statusDot.style.backgroundColor = "#fefae0";
+          userIcon.style.color = "#fefae0";
+          statusDot.style.animationDuration = "2s";
         }
+      });
 
-        let lastContent = '';
-
-        document.getElementById('notepad').addEventListener('input', debounce(() => {
-            const content = document.getElementById('notepad').value;
-
-            if (content !== lastContent) {
-                lastContent = content;
-                socket.emit('updateNote', { url, content });
-            }
-        }, 100));
-
-        document.getElementById('setCustomUrl').addEventListener('click', async () => {
-            const customUrl = document.getElementById('customUrl').value.trim();
-            if (customUrl === url) {
-                alert("You're already using this URL.");
-                return;
-            }
-
-            const response = await fetch(`/setCustomUrl/${url}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: customUrl })
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                window.location.href = `/${customUrl}`;
-            } else {
-                alert(result.message);
-            }
-        });
-
-        document.getElementById('themeToggle').addEventListener('click', () => {
-            const body = document.body;
-            const icon = document.querySelector('#themeToggle i');
-
-            if (body.classList.contains('light-mode')) {
-                body.classList.remove('light-mode');
-                body.classList.add('dark-mode');
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-                localStorage.setItem('theme', 'dark-mode');
-            } else {
-                body.classList.remove('dark-mode');
-                body.classList.add('light-mode');
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
-                localStorage.setItem('theme', 'light-mode');
-            }
-        });
-
-        window.onload = function() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                document.getElementById('notepad').focus();
-                document.body.classList.remove('light-mode', 'dark-mode');
-                document.body.classList.add(savedTheme);
-                const icon = document.querySelector('#themeToggle i');
-                if (savedTheme === 'dark-mode') {
-                    icon.classList.remove('fa-moon');
-                    icon.classList.add('fa-sun');
-                } else {
-                    icon.classList.remove('fa-sun');
-                    icon.classList.add('fa-moon');
-                }
-            }
+      function debounce(func, delay) {
+        return function (...args) {
+          clearTimeout(typingTimeout);
+          typingTimeout = setTimeout(() => func.apply(this, args), delay);
         };
+      }
 
-        document.getElementById('copyLink').addEventListener('click', async () => {
-            try {
-                await navigator.clipboard.writeText(window.location.href);
-                const button = document.getElementById('copyLink');
-                const icon = button.querySelector('i');
-                
-                // Visual feedback
-                icon.classList.remove('fa-copy');
-                icon.classList.add('fa-check');
-                button.style.background = 'var(--sunset)';
-                icon.style.color = 'var(--delft-blue)';
-                
-                // Reset after 2 seconds
-                setTimeout(() => {
-                    icon.classList.remove('fa-check');
-                    icon.classList.add('fa-copy');
-                    button.style.background = 'var(--burnt-sienna)';
-                    icon.style.color = 'var(--eggshell)';
-                }, 2000);
-            } catch (err) {
-                alert('Failed to copy link. Please try again.');
-            }
+      let lastContent = "";
+
+      document.getElementById("notepad").addEventListener(
+        "input",
+        debounce(() => {
+          const content = document.getElementById("notepad").value;
+
+          if (content !== lastContent) {
+            lastContent = content;
+            socket.emit("updateNote", { url, content });
+          }
+        }, 100)
+      );
+
+      document
+        .getElementById("setCustomUrl")
+        .addEventListener("click", async () => {
+          const customUrl = document.getElementById("customUrl").value.trim();
+          if (customUrl === url) {
+            alert("You're already using this URL.");
+            return;
+          }
+
+          const response = await fetch(`/setCustomUrl/${url}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url: customUrl }),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            window.location.href = `/${customUrl}`;
+          } else {
+            alert(result.message);
+          }
         });
-        document.getElementById('copyContent').addEventListener('click', async () => {
+
+      document.getElementById("themeToggle").addEventListener("click", () => {
+        const body = document.body;
+        const icon = document.querySelector("#themeToggle i");
+
+        if (body.classList.contains("light-mode")) {
+          body.classList.remove("light-mode");
+          body.classList.add("dark-mode");
+          icon.classList.remove("fa-moon");
+          icon.classList.add("fa-sun");
+          localStorage.setItem("theme", "dark-mode");
+        } else {
+          body.classList.remove("dark-mode");
+          body.classList.add("light-mode");
+          icon.classList.remove("fa-sun");
+          icon.classList.add("fa-moon");
+          localStorage.setItem("theme", "light-mode");
+        }
+      });
+
+      window.onload = function () {
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme) {
+          document.getElementById("notepad").focus();
+          document.body.classList.remove("light-mode", "dark-mode");
+          document.body.classList.add(savedTheme);
+          const icon = document.querySelector("#themeToggle i");
+          if (savedTheme === "dark-mode") {
+            icon.classList.remove("fa-moon");
+            icon.classList.add("fa-sun");
+          } else {
+            icon.classList.remove("fa-sun");
+            icon.classList.add("fa-moon");
+          }
+        }
+      };
+
+      document
+        .getElementById("copyLink")
+        .addEventListener("click", async () => {
           try {
-            const contentElement = document.getElementById('notepad');
+            await navigator.clipboard.writeText(window.location.href);
+            const button = document.getElementById("copyLink");
+            const icon = button.querySelector("i");
+
+            // Visual feedback
+            icon.classList.remove("fa-copy");
+            icon.classList.add("fa-check");
+            button.style.background = "var(--sunset)";
+            icon.style.color = "var(--delft-blue)";
+
+            // Reset after 2 seconds
+            setTimeout(() => {
+              icon.classList.remove("fa-check");
+              icon.classList.add("fa-copy");
+              button.style.background = "var(--burnt-sienna)";
+              icon.style.color = "var(--eggshell)";
+            }, 2000);
+          } catch (err) {
+            alert("Failed to copy link. Please try again.");
+          }
+        });
+
+      document
+        .getElementById("copyContent")
+        .addEventListener("click", async () => {
+          try {
+            const contentElement = document.getElementById("notepad");
             const textToCopy = contentElement.value;
             await navigator.clipboard.writeText(textToCopy);
 
-            const button = document.getElementById('copyContent');
-            const icon = button.querySelector('i');
+            const button = document.getElementById("copyContent");
+            const icon = button.querySelector("i");
 
-            icon.classList.remove('fa-copy');
-            icon.classList.add('fa-check');
-            button.classList.add('copied');
+            icon.classList.remove("fa-copy");
+            icon.classList.add("fa-check");
+            button.classList.add("copied");
 
             setTimeout(() => {
-                icon.classList.remove('fa-check');
-                icon.classList.add('fa-copy');
-                button.classList.remove('copied');
+              icon.classList.remove("fa-check");
+              icon.classList.add("fa-copy");
+              button.classList.remove("copied");
             }, 2000);
-          } catch(err) {
+          } catch (err) {
             alert("Failed to copy content. Please try again.");
           }
         });
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/js/service-worker.js')
-                    .then(registration => console.log('ServiceWorker registered'))
-                    .catch(err => console.log('ServiceWorker registration failed:', err));
-            });
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/js/service-worker.js")
+            .then((registration) => console.log("ServiceWorker registered"))
+            .catch((err) =>
+              console.log("ServiceWorker registration failed:", err)
+            );
+        });
+      }
+
+      // Export note as PDF
+      const exportPdf = async () => {
+        const noteText = document.getElementById("notepad").value.trim();
+
+        if (!noteText) {
+          alert("Your note is empty. Please add something before exporting.");
+          return;
         }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.setFont("times", "normal"); // Times New Roman
+        doc.setFontSize(13);
+        const lineHeight = 8;
+        const maxWidth = 180;
+        const lines = doc.splitTextToSize(noteText, maxWidth);
+
+        let y = 20;
+
+        lines.forEach((line) => {
+          if (y + lineHeight > 287) {
+            doc.addPage();
+            y = 20;
+          }
+          doc.text(line, 15, y);
+          y += lineHeight;
+        });
+
+        const now = new Date();
+
+        // Format timestamp as YYYY-MM-DD-HH-MM-SS
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        const seconds = String(now.getSeconds()).padStart(2, "0");
+
+        const timestamp = `${year}-${month}-${day}-${hours}-${minutes}-${seconds}`;
+        const fileName = `note_${timestamp}.pdf`;
+
+        doc.save(fileName);
+      };
+
+      // Button click
+      document
+        .getElementById("exportPdfBtn")
+        .addEventListener("click", exportPdf);
+
+      // Keyboard shortcut: Ctrl + P
+      document.addEventListener("keydown", (e) => {
+        if (e.ctrlKey && e.key.toLowerCase() === "p") {
+          e.preventDefault();
+          exportPdf();
+        }
+      });
     </script>
-</body>
+  </body>
 </html>
