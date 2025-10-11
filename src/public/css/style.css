@@ -334,11 +334,13 @@ footer {
     bottom: 1.5rem;
     right: 2.5rem;
     z-index: 10;
-    opacity: 0.5;
+    opacity: 1;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
 #copyContent:hover {
-    opacity: 1;
+    background: var(--cambridge-blue);
 }
 
 @media (max-width: 768px) {
