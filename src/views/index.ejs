@@ -88,6 +88,19 @@
       </button>
     </div>
 
+    <div id="statusBar" style="
+        padding: 0.5rem;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        background: var(--burnt-sienna);
+        border: 2px solid var(--cambridge-blue);
+        color: var(--eggshell);"
+    >
+        <span id="charCount">Characters: 0</span>
+        <span id="readingTime">Estimated Reading Time: 0</span>
+        <span id="wordCount">Words: 0</span>
+    </div>
 
     <footer>
         <div class="footer-content">
@@ -152,10 +165,12 @@
 
         socket.on('loadNote', (note) => {
             document.getElementById('notepad').value = note.content;
+            updateCounts();
         });
 
         socket.on('noteUpdated', (content) => {
             const textarea = document.getElementById('notepad');
+            updateCounts();
             const cursorPosition = textarea.selectionStart;
 
             if (textarea.value !== content) {
@@ -195,6 +210,8 @@
 
         document.getElementById('notepad').addEventListener('input', debounce(() => {
             const content = document.getElementById('notepad').value;
+            updateCounts();
+            socket.emit('updateNote', { url, content });
 
             if (content !== lastContent) {
                 lastContent = content;
@@ -313,6 +330,30 @@
                     .catch(err => console.log('ServiceWorker registration failed:', err));
             });
         }
+
+        // Word, Character Count & Estimated Reading Time
+        const notepad = document.getElementById('notepad');
+        const charCountElem = document.getElementById('charCount');
+        const wordCountElem = document.getElementById('wordCount');
+        // const readingTime = document.getElementById('readingTime');
+
+        function updateCounts() {
+            const text = notepad.value;
+            const charCount = text.length;
+            const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
+
+            const minutes = wordCount / 200;
+            const totalSeconds = Math.round(minutes * 60);
+            const mins = Math.floor(totalSeconds / 60);
+            const secs = totalSeconds % 60;
+
+            charCountElem.textContent = `Characters: ${charCount}`;
+            readingTime.textContent = `Reading time: ${mins > 0 ? `${mins} min ` : ""}${secs} sec`;
+            wordCountElem.textContent = `Words: ${wordCount}`;
+        }
+
+        notepad.addEventListener('input', updateCounts);
+        window.addEventListener('load', updateCounts);
     </script>
 </body>
 </html>
