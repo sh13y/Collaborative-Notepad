@@ -76,13 +76,16 @@
                     <button id="themeToggle">
                         <i class="fas fa-moon"></i>
                     </button>
-                </div>
+                                    </div>
             </div>
         </div>
     </header>
 
     <div class="container">
-        <textarea id="notepad" spellcheck="false" placeholder="Start typing..."><%= note.content %></textarea>
+      <textarea id="notepad" spellcheck="false" placeholder="Start typing..."><%= note.content %></textarea>
+      <button id="copyContent" title="Copy note content">
+        <i class="fas fa-copy"></i>
+      </button>
     </div>
 
     <div class="status-bar" role="status" aria-live="polite">
@@ -132,8 +135,17 @@
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
+        let browserId = localStorage.getItem('browserId');
+        if (!browserId) {
+            browserId = crypto.randomUUID();
+            localStorage.setItem('browserId', browserId);
+        }
+
         // Initialize socket with proper configuration
         const socket = io({
+            query: {
+                browserId: browserId
+            },
             transports: ['websocket'],
             upgrade: false,
             reconnection: true,
@@ -383,6 +395,28 @@
             } catch (err) {
                 alert('Failed to copy link. Please try again.');
             }
+        });
+        document.getElementById('copyContent').addEventListener('click', async () => {
+          try {
+            const contentElement = document.getElementById('notepad');
+            const textToCopy = contentElement.value;
+            await navigator.clipboard.writeText(textToCopy);
+
+            const button = document.getElementById('copyContent');
+            const icon = button.querySelector('i');
+
+            icon.classList.remove('fa-copy');
+            icon.classList.add('fa-check');
+            button.classList.add('copied');
+
+            setTimeout(() => {
+                icon.classList.remove('fa-check');
+                icon.classList.add('fa-copy');
+                button.classList.remove('copied');
+            }, 2000);
+          } catch(err) {
+            alert("Failed to copy content. Please try again.");
+          }
         });
 
         if ('serviceWorker' in navigator) {

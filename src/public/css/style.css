@@ -210,6 +210,8 @@ textarea {
     transition: var(--transition);
     box-shadow: var(--shadow);
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--cambridge-blue) transparent;
 }
 
 .status-bar {
@@ -267,6 +269,29 @@ body.dark-mode textarea {
 
 textarea:focus {
     outline: 2px solid var(--cambridge-blue);
+}
+
+textarea::-webkit-scrollbar {
+    width: 12px;
+}
+
+textarea::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+textarea::-webkit-scrollbar-thumb {
+    background-color: var(--cambridge-blue);
+    border-radius: 20px;
+    border: 3px solid var(--eggshell);
+}
+
+body.dark-mode textarea::-webkit-scrollbar-track {
+    background: var(--delft-blue);
+}
+
+body.dark-mode textarea::-webkit-scrollbar-thumb {
+    background-color: var(--cambridge-blue);
+    border-color: var(--delft-blue);
 }
 
 footer {
@@ -343,6 +368,18 @@ footer {
 
 #copyLink:hover {
     background: var(--cambridge-blue);
+}
+
+#copyContent {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 2.5rem;
+    z-index: 10;
+    opacity: 0.5;
+}
+
+#copyContent:hover {
+    opacity: 1;
 }
 
 @media (max-width: 768px) {
@@ -512,4 +549,9 @@ footer {
     #setCustomUrl i {
         font-size: 0.85rem;
     }
-} 
+}
+
+#copyContent.copied {
+    background: var(--sunset);
+    color: var(--delft-blue);
+}
