@@ -111,6 +111,39 @@ header {
     font-size: 1rem;
 }
 
+#statusBar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap; /* enables wrapping on small screens */
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: var(--burnt-sienna);
+  border: 2px solid var(--cambridge-blue);
+  color: var(--eggshell);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* Status Bar Items */
+#statusBar span {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  #statusBar {
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    padding: 0.75rem;
+  }
+  #statusBar span {
+    width: 100%;
+  }
+}
+
 .action-buttons, .status-indicator {
     display: flex;
     align-items: center;
