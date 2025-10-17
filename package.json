@@ -21,6 +21,7 @@
     "express-rate-limit": "^8.1.0",
     "express-session": "^1.18.2",
     "helmet": "^7.1.0",
+    "mongodb": "^6.20.0",
     "mongoose": "^8.9.5",
     "node-cron": "^4.2.1",
     "socket.io": "^4.8.1"
