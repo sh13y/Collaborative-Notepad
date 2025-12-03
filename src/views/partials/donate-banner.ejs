@@ -1,0 +1,117 @@
+<div class="donatesl">
+  <style>
+    .donatesl { margin-top: 20px }
+    .nav-banner { display: flex; width: 100% }
+    .green-strip { width: 12px; background-color: #2D4A3E }
+    .nav-content { flex: 1; background: white; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between }
+    
+    /* Cube container */
+    .cube-container { perspective: 1000px; height: 70px; width: 250px; overflow: hidden }
+    .cube { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; animation: rotateCubeUp 8s ease-in-out infinite }
+    .cube-face { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: flex-start; backface-visibility: hidden }
+    
+    /* 4 faces for continuous rotation */
+    .cube-face.face-1 { transform: rotateX(0deg) translateZ(25px) }
+    .cube-face.face-2 { transform: rotateX(-90deg) translateZ(25px) }
+    .cube-face.face-3 { transform: rotateX(-180deg) translateZ(25px) }
+    .cube-face.face-4 { transform: rotateX(-270deg) translateZ(25px) }
+    
+    .logodonate { height: 70px }
+    .rebuild-text { font-family: 'Arial Black', Arial, sans-serif; font-size: 28px; font-weight: 900; color: #8D153A; letter-spacing: 1px }
+    .rebuild-text span { color: #D4A84B }
+    
+    /* Continuous upward rotation - always same direction */
+    @keyframes rotateCubeUp {
+      0%, 20% { transform: rotateX(0deg) }
+      25%, 45% { transform: rotateX(90deg) }
+      50%, 70% { transform: rotateX(180deg) }
+      75%, 95% { transform: rotateX(270deg) }
+      100% { transform: rotateX(360deg) }
+    }
+    
+    .donate-btn { background-color: #8D153A; color: #fff; padding: 10px 24px; border-radius: 50px; text-decoration: none; font-family: Arial, sans-serif; font-weight: 600; font-size: 20px; transition: opacity 0.3s; border: none; cursor: pointer }
+    .donate-btn:hover { opacity: 0.85 }
+    
+    /* Close button */
+    .donate-close { background: none; border: none; font-size: 20px; color: #666; cursor: pointer; padding: 0 8px; transition: opacity 0.2s }
+    .donate-close:hover { opacity: 0.6 }
+    
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      .cube-container { height: 50px; width: 190px }
+      .cube-face.face-1 { transform: rotateX(0deg) translateZ(20px) }
+      .cube-face.face-2 { transform: rotateX(-90deg) translateZ(20px) }
+      .cube-face.face-3 { transform: rotateX(-180deg) translateZ(20px) }
+      .cube-face.face-4 { transform: rotateX(-270deg) translateZ(20px) }
+      .logodonate { height: 50px }
+      .rebuild-text { font-size: 20px }
+      .nav-content { padding: 10px 16px }
+      .donate-btn { padding: 13px 16px; font-size: 16px }
+    }
+    
+    @media (max-width: 480px) {
+      .cube-container { height: 50px; width: 190px }
+      .cube-face.face-1 { transform: rotateX(0deg) translateZ(17.5px) }
+      .cube-face.face-2 { transform: rotateX(-90deg) translateZ(17.5px) }
+      .cube-face.face-3 { transform: rotateX(-180deg) translateZ(17.5px) }
+      .cube-face.face-4 { transform: rotateX(-270deg) translateZ(17.5px) }
+      .logodonate { height: 50px }
+      .rebuild-text { font-size: 20px }
+      .green-strip { width: 6px }
+      .nav-content { padding: 8px 12px }
+      .donate-btn { padding: 13px 16px; font-size: 16px }
+    }
+  </style>
+
+  <nav class="nav-banner">
+    <div class="green-strip"></div>
+    <div class="nav-content">
+      <div class="cube-container">
+        <div class="cube">
+          <div class="cube-face face-1">
+            <img src="/assets/help-srilanka-logo-with-emblem.png" alt="Stand With Sri Lanka" class="logodonate">
+          </div>
+          <div class="cube-face face-2">
+            <span class="rebuild-text"><span>#</span>LetsRebuild</span>
+          </div>
+          <div class="cube-face face-3">
+            <img src="/assets/help-srilanka-logo-with-emblem.png" alt="Stand With Sri Lanka" class="logodonate">
+          </div>
+          <div class="cube-face face-4">
+            <span class="rebuild-text"><span>#</span>Lets_Rebuild</span>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <a href="https://donate.gov.lk/" target="_blank" class="donate-btn">Donate Now</a>
+        <button class="donate-close" aria-label="Close donation banner" title="Close">✕</button>
+      </div>
+    </div>
+    <div class="green-strip"></div>
+  </nav>
+
+  <script>
+    (function() {
+      try {
+        const key = 'donateBannerHidden_v1';
+        const banner = document.querySelector('.donatesl');
+        
+        // Check if banner was previously dismissed
+        if (localStorage.getItem(key) === '1') {
+          if (banner) banner.style.display = 'none';
+          return;
+        }
+        
+        // Add close button listener
+        const closeBtn = document.querySelector('.donate-close');
+        if (closeBtn) {
+          closeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            if (banner) banner.style.display = 'none';
+            try { localStorage.setItem(key, '1'); } catch(e) {}
+          });
+        }
+      } catch(e) { /* ignore errors */ }
+    })();
+  </script>
+</div>

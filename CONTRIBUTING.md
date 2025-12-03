@@ -38,12 +38,22 @@ Welcome to Collaborative Notepad! We're excited to have you contribute to this r
 ### 1. Find an Issue
 - Check the [Issues](https://github.com/sh13y/Collaborative-Notepad/issues) tab
 - Look for issues labeled `good-first-issue` for beginners
-- Comment on the issue to let others know you're working on it
+- **Comment on the issue to request assignment** - Wait for a maintainer to assign you
+- **Do not create PRs for unassigned issues** unless they're labeled `help-wanted` or `good-first-issue`
+- If an issue is already assigned, please find another issue to work on
 
 ### 2. Create a Branch
 ```bash
+# Important: Always branch from main, not v2.0.0
+git checkout main
+git pull origin main
 git checkout -b feature/your-feature-name
 ```
+
+**⚠️ Branch Naming Convention:**
+- Features: `feature/description` or `feat/issue-number`
+- Bug fixes: `fix/description` or `fix/issue-number`  
+- Documentation: `docs/description`
 
 ### 3. Make Your Changes
 - Write clean, readable code
@@ -63,7 +73,14 @@ git push origin feature/your-feature-name
 ```
 - Go to your fork on GitHub
 - Click "New Pull Request"
+- **Important**: Ensure your PR targets the `main` branch (not v2.0.0)
 - Provide a clear description of what you've changed
+- Link to the issue you're solving (e.g., "Closes #123")
+
+## Review Process
+- Maintainers will review your PR within 2-3 days
+- You may be asked to make changes
+- Once approved, a maintainer will merge your PR
 
 ## Types of Contributions We Welcome
 
