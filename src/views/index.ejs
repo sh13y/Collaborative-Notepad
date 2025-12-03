@@ -27,8 +27,8 @@
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style">
     
     <!-- Load fonts with media="print" trick -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" id="fontawesome-css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" media="print" id="fira-code-css">
     
     <!-- Defer non-critical scripts -->
     <script defer src="https://www.googletagmanager.com/gtag/js?id=G-WH07CK2H38"></script>
@@ -42,9 +42,21 @@
     
     <!-- Update Font Awesome loading -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" id="fontawesome-css2">
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/webfonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/webfonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <!-- Fix CSP violations by loading stylesheets with JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fontawesome = document.getElementById('fontawesome-css');
+            const fontawesome2 = document.getElementById('fontawesome-css2');
+            const firaCode = document.getElementById('fira-code-css');
+            if (fontawesome) fontawesome.media = 'all';
+            if (fontawesome2) fontawesome2.media = 'all';
+            if (firaCode) firaCode.media = 'all';
+        });
+    </script>
 </head>
 <body class="light-mode">
     <%- include('partials/donate-banner') %>
@@ -66,9 +78,14 @@
                     </button>
                 </div>
                 <div class="action-buttons">
-                    <div class="status-indicator">
+                    <div class="status-indicator" id="statusIndicator">
                         <div class="status-dot"></div>
                         <span id="userCount">1</span>
+                        <div class="users-dropdown" id="usersDropdown">
+                            <div class="dropdown-content" id="dropdownContent">
+                                <!-- Users will be dynamically added here -->
+                            </div>
+                        </div>
                     </div>
                     <button id="newNoteBtn">
                         <i class="fas fa-plus"></i>
@@ -83,6 +100,7 @@
     </header>
 
     <div class="container">
+      <div id="cursor-container"></div>
       <textarea id="notepad" spellcheck="false" placeholder="Start typing..."><%= note.content %></textarea>
       <button id="copyContent" title="Copy note content">
         <i class="fas fa-copy"></i>
@@ -129,12 +147,35 @@
         });
         
         socket.on('connect', () => {
-            console.log('Connected to server:', socket.id);
+            console.log('✅ Connected to server:', socket.id);
+            console.log('🔌 Socket connection established');
         });
 
         socket.on('connect_error', (error) => {
-            console.error('Connection error:', error);
+            console.error('❌ Connection error:', error);
         });
+        
+        // Debug: Log when socket is ready with retry mechanism
+        function checkCursorSystemStatus() {
+            const { textarea, cursorContainer } = getElements();
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log('🚀 CURSOR SYSTEM STATUS CHECK');
+            console.log('Socket ID:', socket.id);
+            console.log('Socket connected:', socket.connected);
+            console.log('Textarea element:', textarea ? '✅ Found' : '❌ Not found');
+            console.log('Cursor container:', cursorContainer ? '✅ Found' : '❌ Not found');
+            console.log('Remote cursors:', remoteCursors.size, 'active');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            // If elements are missing, retry after a short delay
+            if (!textarea || !cursorContainer) {
+                console.log('⚠️ Elements missing, retrying in 500ms...');
+                setTimeout(checkCursorSystemStatus, 500);
+            }
+        }
+        
+        // Initial check after 1 second
+        setTimeout(checkCursorSystemStatus, 1000);
 
         // Add New Note button functionality
         document.getElementById('newNoteBtn').addEventListener('click', () => {
@@ -170,18 +211,19 @@
         socket.on('userCount', (count) => {
             const userCountElement = document.getElementById('userCount');
             const statusDot = document.querySelector('.status-dot');
-            const userIcon = document.querySelector('.status-indicator i');
             
-            userCountElement.textContent = count;
+            if (userCountElement) {
+                userCountElement.textContent = count;
+            }
             
-            if (count > 1) {
-                statusDot.style.backgroundColor = '#fefae0';
-                userIcon.style.color = '#fefae0';
-                statusDot.style.animationDuration = '1s';
-            } else {
-                statusDot.style.backgroundColor = '#fefae0';
-                userIcon.style.color = '#fefae0';
-                statusDot.style.animationDuration = '2s';
+            if (statusDot) {
+                if (count > 1) {
+                    statusDot.style.backgroundColor = '#fefae0';
+                    statusDot.style.animationDuration = '1s';
+                } else {
+                    statusDot.style.backgroundColor = '#fefae0';
+                    statusDot.style.animationDuration = '2s';
+                }
             }
         });
 
@@ -200,6 +242,14 @@
             if (content !== lastContent) {
                 lastContent = content;
                 socket.emit('updateNote', { url, content });
+            }
+            
+            // Also emit cursor position immediately after text update
+            if (textarea && typeof textarea.selectionStart === 'number') {
+                socket.emit('cursor-move', {
+                    position: textarea.selectionStart,
+                    timestamp: Date.now()
+                });
             }
         }, 100));
 
@@ -314,6 +364,2092 @@
                     .catch(err => console.log('ServiceWorker registration failed:', err));
             });
         }
+
+        // ============================================
+        // Collaborative Cursor System Implementation
+        // ============================================
+
+        // Store remote cursor data: userId -> { element, color, emoji, lastUpdate, inactivityTimer }
+        const remoteCursors = new Map();
+        
+        // Store user data for dropdown: userId -> { username, emoji, color, status, lastActivity, deviceInfo }
+        const userData = new Map();
+        
+        // Get elements with fallback
+        function getElements() {
+            return {
+                textarea: document.getElementById('notepad'),
+                cursorContainer: document.getElementById('cursor-container')
+            };
+        }
+        
+        const { textarea, cursorContainer } = getElements();
+        
+        // My cursor data from server
+        let myCursorData = null;
+
+        // Throttle function for cursor movement events
+        function throttle(func, limit) {
+            let inThrottle;
+            return function(...args) {
+                if (!inThrottle) {
+                    func.apply(this, args);
+                    inThrottle = true;
+                    setTimeout(() => inThrottle = false, limit);
+                }
+            };
+        }
+
+
+        // Calculate cursor position in pixels from character index with proper text wrapping support
+        function getCursorCoordinates(textareaEl, caretPosition) {
+            try {
+                console.log('🔍 getCursorCoordinates called with:', { textareaEl: !!textareaEl, caretPosition });
+                console.log('🔍 Textarea value:', JSON.stringify(textareaEl?.value));
+                console.log('🔍 Textarea value length:', textareaEl?.value?.length);
+                
+                if (!textareaEl || caretPosition < 0) {
+                    console.log('❌ Invalid parameters for cursor calculation');
+                    return { x: -1, y: -1 }; // Return invalid coordinates
+                }
+
+                // Don't calculate coordinates for empty textarea
+                if (!textareaEl.value || textareaEl.value.trim() === '') {
+                    console.log('❌ Not calculating coordinates for empty textarea');
+                    return { x: -1, y: -1 }; // Return invalid coordinates
+                }
+
+                const style = window.getComputedStyle(textareaEl);
+                
+                // Get font size for scaling calculations
+                const fontSize = parseFloat(style.fontSize) || 16;
+                const scaleFactor = fontSize / 16; // Base font size is 16px
+                
+                // Get textarea dimensions
+                const textareaWidth = textareaEl.clientWidth;
+                const paddingLeft = parseFloat(style.paddingLeft) || 0;
+                const paddingTop = parseFloat(style.paddingTop) || 0;
+                const lineHeight = parseFloat(style.lineHeight) || fontSize * 1.2;
+                
+                // Create a mirror div to simulate textarea rendering
+                const mirror = document.createElement('div');
+                mirror.style.position = 'absolute';
+                mirror.style.top = '-9999px';
+                mirror.style.left = '-9999px';
+                mirror.style.width = `${textareaWidth}px`;
+                mirror.style.font = style.font;
+                mirror.style.fontSize = style.fontSize;
+                mirror.style.fontFamily = style.fontFamily;
+                mirror.style.fontWeight = style.fontWeight;
+                mirror.style.letterSpacing = style.letterSpacing;
+                mirror.style.lineHeight = style.lineHeight;
+                mirror.style.padding = style.padding;
+                mirror.style.border = style.border;
+                mirror.style.boxSizing = style.boxSizing;
+                mirror.style.whiteSpace = 'pre-wrap'; // Allow wrapping
+                mirror.style.wordWrap = 'break-word';
+                mirror.style.overflowWrap = 'break-word';
+                
+                // Set the text content up to the cursor position
+                const textUpToCursor = textareaEl.value.substring(0, caretPosition);
+                mirror.textContent = textUpToCursor;
+                
+                document.body.appendChild(mirror);
+                
+                // Get the position of the last character
+                const range = document.createRange();
+                const textNode = mirror.firstChild;
+                
+                if (textNode && textNode.textContent.length > 0) {
+                    range.setStart(textNode, Math.min(caretPosition, textNode.textContent.length));
+                    range.setEnd(textNode, Math.min(caretPosition, textNode.textContent.length));
+                } else {
+                    // Handle empty text case
+                    range.setStart(mirror, 0);
+                    range.setEnd(mirror, 0);
+                }
+                
+                const rect = range.getBoundingClientRect();
+                const mirrorRect = mirror.getBoundingClientRect();
+                
+                // Calculate relative position within the textarea
+                const x = rect.left - mirrorRect.left + paddingLeft;
+                const y = rect.top - mirrorRect.top + paddingTop;
+                
+                document.body.removeChild(mirror);
+                
+                console.log('✅ Coords: pos=' + caretPosition + ' x=' + x.toFixed(1) + ', y=' + y.toFixed(1) + ' (scale=' + scaleFactor.toFixed(2) + ', wrapped)');
+                return { x, y, scaleFactor };
+            } catch (error) {
+                console.error('Error calculating cursor position:', error);
+                return { x: 0, y: 0, scaleFactor: 1 };
+            }
+        }
+
+        // Create cursor element (pin-style with emoji)
+        function createCursorElement(userId, color, emoji, username) {
+            const { cursorContainer } = getElements();
+            if (!cursorContainer) {
+                console.error('Cursor container not found');
+                return null;
+            }
+            
+            const cursorEl = document.createElement('div');
+            cursorEl.className = 'remote-cursor';
+            cursorEl.id = `cursor-${userId}`;
+            cursorEl.style.setProperty('--user-color', color);
+            cursorEl.setAttribute('title', username || 'Anonymous User');
+            
+            // Ensure cursor starts completely hidden
+            cursorEl.style.display = 'none';
+            cursorEl.style.opacity = '0';
+            cursorEl.style.visibility = 'hidden';
+            
+            cursorEl.innerHTML = `
+                <div class="cursor-pin">
+                    <div class="cursor-pin-head">${emoji || '📍'}</div>
+                    <div class="cursor-pin-point"></div>
+                </div>
+                <div class="cursor-tooltip">${username || 'Anonymous User'}</div>
+            `;
+            
+            cursorContainer.appendChild(cursorEl);
+            return cursorEl;
+        }
+
+        // Update cursor position with smooth animation
+        function updateCursorPosition(userId, position, isInactive = false) {
+            try {
+                console.log('🎯 updateCursorPosition called for', userId, 'position:', position, 'inactive:', isInactive);
+                console.log('🔍 DEBUG: Function called from:', new Error().stack?.split('\n')[2]);
+                
+                const cursorData = remoteCursors.get(userId);
+                if (!cursorData || !cursorData.element) {
+                    console.log('❌ No cursor data or element for', userId);
+                    return;
+                }
+
+                const { textarea } = getElements();
+                if (!textarea) {
+                    console.log('❌ Textarea not available for cursor calculation');
+                    return;
+                }
+
+                console.log('🔍 DEBUG: Textarea value:', JSON.stringify(textarea.value));
+                console.log('🔍 DEBUG: Textarea value length:', textarea.value.length);
+                console.log('🔍 DEBUG: Position:', position);
+
+                // Only position cursors with valid positions
+                if (position === null || position === undefined || position < 0) {
+                    console.log('❌ Invalid position for cursor:', position);
+                    return;
+                }
+
+                // Don't show cursors when textarea is empty (position 0 with no text)
+                if (position === 0 && (!textarea.value || textarea.value.trim() === '')) {
+                    console.log('❌ Not showing cursor for empty textarea at position 0');
+                    return;
+                }
+
+                console.log('📏 Calculating coordinates...');
+                console.log('📝 Textarea value length:', textarea.value.length);
+                console.log('📝 Textarea value:', JSON.stringify(textarea.value));
+                // Always use text position - no more idle positions
+                const coords = getCursorCoordinates(textarea, position);
+                console.log('📍 Calculated coords:', coords);
+                
+                // Check for invalid coordinates (empty textarea)
+                if (coords.x === -1 && coords.y === -1) {
+                    console.log('❌ Invalid coordinates - not positioning cursor');
+                    return;
+                }
+                
+                // Add offsets to position the pin tip at the end of the text
+                // Apply dynamic scaling to offsets
+                const baseXOffset = -21;
+                const baseYOffset = -41;
+                
+                const scaledXOffset = baseXOffset * coords.scaleFactor;
+                const scaledYOffset = baseYOffset * coords.scaleFactor;
+                
+                let offsetX = coords.x + scaledXOffset;
+                let offsetY = coords.y + scaledYOffset;
+                
+                // Ensure cursor stays within textarea bounds
+                const textareaRect = textarea.getBoundingClientRect();
+                const cursorContainerRect = cursorContainer.getBoundingClientRect();
+                
+                // Convert to relative coordinates within cursor container
+                const relativeX = offsetX;
+                const relativeY = offsetY;
+                
+                // Clamp coordinates to prevent off-screen positioning
+                const minX = 0;
+                const maxX = textarea.clientWidth;
+                const minY = -50; // Allow some space above for cursor
+                const maxY = textarea.clientHeight + 20; // Allow some space below
+                
+                offsetX = Math.max(minX, Math.min(maxX, relativeX));
+                offsetY = Math.max(minY, Math.min(maxY, relativeY));
+                
+                console.log('📍 After offset: x=' + offsetX + 'px, y=' + offsetY + 'px');
+                
+                // Additional safeguard: Don't position cursors near the copy button area
+                // Copy button is typically in the bottom-right area
+                const copyButtonAreaX = textarea.clientWidth - 100; // Right side of textarea
+                const copyButtonAreaY = textarea.clientHeight - 50; // Bottom area of textarea
+                
+                if (offsetX > copyButtonAreaX && offsetY > copyButtonAreaY) {
+                    console.log('❌ Cursor would be positioned near copy button - hiding cursor');
+                    return;
+                }
+                
+                const cursorEl = cursorData.element;
+                
+                // Use requestAnimationFrame for smooth updates
+                requestAnimationFrame(() => {
+                    if (cursorEl && cursorEl.style && cursorEl.parentNode) {
+                        console.log('🎨 Setting cursor styles: left=' + offsetX + 'px, top=' + offsetY + 'px, scale=' + coords.scaleFactor.toFixed(2));
+                        cursorEl.style.left = `${offsetX}px`;
+                        cursorEl.style.top = `${offsetY}px`;
+                        cursorEl.style.opacity = '1';
+                        cursorEl.style.display = 'block';
+                        cursorEl.style.visibility = 'visible';
+                        cursorEl.style.transform = `scale(${coords.scaleFactor})`;
+                        
+                        // Remove inactive class since we're not using idle positions anymore
+                        cursorEl.classList.remove('cursor-inactive');
+                        
+                        console.log('✅ Cursor DOM updated!');
+                    } else {
+                        console.log('❌ Cursor element, style, or parent not available');
+                    }
+                });
+
+                // Update last activity timestamp
+                cursorData.lastUpdate = Date.now();
+                
+                // Clear existing inactivity timer
+                if (cursorData.inactivityTimer) {
+                    clearTimeout(cursorData.inactivityTimer);
+                }
+                
+                // Set fade after 5 seconds of inactivity, then hide after 10 seconds
+                cursorData.inactivityTimer = setTimeout(() => {
+                    if (cursorEl && cursorEl.style) {
+                        cursorEl.style.opacity = '0.3';
+                        // Keep cursor in same position, just reduce opacity
+                        
+                        // Hide cursor completely after additional 5 seconds
+                        setTimeout(() => {
+                            if (cursorEl && cursorEl.style) {
+                                cursorEl.style.display = 'none';
+                                cursorEl.style.opacity = '0';
+                                cursorEl.style.visibility = 'hidden';
+                                cursorData.isActive = false;
+                            }
+                        }, 5000); // Additional 5 seconds before hiding
+                    }
+                }, 5000); // 5 seconds - reduces opacity but stays in same position
+                
+            } catch (error) {
+                console.error('Error updating cursor position:', error);
+            }
+        }
+
+        // Remove cursor element
+        function removeCursor(userId) {
+            const cursorData = remoteCursors.get(userId);
+            if (cursorData) {
+                if (cursorData.inactivityTimer) {
+                    clearTimeout(cursorData.inactivityTimer);
+                }
+                if (cursorData.element && cursorData.element.parentNode) {
+                    cursorData.element.remove();
+                }
+                remoteCursors.delete(userId);
+            }
+        }
+
+        // Immediate cursor emit (no throttle for real-time updates like Google Docs)
+        const emitCursorPositionImmediate = () => {
+            console.log('🔍 emitCursorPositionImmediate called');
+            const { textarea } = getElements();
+            if (!textarea || typeof textarea.selectionStart !== 'number') {
+                console.log('❌ Cannot emit cursor: textarea not ready');
+                return;
+            }
+            
+            const position = textarea.selectionStart;
+            console.log('🔍 Current position:', position);
+            console.log('🔍 Textarea value:', JSON.stringify(textarea.value));
+            console.log('🔍 Textarea value length:', textarea.value.length);
+            
+            // Don't emit cursor position when textarea is empty and position is 0
+            if (position === 0 && (!textarea.value || textarea.value.trim() === '')) {
+                console.log('❌ Not emitting cursor for empty textarea at position 0');
+                return;
+            }
+            
+            console.log('📍 EMITTING cursor position:', position);
+            socket.emit('cursor-move', {
+                position: position,
+                timestamp: Date.now()
+            });
+        };
+
+        // Throttled version for mouse/click events (less critical)
+        const emitCursorPosition = throttle(() => {
+            emitCursorPositionImmediate();
+        }, 50); // Reduced to 50ms for better responsiveness
+
+        // Listen for cursor movement in textarea
+        document.addEventListener('DOMContentLoaded', () => {
+            const textarea = document.getElementById('notepad');
+            if (textarea) {
+                console.log('✅ Setting up cursor event listeners on textarea');
+                
+                // Real-time updates on typing (like Google Docs)
+                textarea.addEventListener('input', () => {
+                    console.log('⌨️ INPUT EVENT FIRED - calling emitCursorPositionImmediate');
+                    emitCursorPositionImmediate();
+                });
+                
+                // Throttled updates for mouse/click
+                textarea.addEventListener('mouseup', () => {
+                    console.log('🖱️ MOUSEUP EVENT');
+                    emitCursorPosition();
+                });
+                textarea.addEventListener('click', () => {
+                    console.log('👆 CLICK EVENT');
+                    emitCursorPosition();
+                });
+                
+                // Immediate updates for keyboard navigation
+                textarea.addEventListener('keydown', (e) => {
+                    // Update on arrow keys, home, end, page up/down
+                    if (e.key.includes('Arrow') || e.key === 'Home' || e.key === 'End' || 
+                        e.key === 'PageUp' || e.key === 'PageDown') {
+                        console.log('⬅️ NAVIGATION KEY:', e.key);
+                        setTimeout(emitCursorPositionImmediate, 0);
+                    }
+                });
+
+                // Also listen for focus events
+                textarea.addEventListener('focus', () => {
+                    console.log('🎯 TEXTAREA FOCUSED');
+                    emitCursorPositionImmediate();
+                });
+            } else {
+                console.error('❌ TEXTAREA NOT FOUND!');
+            }
+        });
+        
+        // Also emit on selection change (handles arrow keys and text selection)
+        document.addEventListener('selectionchange', () => {
+            const textarea = document.getElementById('notepad');
+            if (document.activeElement === textarea) {
+                console.log('🔄 SELECTIONCHANGE EVENT');
+                emitCursorPositionImmediate();
+            }
+        });
+
+        // ============================================
+        // Socket.IO Event Listeners for Cursors
+        // ============================================
+
+        // Handle existing cursors when joining
+        socket.on('existing-cursors', (cursors) => {
+            if (!Array.isArray(cursors)) return;
+            
+            cursors.forEach(cursor => {
+                const cursorEl = createCursorElement(cursor.userId, cursor.color, cursor.emoji, cursor.username);
+                if (!cursorEl) return; // Skip if cursor element creation failed
+                
+                
+                remoteCursors.set(cursor.userId, {
+                    element: cursorEl,
+                    color: cursor.color,
+                    emoji: cursor.emoji,
+                    username: cursor.username,
+                    lastUpdate: cursor.timestamp,
+                    inactivityTimer: null,
+                    isActive: false // Track if cursor is actively being used
+                });
+                
+                // Add user data for dropdown - With device info
+                console.log('📝 Adding user to dropdown data:', cursor.userId, cursor);
+                userData.set(cursor.userId, {
+                    username: cursor.username,
+                    emoji: cursor.emoji,
+                    color: cursor.color,
+                    status: 'online',
+                    lastActivity: Date.now(),
+                    deviceInfo: getDeviceInfo()
+                });
+                console.log('📊 Total users in dropdown data:', userData.size);
+                
+                // Don't show cursor initially - wait for user interaction
+            });
+        });
+
+        // Handle new user joining
+        socket.on('cursor-join', (data) => {
+            if (!data || !data.userId) return;
+            
+            console.log('👋 NEW USER JOINED:', data.username || data.userId, data);
+            
+            // Don't create cursor for self
+            if (data.userId === socket.id) {
+                console.log('⏭️ This is me, skipping cursor creation');
+                myCursorData = data;
+                return;
+            }
+            
+            // Create cursor element
+            console.log('🎨 Creating cursor element for', data.userId);
+            const cursorEl = createCursorElement(data.userId, data.color, data.emoji, data.username);
+            if (!cursorEl) {
+                console.log('❌ Failed to create cursor element');
+                return;
+            }
+            
+            
+            console.log('✅ Cursor element created, adding to remoteCursors map');
+            remoteCursors.set(data.userId, {
+                element: cursorEl,
+                color: data.color,
+                emoji: data.emoji,
+                username: data.username,
+                lastUpdate: data.timestamp,
+                inactivityTimer: null,
+                isActive: false // Track if cursor is actively being used
+            });
+            console.log('📊 Total remote cursors:', remoteCursors.size);
+            
+            // Add user data for dropdown - With device info
+            console.log('📝 Adding new user to dropdown data:', data.userId, data);
+            userData.set(data.userId, {
+                username: data.username,
+                emoji: data.emoji,
+                color: data.color,
+                status: 'online',
+                lastActivity: Date.now(),
+                deviceInfo: getDeviceInfo()
+            });
+            console.log('📊 Total users in dropdown data:', userData.size);
+        });
+
+        // Handle cursor movement
+        socket.on('cursor-move', (data) => {
+            console.log('📥 RECEIVED cursor-move:', data);
+            console.log('🔍 DEBUG: Socket ID:', socket.id);
+            console.log('🔍 DEBUG: Data userId:', data?.userId);
+            console.log('🔍 DEBUG: Data position:', data?.position);
+            
+            // Validate data - only show cursors with valid positions
+            if (!data || !data.userId || data.position === undefined || data.position === null || data.position < 0) {
+                console.log('❌ Invalid cursor data or no position');
+                return;
+            }
+            
+            // Don't show own cursor
+            if (data.userId === socket.id) {
+                console.log('⏭️ Skipping own cursor');
+                return;
+            }
+            
+            // If cursor doesn't exist yet, it might be a race condition - skip
+            if (!remoteCursors.has(data.userId)) {
+                console.log('⚠️ Cursor not found for user:', data.userId);
+                console.log('Available cursors:', Array.from(remoteCursors.keys()));
+                return;
+            }
+            
+            console.log('✅ Updating cursor position for', data.userId, 'to position', data.position);
+            
+            // Store the position for later use (scroll/resize)
+            const cursorData = remoteCursors.get(data.userId);
+            if (cursorData) {
+                cursorData.lastPosition = data.position;
+                cursorData.isActive = true; // Mark cursor as active
+            }
+            
+            // Update user activity for dropdown
+            updateUserActivity(data.userId);
+            
+            // Show and update the cursor position (no more idle positions)
+            updateCursorPosition(data.userId, data.position, false);
+        });
+
+        // Handle user leaving
+        socket.on('cursor-leave', (data) => {
+            if (!data || !data.userId) return;
+            console.log('User left:', data.userId);
+            removeCursor(data.userId);
+            
+            // Remove from user data
+            console.log('🗑️ Removing user from dropdown data:', data.userId);
+            userData.delete(data.userId);
+            console.log('📊 Total users in dropdown data:', userData.size);
+        });
+
+        // Clean up all cursors on disconnect
+        socket.on('disconnect', () => {
+            remoteCursors.forEach((_, userId) => removeCursor(userId));
+        });
+
+        // Recalculate cursor positions on window resize or textarea scroll
+        document.addEventListener('DOMContentLoaded', () => {
+            const textarea = document.getElementById('notepad');
+            if (textarea) {
+                textarea.addEventListener('scroll', () => {
+                    remoteCursors.forEach((cursorData, userId) => {
+                        // Re-render visible cursors on scroll
+                        if (cursorData && cursorData.element && cursorData.element.style &&
+                            cursorData.lastPosition !== undefined && cursorData.lastPosition !== null &&
+                            cursorData.isActive) { // Only update active cursors
+                            try {
+                                const coords = getCursorCoordinates(textarea, cursorData.lastPosition);
+                                
+                                const baseXOffset = -21;
+                                const baseYOffset = -41;
+                                
+                                const scaledXOffset = baseXOffset * coords.scaleFactor;
+                                const scaledYOffset = baseYOffset * coords.scaleFactor;
+                                
+                                cursorData.element.style.left = `${coords.x + scaledXOffset}px`;
+                                cursorData.element.style.top = `${coords.y + scaledYOffset}px`;
+                                cursorData.element.style.transform = `scale(${coords.scaleFactor})`;
+                                
+                                // Remove inactive class since we're not using idle positions anymore
+                                cursorData.element.classList.remove('cursor-inactive');
+                            } catch (error) {
+                                console.error('Error updating cursor on scroll:', error);
+                            }
+                        }
+                    });
+                });
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            remoteCursors.forEach((cursorData, userId) => {
+                if (cursorData && cursorData.lastPosition !== undefined && cursorData.lastPosition !== null &&
+                    cursorData.isActive) { // Only update active cursors
+                    updateCursorPosition(userId, cursorData.lastPosition, false);
+                }
+            });
+        });
+
+        // Monitor for font size changes and textarea resizing
+        document.addEventListener('DOMContentLoaded', () => {
+            const textarea = document.getElementById('notepad');
+            if (textarea) {
+                let lastFontSize = parseFloat(window.getComputedStyle(textarea).fontSize);
+                let lastWidth = textarea.clientWidth;
+                let lastHeight = textarea.clientHeight;
+                
+                // Check for changes periodically
+                setInterval(() => {
+                    const currentFontSize = parseFloat(window.getComputedStyle(textarea).fontSize);
+                    const currentWidth = textarea.clientWidth;
+                    const currentHeight = textarea.clientHeight;
+                    
+                    // Check for font size changes
+                    if (Math.abs(currentFontSize - lastFontSize) > 0.1) {
+                        console.log('📏 Font size changed from', lastFontSize, 'to', currentFontSize);
+                        lastFontSize = currentFontSize;
+                        
+                        // Update all cursor positions with new scaling
+                        remoteCursors.forEach((cursorData, userId) => {
+                            if (cursorData && cursorData.lastPosition !== undefined && cursorData.lastPosition !== null &&
+                                cursorData.isActive) { // Only update active cursors
+                                updateCursorPosition(userId, cursorData.lastPosition, false);
+                            }
+                        });
+                    }
+                    
+                    // Check for textarea size changes (zoom, resize, etc.)
+                    if (Math.abs(currentWidth - lastWidth) > 1 || Math.abs(currentHeight - lastHeight) > 1) {
+                        console.log('📐 Textarea size changed:', { width: currentWidth, height: currentHeight });
+                        lastWidth = currentWidth;
+                        lastHeight = currentHeight;
+                        
+                        // Update all cursor positions with new dimensions
+                        remoteCursors.forEach((cursorData, userId) => {
+                            if (cursorData && cursorData.lastPosition !== undefined && cursorData.lastPosition !== null &&
+                                cursorData.isActive) { // Only update active cursors
+                                updateCursorPosition(userId, cursorData.lastPosition, false);
+                            }
+                        });
+                    }
+                }, 300); // Check every 300ms for more responsive updates
+                
+                // Also listen for window resize events
+                window.addEventListener('resize', () => {
+                    setTimeout(() => {
+                        remoteCursors.forEach((cursorData, userId) => {
+                            if (cursorData && cursorData.lastPosition !== undefined && cursorData.lastPosition !== null &&
+                                cursorData.isActive) { // Only update active cursors
+                                updateCursorPosition(userId, cursorData.lastPosition, false);
+                            }
+                        });
+                    }, 100); // Small delay to ensure layout is updated
+                });
+            }
+        });
+
+        // Debug function to test cursor system
+        window.testCursorSystem = function() {
+            console.log('🧪 TESTING CURSOR SYSTEM');
+            const { textarea, cursorContainer } = getElements();
+            console.log('Elements:', { textarea: !!textarea, cursorContainer: !!cursorContainer });
+            console.log('Socket connected:', socket.connected);
+            console.log('Remote cursors:', remoteCursors.size);
+            
+            if (textarea) {
+                console.log('Textarea value length:', textarea.value.length);
+                console.log('Textarea selection:', textarea.selectionStart, textarea.selectionEnd);
+                emitCursorPositionImmediate();
+            }
+            
+            // Check cursor elements
+            remoteCursors.forEach((cursorData, userId) => {
+                if (cursorData.element) {
+                    const el = cursorData.element;
+                    console.log(`Cursor ${userId}:`, {
+                        visible: el.style.display !== 'none',
+                        opacity: el.style.opacity,
+                        left: el.style.left,
+                        top: el.style.top,
+                        zIndex: el.style.zIndex,
+                        inDOM: document.contains(el)
+                    });
+                }
+            });
+        };
+
+        // Debug function to force show all cursors
+        window.showAllCursors = function() {
+            remoteCursors.forEach((cursorData, userId) => {
+                if (cursorData.element) {
+                    cursorData.element.style.display = 'block';
+                    cursorData.element.style.opacity = '1';
+                    cursorData.element.style.zIndex = '1000';
+                    cursorData.element.style.visibility = 'visible';
+                    cursorData.element.style.position = 'absolute';
+                }
+            });
+            console.log('✅ All cursors forced visible');
+        };
+
+        // Debug function to inspect cursor elements in detail
+        window.inspectCursors = function() {
+            console.log('🔍 INSPECTING CURSOR ELEMENTS');
+            const { cursorContainer } = getElements();
+            console.log('Cursor container:', cursorContainer);
+            console.log('Container children:', cursorContainer?.children.length);
+            
+            remoteCursors.forEach((cursorData, userId) => {
+                if (cursorData.element) {
+                    const el = cursorData.element;
+                    const rect = el.getBoundingClientRect();
+                    const computedStyle = window.getComputedStyle(el);
+                    
+                    console.log(`\n📌 Cursor ${userId}:`, {
+                        element: el,
+                        id: el.id,
+                        className: el.className,
+                        innerHTML: el.innerHTML.substring(0, 100) + '...',
+                        rect: rect,
+                        style: {
+                            display: el.style.display,
+                            opacity: el.style.opacity,
+                            visibility: el.style.visibility,
+                            position: el.style.position,
+                            left: el.style.left,
+                            top: el.style.top,
+                            zIndex: el.style.zIndex
+                        },
+                        computedStyle: {
+                            display: computedStyle.display,
+                            opacity: computedStyle.opacity,
+                            visibility: computedStyle.visibility,
+                            position: computedStyle.position,
+                            left: computedStyle.left,
+                            top: computedStyle.top,
+                            zIndex: computedStyle.zIndex
+                        },
+                        inDOM: document.contains(el),
+                        parentElement: el.parentElement
+                    });
+                }
+            });
+        };
+
+        // Debug function to test text wrapping
+        window.testTextWrapping = function() {
+            console.log('🧪 TESTING TEXT WRAPPING');
+            const { textarea } = getElements();
+            if (!textarea) {
+                console.log('❌ Textarea not found');
+                return;
+            }
+            
+            const testText = 'This is a very long line of text that should wrap around when it reaches the edge of the textarea to test if the cursor positioning works correctly with text wrapping.';
+            textarea.value = testText;
+            
+            // Test cursor at different positions
+            const positions = [0, 10, 50, 100, testText.length];
+            positions.forEach(pos => {
+                const coords = getCursorCoordinates(textarea, pos);
+                console.log(`Position ${pos}: x=${coords.x.toFixed(1)}, y=${coords.y.toFixed(1)}, scale=${coords.scaleFactor.toFixed(2)}`);
+            });
+            
+            // Emit cursor position to test with other users
+            emitCursorPositionImmediate();
+        };
+
+        // Debug function to track cursor issues
+        window.debugCursorIssue = function() {
+            console.log('🔍 DEBUGGING CURSOR ISSUE');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            const { textarea, cursorContainer } = getElements();
+            console.log('Textarea:', textarea);
+            console.log('Textarea value:', JSON.stringify(textarea?.value));
+            console.log('Textarea value length:', textarea?.value?.length);
+            console.log('Textarea selection:', textarea?.selectionStart, textarea?.selectionEnd);
+            
+            console.log('Cursor container:', cursorContainer);
+            console.log('Cursor container children:', cursorContainer?.children.length);
+            
+            console.log('Remote cursors:', remoteCursors.size);
+            remoteCursors.forEach((cursorData, userId) => {
+                console.log(`Cursor ${userId}:`, {
+                    element: cursorData.element,
+                    isActive: cursorData.isActive,
+                    lastPosition: cursorData.lastPosition,
+                    style: {
+                        display: cursorData.element?.style?.display,
+                        opacity: cursorData.element?.style?.opacity,
+                        visibility: cursorData.element?.style?.visibility,
+                        left: cursorData.element?.style?.left,
+                        top: cursorData.element?.style?.top
+                    }
+                });
+            });
+            
+            console.log('Socket connected:', socket.connected);
+            console.log('Socket ID:', socket.id);
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        };
+
+        // ============================================
+        // Users Dropdown Implementation
+        // ============================================
+
+        // Get device information
+        function getDeviceInfo() {
+            const userAgent = navigator.userAgent;
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+            const isTablet = /iPad|Android/i.test(userAgent) && !/Mobile/i.test(userAgent);
+            
+            let deviceType = 'Desktop';
+            let browser = 'Unknown';
+            
+            if (isMobile) deviceType = 'Mobile';
+            else if (isTablet) deviceType = 'Tablet';
+            
+            if (userAgent.includes('Chrome')) browser = 'Chrome';
+            else if (userAgent.includes('Firefox')) browser = 'Firefox';
+            else if (userAgent.includes('Safari')) browser = 'Safari';
+            else if (userAgent.includes('Edge')) browser = 'Edge';
+            
+            return `${deviceType} • ${browser}`;
+        }
+
+        // Determine user status based on activity
+        function getUserStatus(userId) {
+            const user = userData.get(userId);
+            if (!user) return 'disconnected';
+            
+            const now = Date.now();
+            const timeSinceActivity = now - user.lastActivity;
+            
+            if (timeSinceActivity < 30000) { // Less than 30 seconds
+                return 'online';
+            } else if (timeSinceActivity < 300000) { // Less than 5 minutes
+                return 'idle';
+            } else {
+                return 'disconnected';
+            }
+        }
+
+        // Update user activity
+        function updateUserActivity(userId) {
+            const user = userData.get(userId);
+            if (user) {
+                user.lastActivity = Date.now();
+                user.status = getUserStatus(userId);
+                userData.set(userId, user);
+            }
+        }
+
+        // Create user dropdown item - With device info on hover
+        function createUserDropdownItem(userId, userInfo) {
+            const status = getUserStatus(userId);
+            const deviceInfo = userInfo.deviceInfo || getDeviceInfo();
+            
+            console.log('🔧 Creating dropdown item for user:', userId, userInfo);
+            
+            const userItem = document.createElement('div');
+            userItem.className = 'user-item';
+            userItem.setAttribute('data-user-id', userId);
+            
+            userItem.innerHTML = `
+                <div class="user-emoji-circle">
+                    ${userInfo.emoji || '👤'}
+                    <div class="user-status-dot ${status}"></div>
+                </div>
+                <div class="user-tooltip">
+                    <strong>${userInfo.username || 'Anonymous User'}</strong><br>
+                    ${deviceInfo}<br>
+                    <small>Status: ${status}</small>
+                </div>
+            `;
+            
+            // Add event listeners for debugging tooltip hover
+            const emojiCircle = userItem.querySelector('.user-emoji-circle');
+            const tooltip = userItem.querySelector('.user-tooltip');
+            
+            console.log('🔍 Debugging tooltip for user:', userId);
+            console.log('  - Emoji circle element:', emojiCircle);
+            console.log('  - Tooltip element:', tooltip);
+            console.log('  - User info:', userInfo);
+            
+            // Add mouse event listeners for debugging
+            emojiCircle.addEventListener('mouseenter', () => {
+                console.log('🖱️ MOUSE ENTER on emoji circle for user:', userId, userInfo.username);
+                console.log('  - Tooltip element:', tooltip);
+                console.log('  - Tooltip computed styles:', tooltip ? getComputedStyle(tooltip) : 'No tooltip');
+                console.log('  - Tooltip classes:', tooltip ? tooltip.className : 'No tooltip');
+                
+                // Force show tooltip for debugging
+                if (tooltip) {
+                    tooltip.style.opacity = '1';
+                    tooltip.style.visibility = 'visible';
+                    console.log('🔧 FORCED tooltip to show for:', userInfo.username);
+                }
+            });
+            
+            emojiCircle.addEventListener('mouseleave', () => {
+                console.log('🖱️ MOUSE LEAVE on emoji circle for user:', userId, userInfo.username);
+                
+                // Force hide tooltip for debugging
+                if (tooltip) {
+                    tooltip.style.opacity = '0';
+                    tooltip.style.visibility = 'hidden';
+                    console.log('🔧 FORCED tooltip to hide for:', userInfo.username);
+                }
+            });
+            
+            // Also add listeners to the entire user item
+            userItem.addEventListener('mouseenter', () => {
+                console.log('🖱️ MOUSE ENTER on user item for user:', userId, userInfo.username);
+            });
+            
+            userItem.addEventListener('mouseleave', () => {
+                console.log('🖱️ MOUSE LEAVE on user item for user:', userId, userInfo.username);
+            });
+            
+            // Add click event for mobile tooltip toggle
+            emojiCircle.addEventListener('click', (e) => {
+                console.log('👆 CLICK on emoji circle for user:', userId, userInfo.username);
+                
+                // Check if we're on mobile (screen width <= 768px)
+                const isMobile = window.innerWidth <= 768;
+                
+                if (isMobile) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Toggle tooltip visibility
+                    const isActive = userItem.classList.contains('tooltip-active');
+                    
+                    // Remove active class from all other user items
+                    const allUserItems = document.querySelectorAll('.user-item');
+                    allUserItems.forEach(item => {
+                        if (item !== userItem) {
+                            item.classList.remove('tooltip-active');
+                        }
+                    });
+                    
+                    // Toggle current item
+                    if (isActive) {
+                        userItem.classList.remove('tooltip-active');
+                        console.log('🔧 Tooltip hidden for:', userInfo.username);
+                    } else {
+                        userItem.classList.add('tooltip-active');
+                        console.log('🔧 Tooltip shown for:', userInfo.username);
+                    }
+                }
+            });
+            
+            return userItem;
+        }
+
+        // Update dropdown content - With device info
+        function updateUsersDropdown() {
+            const dropdownContent = document.getElementById('dropdownContent');
+            if (!dropdownContent) {
+                console.log('❌ Dropdown content element not found!');
+                return;
+            }
+            
+            console.log('🔄 Updating dropdown with', userData.size, 'users');
+            console.log('📊 User data:', Array.from(userData.entries()));
+            console.log('📊 My cursor data:', myCursorData);
+            
+            // Clear existing content
+            dropdownContent.innerHTML = '';
+            console.log('🧹 Cleared dropdown content');
+            
+            // Add current user first
+            if (myCursorData) {
+                console.log('👤 Adding current user:', myCursorData);
+                const currentUserItem = createUserDropdownItem(socket.id, {
+                    username: myCursorData.username || 'You',
+                    emoji: myCursorData.emoji || '👤',
+                    color: myCursorData.color || '#FF6B6B',
+                    deviceInfo: getDeviceInfo()
+                });
+                currentUserItem.classList.add('current-user');
+                dropdownContent.appendChild(currentUserItem);
+                console.log('✅ Current user item added to dropdown');
+            }
+            
+            // Add other users
+            userData.forEach((userInfo, userId) => {
+                if (userId !== socket.id) {
+                    console.log('👥 Adding user:', userId, userInfo);
+                    console.log('  - User emoji:', userInfo.emoji);
+                    console.log('  - User username:', userInfo.username);
+                    const userItem = createUserDropdownItem(userId, userInfo);
+                    dropdownContent.appendChild(userItem);
+                    console.log('✅ User item added to dropdown for:', userId);
+                    
+                    // Verify the item was added correctly
+                    const addedItem = dropdownContent.lastElementChild;
+                    const emojiCircle = addedItem.querySelector('.user-emoji-circle');
+                    const tooltip = addedItem.querySelector('.user-tooltip');
+                    console.log('  - Added item verification:', {
+                        item: addedItem,
+                        emojiCircle: emojiCircle,
+                        tooltip: tooltip,
+                        emojiText: emojiCircle ? emojiCircle.textContent.trim() : 'No emoji'
+                    });
+                }
+            });
+            
+            console.log('✅ Dropdown updated with', dropdownContent.children.length, 'items');
+            
+            // CRITICAL: Set z-index for all elements after creation
+            const allUserItems = dropdownContent.querySelectorAll('.user-item');
+            const allEmojiCircles = dropdownContent.querySelectorAll('.user-emoji-circle');
+            const allTooltips = dropdownContent.querySelectorAll('.user-tooltip');
+            
+            console.log('🔧 POST-CREATION: Setting z-index for all elements:');
+            console.log('  - User items:', allUserItems.length);
+            console.log('  - Emoji circles:', allEmojiCircles.length);
+            console.log('  - Tooltips:', allTooltips.length);
+            
+            allUserItems.forEach((item, index) => {
+                item.style.zIndex = 'var(--z-content)';
+                console.log(`  ✅ User item ${index} z-index set to var(--z-content)`);
+            });
+            
+            allEmojiCircles.forEach((circle, index) => {
+                circle.style.zIndex = 'var(--z-content)';
+                console.log(`  ✅ Emoji circle ${index} z-index set to var(--z-content)`);
+            });
+            
+            allTooltips.forEach((tooltip, index) => {
+                tooltip.style.zIndex = 'var(--z-tooltip)';
+                console.log(`  ✅ Tooltip ${index} z-index set to var(--z-tooltip)`);
+            });
+            
+            // Debug: Check all tooltip elements after creation
+            setTimeout(() => {
+                console.log('🔍 POST-CREATION DEBUG:');
+                console.log('  - Total tooltips found:', allTooltips.length);
+                console.log('  - Total emoji circles found:', allEmojiCircles.length);
+                
+                allTooltips.forEach((tooltip, index) => {
+                    const userItem = tooltip.closest('.user-item');
+                    const userId = userItem ? userItem.getAttribute('data-user-id') : 'unknown';
+                    console.log(`  - Tooltip ${index} (user: ${userId}):`, {
+                        element: tooltip,
+                        computedStyle: getComputedStyle(tooltip),
+                        parentElement: tooltip.parentElement,
+                        inDOM: document.contains(tooltip),
+                        zIndex: getComputedStyle(tooltip).zIndex
+                    });
+                });
+            }, 100);
+        }
+
+        // Validate that textarea z-index is base before opening dropdown
+        function validateTextareaZIndex() {
+            const textarea = document.getElementById('notepad');
+            if (!textarea) {
+                console.log('❌ Textarea not found for validation');
+                return false;
+            }
+            
+            const currentZIndex = textarea.style.zIndex || getComputedStyle(textarea).zIndex;
+            const isValid = currentZIndex === 'var(--z-base)' || currentZIndex === '0';
+            
+            console.log('🔍 Z-index validation:', {
+                currentZIndex: currentZIndex,
+                isValid: isValid,
+                required: 'var(--z-base) or 0'
+            });
+            
+            return isValid;
+        }
+
+        // Detect if dropdown would go off-screen and determine layout
+        function detectDropdownLayout() {
+            const statusIndicator = document.getElementById('statusIndicator');
+            if (!statusIndicator) return 'horizontal';
+            
+            const rect = statusIndicator.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+            
+            // Estimate dropdown width based on user count
+            const userCount = userData.size + (myCursorData ? 1 : 0);
+            const estimatedDropdownWidth = Math.max(60, userCount * 40 + 20); // 40px per user + padding
+            const estimatedDropdownHeight = 50; // Approximate height for horizontal layout
+            
+            // Check if dropdown would go off-screen horizontally
+            const wouldGoOffScreenRight = (rect.left + estimatedDropdownWidth / 2) > viewportWidth;
+            const wouldGoOffScreenLeft = (rect.left - estimatedDropdownWidth / 2) < 0;
+            
+            // Check if dropdown would go off-screen vertically
+            const wouldGoOffScreenBottom = (rect.bottom + estimatedDropdownHeight) > viewportHeight;
+            
+            // Check if we're on mobile (screen width < 768px)
+            const isMobile = viewportWidth < 768;
+            
+            // Determine layout based on conditions
+            if (isMobile || wouldGoOffScreenRight || wouldGoOffScreenLeft || wouldGoOffScreenBottom) {
+                console.log('📱 Using vertical layout - Mobile:', isMobile, 'Off-screen right:', wouldGoOffScreenRight, 'Off-screen left:', wouldGoOffScreenLeft, 'Off-screen bottom:', wouldGoOffScreenBottom);
+                return 'vertical';
+            } else {
+                console.log('🖥️ Using horizontal layout');
+                return 'horizontal';
+            }
+        }
+
+        // Toggle dropdown visibility
+        function toggleUsersDropdown() {
+            const dropdown = document.getElementById('usersDropdown');
+            const textarea = document.getElementById('notepad');
+            
+            if (!dropdown) {
+                console.log('❌ Dropdown element not found!');
+                return;
+            }
+            
+            console.log('🔄 Toggling dropdown visibility');
+            console.log('📍 Dropdown element:', dropdown);
+            console.log('📍 Textarea element:', textarea);
+            
+            // Debug z-index and positioning
+            const dropdownStyles = getComputedStyle(dropdown);
+            const textareaStyles = getComputedStyle(textarea);
+            
+            console.log('📍 Dropdown computed styles:', {
+                position: dropdownStyles.position,
+                zIndex: dropdownStyles.zIndex,
+                display: dropdownStyles.display,
+                visibility: dropdownStyles.visibility,
+                opacity: dropdownStyles.opacity,
+                top: dropdownStyles.top,
+                right: dropdownStyles.right,
+                transform: dropdownStyles.transform
+            });
+            
+            console.log('📍 Textarea computed styles:', {
+                position: textareaStyles.position,
+                zIndex: textareaStyles.zIndex,
+                display: textareaStyles.display
+            });
+            
+            console.log('📍 Dropdown bounding rect:', dropdown.getBoundingClientRect());
+            console.log('📍 Textarea bounding rect:', textarea?.getBoundingClientRect());
+            
+            // First, set textarea z-index to base BEFORE opening dropdown
+            if (textarea) {
+                textarea.style.zIndex = 'var(--z-base)';
+                textarea.style.position = 'relative';
+                console.log('📝 Textarea z-index set to var(--z-base) (behind dropdown) - BEFORE opening');
+            }
+            
+            // Force z-index to ensure dropdown appears above everything
+            dropdown.style.zIndex = 'var(--z-dropdown)';
+            dropdown.style.position = 'fixed';
+            
+            // Determine layout and apply appropriate classes
+            const layout = detectDropdownLayout();
+            const dropdownContent = document.getElementById('dropdownContent');
+            
+            if (dropdownContent) {
+                // Remove existing layout classes
+                dropdownContent.classList.remove('horizontal-layout', 'vertical-layout');
+                // Add new layout class
+                dropdownContent.classList.add(`${layout}-layout`);
+                console.log(`📐 Applied ${layout} layout to dropdown`);
+            }
+            
+            // Calculate position relative to status indicator
+            const statusIndicator = document.getElementById('statusIndicator');
+            if (statusIndicator) {
+                const rect = statusIndicator.getBoundingClientRect();
+                
+                if (layout === 'vertical') {
+                    // For vertical layout, position to the left of status indicator using CSS constants
+                    const verticalOffsetX = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--vertical-dropdown-offset-x')) || -10;
+                    const verticalOffsetY = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--vertical-dropdown-offset-y')) || 0;
+                    const verticalTransform = getComputedStyle(document.documentElement).getPropertyValue('--vertical-dropdown-transform') || 'translateX(-100%)';
+                    
+                    dropdown.style.top = `${rect.top + verticalOffsetY}px`;
+                    dropdown.style.left = `${rect.left + verticalOffsetX}px`;
+                    dropdown.style.transform = verticalTransform;
+                } else {
+                    // For horizontal layout, position below status indicator using CSS constants
+                    const horizontalOffsetX = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dropdown-offset-x')) || 0;
+                    const horizontalOffsetY = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dropdown-offset-y')) || 4;
+                    
+                    dropdown.style.top = `${rect.bottom + horizontalOffsetY}px`;
+                    dropdown.style.left = `${rect.left + (rect.width / 2) + horizontalOffsetX}px`;
+                    dropdown.style.transform = 'translateX(-50%)';
+                }
+            }
+            
+            // CRITICAL: Set high z-index for ALL dropdown elements BEFORE opening
+            if (dropdownContent) {
+                const allUserItems = dropdownContent.querySelectorAll('.user-item');
+                const allEmojiCircles = dropdownContent.querySelectorAll('.user-emoji-circle');
+                const allTooltips = dropdownContent.querySelectorAll('.user-tooltip');
+                
+                console.log('🔧 PRE-OPENING: Setting z-index for dropdown elements:');
+                console.log('  - User items:', allUserItems.length);
+                console.log('  - Emoji circles:', allEmojiCircles.length);
+                console.log('  - Tooltips:', allTooltips.length);
+                
+                allUserItems.forEach((item, index) => {
+                    item.style.zIndex = 'var(--z-content)';
+                    console.log(`  ✅ User item ${index} z-index set to var(--z-content)`);
+                });
+                
+                allEmojiCircles.forEach((circle, index) => {
+                    circle.style.zIndex = 'var(--z-content)';
+                    console.log(`  ✅ Emoji circle ${index} z-index set to var(--z-content)`);
+                });
+                
+                allTooltips.forEach((tooltip, index) => {
+                    tooltip.style.zIndex = 'var(--z-tooltip)';
+                    console.log(`  ✅ Tooltip ${index} z-index set to var(--z-tooltip)`);
+                });
+            }
+            
+            // Add 0.5-second delay before opening dropdown
+            console.log('⏰ Waiting 0.5 seconds before opening dropdown...');
+            setTimeout(() => {
+                // Validate that textarea z-index is properly set before opening
+                const isValid = validateTextareaZIndex();
+                if (!isValid) {
+                    console.log('❌ Validation failed after delay - not opening dropdown');
+                    return;
+                }
+                
+                // Now toggle the dropdown visibility after delay
+                dropdown.classList.toggle('show');
+                
+                if (dropdown.classList.contains('show')) {
+                    console.log('✅ Dropdown is now visible - AFTER 0.5s delay and textarea z-index set');
+                
+                // Re-check styles after showing
+                const updatedStyles = getComputedStyle(dropdown);
+                console.log('📍 Updated dropdown styles:', {
+                    position: updatedStyles.position,
+                    zIndex: updatedStyles.zIndex,
+                    display: updatedStyles.display,
+                    visibility: updatedStyles.visibility,
+                    opacity: updatedStyles.opacity,
+                    top: updatedStyles.top,
+                    right: updatedStyles.right,
+                    transform: updatedStyles.transform
+                });
+                
+                console.log('📍 Updated dropdown bounding rect:', dropdown.getBoundingClientRect());
+                updateUsersDropdown();
+            } else {
+                console.log('❌ Dropdown is now hidden - after delay');
+                
+                // Reset textarea z-index to normal when dropdown is closed
+                if (textarea) {
+                    textarea.style.zIndex = 'var(--z-content)';
+                    textarea.style.position = 'relative';
+                    console.log('📝 Textarea z-index reset to var(--z-content) (normal)');
+                }
+            }
+            }, 100); // 0.5 second delay
+        }
+
+        // Close dropdown when clicking outside
+        function closeUsersDropdown() {
+            const dropdown = document.getElementById('usersDropdown');
+            const textarea = document.getElementById('notepad');
+            
+            if (dropdown) {
+                dropdown.classList.remove('show');
+                
+                // Reset textarea z-index to normal when dropdown is closed
+                if (textarea) {
+                    textarea.style.zIndex = 'var(--z-content)';
+                    textarea.style.position = 'relative';
+                    console.log('📝 Textarea z-index reset to var(--z-content) (normal) - dropdown closed');
+                }
+            }
+        }
+
+        // Set up dropdown event listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔧 Setting up dropdown event listeners');
+            const statusIndicator = document.getElementById('statusIndicator');
+            const dropdown = document.getElementById('usersDropdown');
+            
+            console.log('📍 Status indicator:', statusIndicator);
+            console.log('📍 Dropdown:', dropdown);
+            
+            if (statusIndicator) {
+                console.log('✅ Adding click listener to status indicator');
+                statusIndicator.addEventListener('click', (e) => {
+                    console.log('🖱️ Status indicator clicked!');
+                    e.stopPropagation();
+                    toggleUsersDropdown();
+                });
+            } else {
+                console.log('❌ Status indicator not found!');
+            }
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                console.log('🖱️ Document clicked, target:', e.target);
+                if (!statusIndicator?.contains(e.target) && !dropdown?.contains(e.target)) {
+                    console.log('🔄 Clicking outside dropdown, closing...');
+                    closeUsersDropdown();
+                }
+                
+                // Close mobile tooltips when clicking outside
+                const isMobile = window.innerWidth <= 768;
+                if (isMobile) {
+                    const clickedOnUserItem = e.target.closest('.user-item');
+                    if (!clickedOnUserItem) {
+                        // Remove tooltip-active class from all user items
+                        const allUserItems = document.querySelectorAll('.user-item');
+                        allUserItems.forEach(item => {
+                            item.classList.remove('tooltip-active');
+                        });
+                        console.log('🔧 All mobile tooltips closed');
+                    }
+                }
+            });
+            
+        // Close dropdown on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                console.log('⌨️ Escape key pressed, closing dropdown');
+                closeUsersDropdown();
+            }
+        });
+        
+        // Reposition dropdown on window resize
+        window.addEventListener('resize', () => {
+            const dropdown = document.getElementById('usersDropdown');
+            if (dropdown && dropdown.classList.contains('show')) {
+                const statusIndicator = document.getElementById('statusIndicator');
+                const dropdownContent = document.getElementById('dropdownContent');
+                
+                if (statusIndicator && dropdownContent) {
+                    // Recalculate layout for new screen size
+                    const layout = detectDropdownLayout();
+                    
+                    // Remove existing layout classes
+                    dropdownContent.classList.remove('horizontal-layout', 'vertical-layout');
+                    // Add new layout class
+                    dropdownContent.classList.add(`${layout}-layout`);
+                    
+                    const rect = statusIndicator.getBoundingClientRect();
+                    
+                    if (layout === 'vertical') {
+                        // For vertical layout, position to the left of status indicator using CSS constants
+                        const verticalOffsetX = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--vertical-dropdown-offset-x')) || -10;
+                        const verticalOffsetY = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--vertical-dropdown-offset-y')) || 0;
+                        const verticalTransform = getComputedStyle(document.documentElement).getPropertyValue('--vertical-dropdown-transform') || 'translateX(-100%)';
+                        
+                        dropdown.style.top = `${rect.top + verticalOffsetY}px`;
+                        dropdown.style.left = `${rect.left + verticalOffsetX}px`;
+                        dropdown.style.transform = verticalTransform;
+                    } else {
+                        // For horizontal layout, position below status indicator using CSS constants
+                        const horizontalOffsetX = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dropdown-offset-x')) || 0;
+                        const horizontalOffsetY = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dropdown-offset-y')) || 4;
+                        
+                        dropdown.style.top = `${rect.bottom + horizontalOffsetY}px`;
+                        dropdown.style.left = `${rect.left + (rect.width / 2) + horizontalOffsetX}px`;
+                        dropdown.style.transform = 'translateX(-50%)';
+                    }
+                    
+                    console.log(`📐 Layout recalculated to ${layout} on resize`);
+                }
+            }
+            
+            // Close mobile tooltips when switching from mobile to desktop
+            const isMobile = window.innerWidth <= 768;
+            if (!isMobile) {
+                const allUserItems = document.querySelectorAll('.user-item');
+                allUserItems.forEach(item => {
+                    item.classList.remove('tooltip-active');
+                });
+                console.log('🔧 Mobile tooltips closed due to screen size change');
+            }
+        });
+        });
+
+        // Update user status periodically
+        setInterval(() => {
+            userData.forEach((userInfo, userId) => {
+                const oldStatus = userInfo.status;
+                const newStatus = getUserStatus(userId);
+                
+                if (oldStatus !== newStatus) {
+                    userInfo.status = newStatus;
+                    userData.set(userId, userInfo);
+                    
+                    // Update dropdown if it's open
+                    const dropdown = document.getElementById('usersDropdown');
+                    if (dropdown && dropdown.classList.contains('show')) {
+                        updateUsersDropdown();
+                    }
+                }
+            });
+        }, 5000); // Check every 5 seconds
+
+        // Debug function to test dropdown
+        window.testDropdown = function() {
+            console.log('🧪 TESTING DROPDOWN');
+            console.log('User data size:', userData.size);
+            console.log('User data:', Array.from(userData.entries()));
+            console.log('My cursor data:', myCursorData);
+            updateUsersDropdown();
+        };
+
+        // Comprehensive debug function for dropdown issues
+        window.debugDropdownIssue = function() {
+            console.log('🔍 COMPREHENSIVE DROPDOWN DEBUG');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            // Check all relevant elements
+            const statusIndicator = document.getElementById('statusIndicator');
+            const dropdown = document.getElementById('usersDropdown');
+            const dropdownContent = document.getElementById('dropdownContent');
+            const textarea = document.getElementById('noteContent');
+            const cursorContainer = document.getElementById('cursor-container');
+            
+            console.log('📍 Elements found:');
+            console.log('  - Status indicator:', statusIndicator);
+            console.log('  - Dropdown:', dropdown);
+            console.log('  - Dropdown content:', dropdownContent);
+            console.log('  - Textarea:', textarea);
+            console.log('  - Cursor container:', cursorContainer);
+            
+            // Check computed styles for all elements
+            if (statusIndicator) {
+                const styles = getComputedStyle(statusIndicator);
+                console.log('📍 Status indicator styles:', {
+                    position: styles.position,
+                    zIndex: styles.zIndex,
+                    display: styles.display,
+                    visibility: styles.visibility,
+                    opacity: styles.opacity
+                });
+            }
+            
+            if (dropdown) {
+                const styles = getComputedStyle(dropdown);
+                console.log('📍 Dropdown styles:', {
+                    position: styles.position,
+                    zIndex: styles.zIndex,
+                    display: styles.display,
+                    visibility: styles.visibility,
+                    opacity: styles.opacity,
+                    top: styles.top,
+                    right: styles.right,
+                    transform: styles.transform
+                });
+                console.log('📍 Dropdown classes:', dropdown.className);
+                console.log('📍 Dropdown bounding rect:', dropdown.getBoundingClientRect());
+            }
+            
+            if (textarea) {
+                const styles = getComputedStyle(textarea);
+                console.log('📍 Textarea styles:', {
+                    position: styles.position,
+                    zIndex: styles.zIndex,
+                    display: styles.display
+                });
+                console.log('📍 Textarea bounding rect:', textarea.getBoundingClientRect());
+            }
+            
+            if (cursorContainer) {
+                const styles = getComputedStyle(cursorContainer);
+                console.log('📍 Cursor container styles:', {
+                    position: styles.position,
+                    zIndex: styles.zIndex,
+                    display: styles.display
+                });
+            }
+            
+            // Check if dropdown is visible
+            if (dropdown) {
+                const isVisible = dropdown.classList.contains('show');
+                console.log('📍 Dropdown visible:', isVisible);
+                
+                if (isVisible) {
+                    console.log('📍 Dropdown content children:', dropdownContent?.children.length);
+                    console.log('📍 User data for dropdown:', userData.size);
+                }
+            }
+            
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        };
+
+        // Force show dropdown for testing
+        window.forceShowDropdown = function() {
+            console.log('🔧 FORCE SHOWING DROPDOWN');
+            const dropdown = document.getElementById('usersDropdown');
+            const textarea = document.getElementById('notepad');
+            
+            if (!dropdown) {
+                console.log('❌ Dropdown not found!');
+                return;
+            }
+            
+            console.log('📍 Elements:', { dropdown: !!dropdown, textarea: !!textarea });
+            
+            // First, set textarea z-index to base BEFORE forcing dropdown to show
+            if (textarea) {
+                textarea.style.zIndex = 'var(--z-base)';
+                textarea.style.position = 'relative';
+                console.log('📝 Textarea z-index set to var(--z-base) (behind dropdown) - BEFORE forced show');
+            }
+            
+            // Force set dropdown styles with higher z-index
+            dropdown.style.opacity = '1';
+            dropdown.style.visibility = 'visible';
+            dropdown.style.zIndex = 'var(--z-dropdown)';
+            dropdown.style.position = 'fixed';
+            
+            // Calculate position relative to status indicator
+            const statusIndicator = document.getElementById('statusIndicator');
+            if (statusIndicator) {
+                const rect = statusIndicator.getBoundingClientRect();
+                dropdown.style.top = `${rect.bottom + 4}px`;
+                dropdown.style.left = `${rect.left + (rect.width / 2)}px`;
+                dropdown.style.transform = 'translateX(-50%)';
+            }
+            
+            // Add 0.5-second delay before forcing dropdown to show
+            console.log('⏰ Waiting 0.5 seconds before forcing dropdown to show...');
+            setTimeout(() => {
+                // Validate that textarea z-index is properly set before opening
+                const isValid = validateTextareaZIndex();
+                if (!isValid) {
+                    console.log('❌ Validation failed after delay - not forcing dropdown to show');
+                    return;
+                }
+                
+                // Now force add show class after delay
+                dropdown.classList.add('show');
+                console.log('✅ Dropdown forced to show - AFTER 1s delay and textarea z-index set');
+                
+                console.log('📍 Dropdown styles:', {
+                    opacity: dropdown.style.opacity,
+                    visibility: dropdown.style.visibility,
+                    transform: dropdown.style.transform,
+                    zIndex: dropdown.style.zIndex,
+                    position: dropdown.style.position
+                });
+                
+                console.log('📍 Textarea styles:', {
+                    zIndex: textarea?.style.zIndex,
+                    position: textarea?.style.position,
+                    computedZIndex: textarea ? getComputedStyle(textarea).zIndex : 'N/A'
+                });
+                
+                console.log('📍 Dropdown bounding rect:', dropdown.getBoundingClientRect());
+                console.log('📍 Textarea bounding rect:', textarea?.getBoundingClientRect());
+                
+                updateUsersDropdown();
+            }, 500); // 0.5 second delay
+        };
+
+        // Debug function to check all users in dropdown
+        window.checkDropdownUsers = function() {
+            console.log('🔍 CHECKING ALL USERS IN DROPDOWN');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            console.log('📊 User data map:', Array.from(userData.entries()));
+            console.log('📊 My cursor data:', myCursorData);
+            console.log('📊 Socket ID:', socket.id);
+            
+            const dropdownContent = document.getElementById('dropdownContent');
+            if (!dropdownContent) {
+                console.log('❌ Dropdown content not found!');
+                return;
+            }
+            
+            const allUserItems = dropdownContent.querySelectorAll('.user-item');
+            console.log('📊 User items in DOM:', allUserItems.length);
+            
+            allUserItems.forEach((userItem, index) => {
+                const userId = userItem.getAttribute('data-user-id');
+                const emojiCircle = userItem.querySelector('.user-emoji-circle');
+                const emojiText = emojiCircle ? emojiCircle.textContent.trim() : 'No emoji';
+                
+                console.log(`👤 User Item ${index}:`);
+                console.log('  - User ID:', userId);
+                console.log('  - Emoji:', emojiText);
+                console.log('  - Is current user:', userId === socket.id);
+                console.log('  - Element:', userItem);
+            });
+            
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        };
+
+        // Debug function to force refresh dropdown
+        window.refreshDropdown = function() {
+            console.log('🔄 FORCE REFRESHING DROPDOWN');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            console.log('📊 Before refresh - User data:', Array.from(userData.entries()));
+            updateUsersDropdown();
+            
+            setTimeout(() => {
+                console.log('📊 After refresh - User data:', Array.from(userData.entries()));
+                checkDropdownUsers();
+            }, 100);
+            
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        };
+
+        // Debug function to test Panda emoji specifically
+        window.testPandaEmoji = function() {
+            console.log('🐼 TESTING PANDA EMOJI SPECIFICALLY');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            const dropdownContent = document.getElementById('dropdownContent');
+            if (!dropdownContent) {
+                console.log('❌ Dropdown content not found!');
+                return;
+            }
+            
+            // Find Panda user item
+            const pandaUserItem = dropdownContent.querySelector('[data-user-id="h0jkP4PoCQJxKBcRAABZ"]');
+            if (!pandaUserItem) {
+                console.log('❌ Panda user item not found!');
+                return;
+            }
+            
+            const pandaEmojiCircle = pandaUserItem.querySelector('.user-emoji-circle');
+            const pandaTooltip = pandaUserItem.querySelector('.user-tooltip');
+            
+            console.log('🐼 Panda elements found:');
+            console.log('  - User item:', pandaUserItem);
+            console.log('  - Emoji circle:', pandaEmojiCircle);
+            console.log('  - Tooltip:', pandaTooltip);
+            
+            if (pandaEmojiCircle) {
+                console.log('🐼 Panda emoji circle styles:');
+                const styles = getComputedStyle(pandaEmojiCircle);
+                console.log('  - Display:', styles.display);
+                console.log('  - Visibility:', styles.visibility);
+                console.log('  - Opacity:', styles.opacity);
+                console.log('  - Pointer events:', styles.pointerEvents);
+                console.log('  - Position:', styles.position);
+                console.log('  - Z-index:', styles.zIndex);
+                
+                // Force set high z-index for Panda
+                console.log('🔧 FORCING HIGH Z-INDEX FOR PANDA...');
+                pandaUserItem.style.zIndex = 'var(--z-content)';
+                pandaEmojiCircle.style.zIndex = 'var(--z-content)';
+                pandaTooltip.style.zIndex = 'var(--z-tooltip)';
+                
+                console.log('🐼 After forcing z-index:');
+                console.log('  - User item z-index:', getComputedStyle(pandaUserItem).zIndex);
+                console.log('  - Emoji circle z-index:', getComputedStyle(pandaEmojiCircle).zIndex);
+                console.log('  - Tooltip z-index:', getComputedStyle(pandaTooltip).zIndex);
+                
+                // Test manual mouse events
+                console.log('🧪 Testing manual mouse events on Panda...');
+                
+                const mouseEnterEvent = new MouseEvent('mouseenter', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                });
+                
+                const mouseLeaveEvent = new MouseEvent('mouseleave', {
+                    bubbles: true,
+                    cancelable: true,
+                    view: window
+                });
+                
+                console.log('🖱️ Dispatching mouseenter event...');
+                pandaEmojiCircle.dispatchEvent(mouseEnterEvent);
+                
+                setTimeout(() => {
+                    console.log('🖱️ Dispatching mouseleave event...');
+                    pandaEmojiCircle.dispatchEvent(mouseLeaveEvent);
+                }, 1000);
+            }
+            
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        };
+
+        // Debug function to force high z-index for all dropdown elements
+        window.forceHighZIndex = function() {
+            console.log('🔧 FORCING HIGH Z-INDEX FOR ALL DROPDOWN ELEMENTS');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            const dropdownContent = document.getElementById('dropdownContent');
+            if (!dropdownContent) {
+                console.log('❌ Dropdown content not found!');
+                return;
+            }
+            
+            const allUserItems = dropdownContent.querySelectorAll('.user-item');
+            const allEmojiCircles = dropdownContent.querySelectorAll('.user-emoji-circle');
+            const allTooltips = dropdownContent.querySelectorAll('.user-tooltip');
+            
+            console.log('📊 Elements found:');
+            console.log('  - User items:', allUserItems.length);
+            console.log('  - Emoji circles:', allEmojiCircles.length);
+            console.log('  - Tooltips:', allTooltips.length);
+            
+            allUserItems.forEach((item, index) => {
+                item.style.zIndex = 'var(--z-content)';
+                console.log(`✅ User item ${index} z-index set to var(--z-content)`);
+            });
+            
+            allEmojiCircles.forEach((circle, index) => {
+                circle.style.zIndex = 'var(--z-content)';
+                console.log(`✅ Emoji circle ${index} z-index set to var(--z-content)`);
+            });
+            
+            allTooltips.forEach((tooltip, index) => {
+                tooltip.style.zIndex = 'var(--z-tooltip)';
+                console.log(`✅ Tooltip ${index} z-index set to var(--z-tooltip)`);
+            });
+            
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        };
+
+        // EMERGENCY FIX: Force Panda tooltip to work
+        window.forcePandaTooltip = function() {
+            console.log('🚨 EMERGENCY PANDA TOOLTIP FIX');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            const dropdownContent = document.getElementById('dropdownContent');
+            if (!dropdownContent) {
+                console.log('❌ Dropdown content not found!');
+                return;
+            }
+            
+            // Find Panda specifically
+            const pandaUserItem = dropdownContent.querySelector('[data-user-id="h0jkP4PoCQJxKBcRAABZ"]');
+            if (!pandaUserItem) {
+                console.log('❌ Panda user item not found!');
+                return;
+            }
+            
+            const pandaEmojiCircle = pandaUserItem.querySelector('.user-emoji-circle');
+            const pandaTooltip = pandaUserItem.querySelector('.user-tooltip');
+            
+            console.log('🐼 Panda elements:', { pandaUserItem, pandaEmojiCircle, pandaTooltip });
+            
+            // Force all styles
+            pandaUserItem.style.zIndex = 'var(--z-content)';
+            pandaUserItem.style.position = 'relative';
+            pandaUserItem.style.pointerEvents = 'auto';
+            
+            pandaEmojiCircle.style.zIndex = 'var(--z-content)';
+            pandaEmojiCircle.style.position = 'relative';
+            pandaEmojiCircle.style.pointerEvents = 'auto';
+            
+            pandaTooltip.style.zIndex = 'var(--z-tooltip)';
+            pandaTooltip.style.position = 'absolute';
+            pandaTooltip.style.pointerEvents = 'none';
+            
+            // Force show tooltip
+            pandaTooltip.style.opacity = '1';
+            pandaTooltip.style.visibility = 'visible';
+            pandaTooltip.style.display = 'block';
+            
+            console.log('🔧 Panda tooltip FORCED to show!');
+            
+            // Add click handler as backup
+            pandaEmojiCircle.addEventListener('click', () => {
+                console.log('🐼 PANDA CLICKED!');
+                pandaTooltip.style.opacity = pandaTooltip.style.opacity === '1' ? '0' : '1';
+            });
+            
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        };
+
+        // Debug function to test tooltip functionality
+        window.debugTooltips = function() {
+            console.log('🔍 DEBUGGING TOOLTIP FUNCTIONALITY');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            const dropdownContent = document.getElementById('dropdownContent');
+            if (!dropdownContent) {
+                console.log('❌ Dropdown content not found!');
+                return;
+            }
+            
+            const allUserItems = dropdownContent.querySelectorAll('.user-item');
+            const allTooltips = dropdownContent.querySelectorAll('.user-tooltip');
+            const allEmojiCircles = dropdownContent.querySelectorAll('.user-emoji-circle');
+            
+            console.log('📊 Elements found:');
+            console.log('  - User items:', allUserItems.length);
+            console.log('  - Tooltips:', allTooltips.length);
+            console.log('  - Emoji circles:', allEmojiCircles.length);
+            
+            allUserItems.forEach((userItem, index) => {
+                const userId = userItem.getAttribute('data-user-id');
+                const tooltip = userItem.querySelector('.user-tooltip');
+                const emojiCircle = userItem.querySelector('.user-emoji-circle');
+                const emojiText = emojiCircle ? emojiCircle.textContent.trim() : 'No emoji';
+                
+                console.log(`\n👤 User Item ${index} (ID: ${userId}, Emoji: ${emojiText}):`);
+                console.log('  - Element:', userItem);
+                console.log('  - Classes:', userItem.className);
+                console.log('  - Z-index:', getComputedStyle(userItem).zIndex);
+                
+                if (tooltip) {
+                    console.log('  - Tooltip element:', tooltip);
+                    console.log('  - Tooltip classes:', tooltip.className);
+                    console.log('  - Tooltip z-index:', getComputedStyle(tooltip).zIndex);
+                    console.log('  - Tooltip opacity:', getComputedStyle(tooltip).opacity);
+                    console.log('  - Tooltip visibility:', getComputedStyle(tooltip).visibility);
+                    console.log('  - Tooltip position:', getComputedStyle(tooltip).position);
+                } else {
+                    console.log('  - ❌ No tooltip found!');
+                }
+                
+                if (emojiCircle) {
+                    console.log('  - Emoji circle element:', emojiCircle);
+                    console.log('  - Emoji circle classes:', emojiCircle.className);
+                    console.log('  - Emoji text:', emojiText);
+                } else {
+                    console.log('  - ❌ No emoji circle found!');
+                }
+            });
+            
+            console.log('\n🧪 Testing hover events manually...');
+            allEmojiCircles.forEach((emojiCircle, index) => {
+                const userItem = emojiCircle.closest('.user-item');
+                const userId = userItem ? userItem.getAttribute('data-user-id') : 'unknown';
+                const emojiText = emojiCircle.textContent.trim();
+                console.log(`Testing hover for user ${index} (${userId}, ${emojiText})`);
+                
+                // Simulate mouse enter
+                const mouseEnterEvent = new MouseEvent('mouseenter', {
+                    bubbles: true,
+                    cancelable: true
+                });
+                emojiCircle.dispatchEvent(mouseEnterEvent);
+                
+                // Check tooltip state after a brief delay
+                setTimeout(() => {
+                    const tooltip = userItem.querySelector('.user-tooltip');
+                    if (tooltip) {
+                        const computedStyle = getComputedStyle(tooltip);
+                        console.log(`  - Tooltip state after hover: opacity=${computedStyle.opacity}, visibility=${computedStyle.visibility}`);
+                    }
+                }, 50);
+            });
+            
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        };
+
+        // Debug function to test z-index sequence
+        window.testZIndexSequence = function() {
+            console.log('🧪 TESTING Z-INDEX SEQUENCE');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            const textarea = document.getElementById('notepad');
+            const dropdown = document.getElementById('usersDropdown');
+            
+            console.log('📍 Initial state:');
+            console.log('  - Textarea z-index:', textarea?.style.zIndex || getComputedStyle(textarea).zIndex);
+            console.log('  - Dropdown visible:', dropdown?.classList.contains('show'));
+            
+            console.log('🔄 Step 1: Setting textarea z-index to var(--z-base)...');
+            if (textarea) {
+                textarea.style.zIndex = 'var(--z-base)';
+                textarea.style.position = 'relative';
+                console.log('  ✅ Textarea z-index set to var(--z-base)');
+            }
+            
+            console.log('🔄 Step 2: Validating z-index...');
+            const isValid = validateTextareaZIndex();
+            console.log('  ✅ Validation result:', isValid);
+            
+            if (isValid) {
+                console.log('🔄 Step 3: Opening dropdown...');
+                if (dropdown) {
+                    dropdown.classList.add('show');
+                    console.log('  ✅ Dropdown opened successfully');
+                }
+            } else {
+                console.log('❌ Validation failed - dropdown will not open');
+            }
+            
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        };
+
+        // Debug function to test dropdown layout detection
+        window.testDropdownLayout = function() {
+            console.log('🧪 TESTING DROPDOWN LAYOUT DETECTION');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            const layout = detectDropdownLayout();
+            console.log('📐 Detected layout:', layout);
+            
+            const statusIndicator = document.getElementById('statusIndicator');
+            if (statusIndicator) {
+                const rect = statusIndicator.getBoundingClientRect();
+                console.log('📍 Status indicator position:', {
+                    left: rect.left,
+                    top: rect.top,
+                    right: rect.right,
+                    bottom: rect.bottom,
+                    width: rect.width,
+                    height: rect.height
+                });
+                
+                console.log('📱 Viewport dimensions:', {
+                    width: window.innerWidth,
+                    height: window.innerHeight
+                });
+                
+                const userCount = userData.size + (myCursorData ? 1 : 0);
+                const estimatedDropdownWidth = Math.max(60, userCount * 40 + 20);
+                const estimatedDropdownHeight = 50;
+                
+                console.log('📊 Dropdown estimates:', {
+                    userCount: userCount,
+                    estimatedWidth: estimatedDropdownWidth,
+                    estimatedHeight: estimatedDropdownHeight
+                });
+                
+                const wouldGoOffScreenRight = (rect.left + estimatedDropdownWidth / 2) > window.innerWidth;
+                const wouldGoOffScreenLeft = (rect.left - estimatedDropdownWidth / 2) < 0;
+                const wouldGoOffScreenBottom = (rect.bottom + estimatedDropdownHeight) > window.innerHeight;
+                const isMobile = window.innerWidth < 768;
+                
+                console.log('🔍 Edge detection results:', {
+                    wouldGoOffScreenRight: wouldGoOffScreenRight,
+                    wouldGoOffScreenLeft: wouldGoOffScreenLeft,
+                    wouldGoOffScreenBottom: wouldGoOffScreenBottom,
+                    isMobile: isMobile
+                });
+            }
+            
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        };
+
+        // Debug function to modify vertical layout constants
+        window.modifyVerticalConstants = function(offsets = {}) {
+            console.log('🔧 MODIFYING VERTICAL LAYOUT CONSTANTS');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            const root = document.documentElement;
+            
+            // Default values
+            const defaults = {
+                dropdownOffsetX: -10,
+                dropdownOffsetY: 0,
+                dropdownTransform: 'translateX(-100%)',
+                emojiOffsetX: 0,
+                emojiOffsetY: 0,
+                emojiGap: 0.3,
+                tooltipOffsetX: 0,
+                tooltipOffsetY: 0,
+                tooltipPosition: 'right',
+                tooltipTransform: 'translateY(-50%)',
+                tooltipDistance: 0.5
+            };
+            
+            // Apply provided offsets or use defaults
+            const settings = { ...defaults, ...offsets };
+            
+            console.log('📐 Applying settings:', settings);
+            
+            // Set CSS custom properties
+            root.style.setProperty('--vertical-dropdown-offset-x', `${settings.dropdownOffsetX}px`);
+            root.style.setProperty('--vertical-dropdown-offset-y', `${settings.dropdownOffsetY}px`);
+            root.style.setProperty('--vertical-dropdown-transform', settings.dropdownTransform);
+            root.style.setProperty('--vertical-emoji-offset-x', `${settings.emojiOffsetX}px`);
+            root.style.setProperty('--vertical-emoji-offset-y', `${settings.emojiOffsetY}px`);
+            root.style.setProperty('--vertical-emoji-gap', `${settings.emojiGap}rem`);
+            root.style.setProperty('--vertical-tooltip-offset-x', `${settings.tooltipOffsetX}px`);
+            root.style.setProperty('--vertical-tooltip-offset-y', `${settings.tooltipOffsetY}px`);
+            root.style.setProperty('--vertical-tooltip-position', settings.tooltipPosition);
+            root.style.setProperty('--vertical-tooltip-transform', settings.tooltipTransform);
+            root.style.setProperty('--vertical-tooltip-distance', `${settings.tooltipDistance}rem`);
+            
+            console.log('✅ Constants updated! Try opening the dropdown to see changes.');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        };
+
+        // Debug function to reset vertical constants to defaults
+        window.resetVerticalConstants = function() {
+            console.log('🔄 RESETTING VERTICAL LAYOUT CONSTANTS TO DEFAULTS');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            const root = document.documentElement;
+            
+            // Reset to default values
+            root.style.setProperty('--vertical-dropdown-offset-x', '-10px');
+            root.style.setProperty('--vertical-dropdown-offset-y', '0px');
+            root.style.setProperty('--vertical-dropdown-transform', 'translateX(-100%)');
+            root.style.setProperty('--vertical-emoji-offset-x', '0px');
+            root.style.setProperty('--vertical-emoji-offset-y', '0px');
+            root.style.setProperty('--vertical-emoji-gap', '0.3rem');
+            root.style.setProperty('--vertical-tooltip-offset-x', '0px');
+            root.style.setProperty('--vertical-tooltip-offset-y', '0px');
+            root.style.setProperty('--vertical-tooltip-position', 'right');
+            root.style.setProperty('--vertical-tooltip-transform', 'translateY(-50%)');
+            root.style.setProperty('--vertical-tooltip-distance', '0.5rem');
+            
+            console.log('✅ Constants reset to defaults!');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        };
+
+        // Debug function to test tooltip positioning
+        window.debugTooltipPositioning = function() {
+            console.log('🔍 DEBUGGING TOOLTIP POSITIONING');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            const dropdownContent = document.getElementById('dropdownContent');
+            if (!dropdownContent) {
+                console.log('❌ Dropdown content not found!');
+                return;
+            }
+            
+            const isVertical = dropdownContent.classList.contains('vertical-layout');
+            console.log('📐 Layout type:', isVertical ? 'vertical' : 'horizontal');
+            
+            if (isVertical) {
+                const tooltips = dropdownContent.querySelectorAll('.user-tooltip');
+                const emojiCircles = dropdownContent.querySelectorAll('.user-emoji-circle');
+                
+                console.log('📊 Found tooltips:', tooltips.length);
+                console.log('📊 Found emoji circles:', emojiCircles.length);
+                
+                tooltips.forEach((tooltip, index) => {
+                    const emojiCircle = emojiCircles[index];
+                    if (emojiCircle) {
+                        const tooltipRect = tooltip.getBoundingClientRect();
+                        const emojiRect = emojiCircle.getBoundingClientRect();
+                        const computedStyle = getComputedStyle(tooltip);
+                        
+                        console.log(`\n🔍 Tooltip ${index}:`);
+                        console.log('  - Element:', tooltip);
+                        console.log('  - Computed styles:', {
+                            position: computedStyle.position,
+                            left: computedStyle.left,
+                            right: computedStyle.right,
+                            top: computedStyle.top,
+                            transform: computedStyle.transform,
+                            opacity: computedStyle.opacity,
+                            visibility: computedStyle.visibility,
+                            display: computedStyle.display,
+                            zIndex: computedStyle.zIndex
+                        });
+                        console.log('  - Bounding rect:', tooltipRect);
+                        console.log('  - Emoji bounding rect:', emojiRect);
+                        console.log('  - Relative position:', {
+                            left: tooltipRect.left - emojiRect.left,
+                            top: tooltipRect.top - emojiRect.top
+                        });
+                        
+                        // Force show tooltip for testing
+                        tooltip.style.opacity = '1';
+                        tooltip.style.visibility = 'visible';
+                        tooltip.style.display = 'block';
+                        tooltip.style.zIndex = '9999';
+                        console.log('  ✅ Tooltip forced visible for testing');
+                    }
+                });
+            }
+            
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        };
+        window.debugZIndexStack = function() {
+            console.log('🔍 DEBUGGING Z-INDEX STACKING CONTEXT');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            const elements = [
+                { name: 'Dropdown', selector: '#usersDropdown' },
+                { name: 'Textarea', selector: '#notepad' },
+                { name: 'Cursor Container', selector: '#cursor-container' },
+                { name: 'Status Indicator', selector: '#statusIndicator' },
+                { name: 'Header', selector: 'header' },
+                { name: 'Container', selector: '.container' }
+            ];
+            
+            elements.forEach(({ name, selector }) => {
+                const element = document.querySelector(selector);
+                if (element) {
+                    const styles = getComputedStyle(element);
+                    const rect = element.getBoundingClientRect();
+                    console.log(`📍 ${name}:`, {
+                        zIndex: styles.zIndex,
+                        position: styles.position,
+                        display: styles.display,
+                        visibility: styles.visibility,
+                        opacity: styles.opacity,
+                        boundingRect: rect
+                    });
+                } else {
+                    console.log(`❌ ${name}: Element not found`);
+                }
+            });
+            
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        };
+
     </script>
 </body>
 </html>

@@ -6,6 +6,37 @@
     --sunset: #fefae0;
     --shadow: 0 4px 6px rgba(40, 54, 24, 0.1);
     --transition: all 0.3s ease;
+    
+    /* Dropdown positioning offset constants */
+    --dropdown-offset-x: 0px;
+    --dropdown-offset-y: 4px;
+    
+    /* Vertical layout positioning constants */
+    --vertical-dropdown-offset-x: 44px;
+    --vertical-dropdown-offset-y: 40px;
+    --vertical-dropdown-transform: translateX(-100%);
+    
+    /* Vertical emoji positioning constants */
+    --vertical-emoji-offset-x: 0px;
+    --vertical-emoji-offset-y: 0px;
+    --vertical-emoji-gap: 0.3rem;
+    
+    /* Vertical tooltip positioning constants */
+    --vertical-tooltip-offset-x: 0px;
+    --vertical-tooltip-offset-y: 0px;
+    --vertical-tooltip-position: right;
+    --vertical-tooltip-transform: translateY(-50%);
+    --vertical-tooltip-distance: 0.5rem;
+    
+    /* Z-index hierarchy scale */
+    --z-base: 0;
+    --z-content: 1;
+    --z-popover: 10;
+    --z-dropdown: 2000;
+    --z-tooltip: 2100;
+    --z-overlay: 1000;
+    --z-modal: 3000;
+    --z-top: 9999;
 }
 
 * {
@@ -118,7 +149,7 @@ header {
     background: rgba(244, 241, 222, 0.1);
     padding: 0.5rem;
     border-radius: 8px;
-    backdrop-filter: blur(10px);
+    /* Remove backdrop-filter to avoid stacking context issues */
     height: 40px;
 }
 
@@ -149,6 +180,359 @@ header {
 .status-indicator:hover {
     background: rgba(244, 241, 222, 0.15);
     border-radius: 6px;
+}
+
+.status-indicator {
+    position: relative;
+    cursor: pointer;
+    /* Remove z-index since dropdown is now fixed positioned */
+}
+
+/* Users Dropdown Styles - Horizontal Layout */
+.users-dropdown {
+    position: fixed;
+    top: auto;
+    left: auto;
+    background: var(--eggshell);
+    border: 1px solid rgba(40, 54, 24, 0.2);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(40, 54, 24, 0.15);
+    z-index: var(--z-dropdown);
+    width: auto;
+    min-width: 60px;
+    min-height: 30px;
+    padding: 0.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    /* Remove transform to avoid stacking context issues */
+}
+
+.users-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    /* Remove transform to avoid stacking context issues */
+}
+
+.users-dropdown.show .user-item {
+    z-index: var(--z-content);
+}
+
+.users-dropdown.show .user-emoji-circle {
+    z-index: var(--z-content);
+}
+
+.users-dropdown.show .user-tooltip {
+    z-index: var(--z-tooltip);
+}
+
+.dropdown-content {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+    overflow: visible;
+}
+
+/* Vertical layout for dropdown */
+.dropdown-content.vertical-layout {
+    flex-direction: column;
+    gap: var(--vertical-emoji-gap);
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    width: auto;
+    min-width: 40px;
+    transform: translate(var(--vertical-emoji-offset-x), var(--vertical-emoji-offset-y));
+}
+
+/* Horizontal layout (default) */
+.dropdown-content.horizontal-layout {
+    flex-direction: row;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+}
+
+.user-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    z-index: var(--z-content);
+    pointer-events: auto;
+}
+
+.user-emoji-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    position: relative;
+    background: rgba(40, 54, 24, 0.1);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    pointer-events: auto;
+    z-index: var(--z-content);
+}
+
+.user-emoji-circle:hover {
+    transform: scale(1.1);
+    background: rgba(40, 54, 24, 0.2);
+}
+
+.user-status-dot {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid var(--eggshell);
+}
+
+.user-status-dot.online {
+    background: #10b981;
+}
+
+.user-status-dot.idle {
+    background: #f59e0b;
+}
+
+.user-status-dot.disconnected {
+    background: #ef4444;
+}
+
+/* Device Details Tooltip */
+.user-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(40, 54, 24, 0.95);
+    color: var(--eggshell);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: var(--z-tooltip);
+    pointer-events: none;
+    margin-bottom: 0.5rem;
+    min-width: 120px;
+    text-align: center;
+}
+
+.user-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid rgba(40, 54, 24, 0.95);
+}
+
+.user-item:hover .user-tooltip {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Ensure vertical layout tooltips are visible on hover */
+.dropdown-content.vertical-layout .user-item:hover .user-tooltip {
+    opacity: 1;
+    visibility: visible;
+    display: block;
+}
+
+/* Vertical layout tooltip positioning */
+.dropdown-content.vertical-layout .user-tooltip {
+    position: absolute;
+    bottom: auto;
+    top: 50%;
+    left: calc(100% + var(--vertical-tooltip-offset-x) + var(--vertical-tooltip-distance));
+    right: auto;
+    transform: var(--vertical-tooltip-transform);
+    margin-right: 0;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-top: var(--vertical-tooltip-offset-y);
+    white-space: nowrap;
+    z-index: var(--z-tooltip);
+}
+
+.dropdown-content.vertical-layout .user-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: calc(-1 * var(--vertical-tooltip-distance) - var(--vertical-tooltip-offset-x) - 4px);
+    bottom: auto;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-right: 4px solid rgba(40, 54, 24, 0.95);
+    border-left: none;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .users-dropdown {
+        padding: 0.4rem;
+        min-width: 50px;
+        min-height: 30px;
+        z-index: var(--z-dropdown);
+    }
+    
+    .user-emoji-circle {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+    
+    .user-status-dot {
+        width: 7px;
+        height: 7px;
+    }
+    
+    .user-tooltip {
+        font-size: 11px;
+        padding: 0.4rem 0.6rem;
+        min-width: 100px;
+    }
+    
+    .dropdown-content {
+        gap: 0.4rem;
+    }
+    
+    /* Vertical layout adjustments for mobile */
+    .dropdown-content.vertical-layout {
+        gap: 0.25rem;
+        min-width: 35px;
+    }
+    
+    .dropdown-content.vertical-layout .user-item {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .dropdown-content.vertical-layout .user-emoji-circle {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+    
+    /* Disable hover tooltips on mobile - use click instead */
+    .user-item:hover .user-tooltip {
+        opacity: 0;
+        visibility: hidden;
+    }
+    
+    .dropdown-content.vertical-layout .user-item:hover .user-tooltip {
+        opacity: 0;
+        visibility: hidden;
+    }
+    
+    /* Click-based tooltip display for mobile */
+    .user-item.tooltip-active .user-tooltip {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .dropdown-content.vertical-layout .user-item.tooltip-active .user-tooltip {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+@media (max-width: 480px) {
+    .users-dropdown {
+        padding: 0.3rem;
+        min-width: 45px;
+        min-height: 30px;
+        z-index: var(--z-dropdown);
+    }
+    
+    .user-emoji-circle {
+        width: 26px;
+        height: 26px;
+        font-size: 13px;
+    }
+    
+    .user-status-dot {
+        width: 6px;
+        height: 6px;
+    }
+    
+    .user-tooltip {
+        font-size: 10px;
+        padding: 0.3rem 0.5rem;
+        min-width: 90px;
+    }
+    
+    .dropdown-content {
+        gap: 0.3rem;
+    }
+    
+    /* Vertical layout adjustments for small screens */
+    .dropdown-content.vertical-layout {
+        gap: 0.2rem;
+        min-width: 30px;
+    }
+    
+    .dropdown-content.vertical-layout .user-item {
+        width: 26px;
+        height: 26px;
+    }
+    
+    .dropdown-content.vertical-layout .user-emoji-circle {
+        width: 26px;
+        height: 26px;
+        font-size: 13px;
+    }
+    
+    /* Disable hover tooltips on small mobile - use click instead */
+    .user-item:hover .user-tooltip {
+        opacity: 0;
+        visibility: hidden;
+    }
+    
+    .dropdown-content.vertical-layout .user-item:hover .user-tooltip {
+        opacity: 0;
+        visibility: hidden;
+    }
+    
+    /* Click-based tooltip display for small mobile */
+    .user-item.tooltip-active .user-tooltip {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .dropdown-content.vertical-layout .user-item.tooltip-active .user-tooltip {
+        opacity: 1;
+        visibility: visible;
+    }
 }
 
 input {
@@ -192,7 +576,7 @@ button:hover {
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    overflow: hidden;
+    overflow: visible;
     min-height: 0;
     position: relative;
 }
@@ -212,6 +596,8 @@ textarea {
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--cambridge-blue) transparent;
+    z-index: var(--z-base);
+    position: relative;
 }
 
 body.light-mode textarea {
@@ -251,6 +637,27 @@ body.dark-mode textarea::-webkit-scrollbar-track {
 body.dark-mode textarea::-webkit-scrollbar-thumb {
     background-color: var(--cambridge-blue);
     border-color: var(--delft-blue);
+}
+
+/* Dark mode styling for users dropdown */
+body.dark-mode .users-dropdown {
+    background: #646f43;
+    border: 1px solid rgba(254, 250, 224, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode styling for user tooltips */
+body.dark-mode .user-tooltip {
+    background: #79835a;
+}
+
+body.dark-mode .user-tooltip::after {
+    border-top: 4px solid #79835a;
+}
+
+/* Dark mode styling for vertical layout tooltips */
+body.dark-mode .dropdown-content.vertical-layout .user-tooltip::after {
+    border-right: 4px solid #79835a;
 }
 
 footer {
@@ -333,12 +740,14 @@ footer {
     position: absolute;
     bottom: 1.5rem;
     right: 2.5rem;
-    z-index: 10;
+    z-index: var(--z-popover);
     opacity: 0.5;
+    backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
 }
 
 #copyContent:hover {
-    opacity: 1;
+    background: var(--cambridge-blue);
 }
 
 @media (max-width: 768px) {
@@ -493,4 +902,170 @@ footer {
 #copyContent.copied {
     background: var(--sunset);
     color: var(--delft-blue);
+}
+
+/* ============================================ */
+/* Collaborative Cursor Styles (Pin Design) */
+/* ============================================ */
+
+#cursor-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: var(--z-popover);
+    overflow: visible;
+}
+
+.remote-cursor {
+    position: absolute;
+    pointer-events: none;
+    z-index: var(--z-overlay);
+    transition: left 0.1s ease-out, top 0.1s ease-out, opacity 0.2s ease-out, transform 0.1s ease-out;
+    will-change: left, top, transform, opacity;
+    /* Position and scale will be calculated dynamically by JavaScript */
+}
+
+/* Pin container */
+.cursor-pin {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Pin head (circle with emoji) */
+.cursor-pin-head {
+    width: 32px;
+    height: 32px;
+    background-color: var(--user-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    border: 2px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    animation: cursorPulse 3s ease-in-out infinite;
+    position: relative;
+    z-index: var(--z-content);
+}
+
+@keyframes cursorPulse {
+    0%, 100% { 
+        transform: scale(1); 
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+    50% { 
+        transform: scale(1.08); 
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+    }
+}
+
+/* Pin point (triangle) */
+.cursor-pin-point {
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 12px solid var(--user-color);
+    margin-top: -2px;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.15));
+    position: relative;
+    z-index: var(--z-base);
+}
+
+/* Tooltip (shows on hover) */
+.cursor-tooltip {
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 8px;
+    background-color: rgba(40, 54, 24, 0.95);
+    color: var(--eggshell);
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+    z-index: var(--z-tooltip);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Show tooltip on hover */
+.remote-cursor:hover .cursor-tooltip {
+    opacity: 1;
+}
+
+/* Tooltip arrow */
+.cursor-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid rgba(40, 54, 24, 0.95);
+}
+
+/* Ensure cursors don't interfere with text selection */
+.remote-cursor * {
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Hide pointer for inactive cursors (near copy button) */
+.remote-cursor.cursor-inactive .cursor-pin-point {
+    display: none;
+}
+
+/* Mobile-responsive cursor adjustments */
+@media (max-width: 768px) {
+    
+    .cursor-pin-head {
+        width: 28px;
+        height: 28px;
+        font-size: 16px;
+    }
+    
+    .cursor-pin-point {
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+        border-top: 10px solid var(--user-color);
+    }
+    
+    .cursor-tooltip {
+        font-size: 11px;
+        padding: 3px 6px;
+        top: -36px;
+    }
+}
+
+@media (max-width: 480px) {
+    
+    .cursor-pin-head {
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+    }
+    
+    .cursor-pin-point {
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 8px solid var(--user-color);
+    }
+    
+    .cursor-tooltip {
+        font-size: 10px;
+        padding: 2px 5px;
+        top: -32px;
+    }
 }
