@@ -1,0 +1,31 @@
+# robots.txt for Collaborative Notepad
+# Allow search engines to crawl the site for better discoverability
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /*admin*/
+Disallow: /api/
+
+# Crawl-delay to prevent server overload
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://collabnote.link/sitemap.xml
+
+# Google bots
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+
+# Bing bots
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+
+# Block common bad bots
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
