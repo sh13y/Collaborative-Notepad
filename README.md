@@ -6,7 +6,7 @@
 
 [![Star this repo](https://img.shields.io/github/stars/sh13y/collaborative-notepad?style=social)](https://github.com/sh13y/collaborative-notepad/stargazers)
 
-> **Like this project?** [Star it on GitHub!](https://github.com/sh13y/collaborative-notepad) ⭐ &nbsp; | &nbsp; [Share on Twitter](https://twitter.com/intent/tweet?text=Check%20out%20Collaborative%20Notepad%20by%20%40sh13y%20for%20real-time%20note%20collaboration!%20https%3A%2F%2Fgithub.com%2Fsh13y%2Fcollaborative-notepad) &nbsp; | &nbsp; [Live Demo](https://collabnote.link/)
+> **Like this project?** [Star it on GitHub!](https://github.com/sh13y/collaborative-notepad) ⭐ &nbsp; | &nbsp; [Share on Twitter](https://twitter.com/intent/tweet?text=Check%20out%20Collaborative%20Notepad%20by%20%40sh13y%20for%20real-time%20note%20collaboration!%20https%3A%2F%2Fgithub.com%2Fsh13y%2Fcollaborative-notepad) &nbsp; | &nbsp; [Live Demo](https://collabnote.app/)
 
 **Collaborative Notepad** is a free, open-source, real-time notepad for teams, friends, and classrooms. Create, share, and edit notes instantly—no sign-up required. Perfect for brainstorming, meetings, study groups, and more!
 
