@@ -126,6 +126,11 @@ const setupSocket = (io) => {
 
     let currentNoteUrl = null;
     let userCursorData = null; // Store user's cursor info
+
+    // Latency measurement: immediately acknowledge so client can measure RTT
+    socket.on('ping-latency', (callback) => {
+      if (typeof callback === 'function') callback();
+    });
     
     socket.on('joinNote', async (url) => {
       try {

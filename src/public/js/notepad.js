@@ -113,10 +113,36 @@ if (themeToggleBtn) {
 // ============================================
 // Socket.IO Real-Time Synchronization
 // ============================================
+const latencyEl = document.getElementById('latencyDisplay');
+let currentLatency = 0;
+
 socket.on('connect', () => {
-    console.log('✅ Connected to real-time sync server:', socket.id);
+    console.log('Connected to real-time sync server:', socket.id);
     socket.emit('joinNote', url);
+    startLatencyPing();
 });
+
+// Measure latency with custom ping/pong
+function startLatencyPing() {
+    setInterval(() => {
+        const start = Date.now();
+        socket.volatile.emit('ping-latency', () => {
+            currentLatency = Date.now() - start;
+            if (latencyEl) {
+                latencyEl.textContent = `${currentLatency}ms`;
+                // Color code: green < 100ms, yellow < 300ms, red >= 300ms
+                latencyEl.className = latencyEl.className.replace(/text-\S+/g, '');
+                if (currentLatency < 100) {
+                    latencyEl.classList.add('text-emerald-500');
+                } else if (currentLatency < 300) {
+                    latencyEl.classList.add('text-amber-500');
+                } else {
+                    latencyEl.classList.add('text-red-400');
+                }
+            }
+        });
+    }, 3000);
+}
 
 socket.on('loadNote', (note) => {
     if (textarea && note) {
@@ -218,61 +244,61 @@ function renderUserAvatars() {
 // Collaborative Cursor Engine
 // ============================================
 
-// Calculate pixel coordinates from caret index
+// Calculate pixel coordinates from caret index using span-marker technique
 function getCursorCoordinates(textareaEl, caretPosition) {
     try {
-        if (!textareaEl || caretPosition < 0 || !textareaEl.value) {
-            return { x: -1, y: -1, scaleFactor: 1 };
+        if (!textareaEl || caretPosition < 0) {
+            return { x: -1, y: -1 };
         }
 
         const style = window.getComputedStyle(textareaEl);
-        const fontSize = parseFloat(style.fontSize) || 14;
-        const scaleFactor = fontSize / 14;
-        const textareaWidth = textareaEl.clientWidth;
-        const paddingLeft = parseFloat(style.paddingLeft) || 16;
-        const paddingTop = parseFloat(style.paddingTop) || 16;
 
-        // Mirror div to accurately calculate text dimensions and wrapping
+        // Build a mirror div that exactly replicates the textarea's text layout
         const mirror = document.createElement('div');
         mirror.style.position = 'absolute';
         mirror.style.top = '-9999px';
         mirror.style.left = '-9999px';
-        mirror.style.width = `${textareaWidth}px`;
-        mirror.style.font = style.font;
-        mirror.style.fontSize = style.fontSize;
-        mirror.style.fontFamily = style.fontFamily;
-        mirror.style.fontWeight = style.fontWeight;
-        mirror.style.letterSpacing = style.letterSpacing;
-        mirror.style.lineHeight = style.lineHeight;
-        mirror.style.padding = style.padding;
-        mirror.style.border = style.border;
-        mirror.style.boxSizing = style.boxSizing;
+        mirror.style.visibility = 'hidden';
+
+        // Copy all layout-critical styles
+        const props = [
+            'font', 'fontSize', 'fontFamily', 'fontWeight', 'fontStyle',
+            'letterSpacing', 'lineHeight', 'padding', 'border', 'boxSizing',
+            'wordWrap', 'overflowWrap', 'tabSize', 'textIndent'
+        ];
+        props.forEach(p => { mirror.style[p] = style[p]; });
+
+        // Match textarea's content width exactly
+        mirror.style.width = textareaEl.clientWidth + 'px';
         mirror.style.whiteSpace = 'pre-wrap';
         mirror.style.wordWrap = 'break-word';
         mirror.style.overflowWrap = 'break-word';
 
-        mirror.textContent = textareaEl.value.substring(0, caretPosition);
+        // Insert text before caret as a text node, then a span marker at the caret
+        const textBefore = textareaEl.value.substring(0, caretPosition);
+        const textAfter = textareaEl.value.substring(caretPosition) || ' ';
+
+        const beforeNode = document.createTextNode(textBefore);
+        const marker = document.createElement('span');
+        marker.textContent = '|';
+        const afterNode = document.createTextNode(textAfter);
+
+        mirror.appendChild(beforeNode);
+        mirror.appendChild(marker);
+        mirror.appendChild(afterNode);
         document.body.appendChild(mirror);
 
-        const range = document.createRange();
-        const textNode = mirror.firstChild;
-        if (textNode && textNode.textContent.length > 0) {
-            range.setStart(textNode, Math.min(caretPosition, textNode.textContent.length));
-            range.setEnd(textNode, Math.min(caretPosition, textNode.textContent.length));
-        } else {
-            range.setStart(mirror, 0);
-            range.setEnd(mirror, 0);
-        }
-
-        const rect = range.getBoundingClientRect();
+        const markerRect = marker.getBoundingClientRect();
         const mirrorRect = mirror.getBoundingClientRect();
-        const x = rect.left - mirrorRect.left + paddingLeft;
-        const y = rect.top - mirrorRect.top + paddingTop;
+
+        // Position relative to mirror top-left (padding is already included)
+        const x = markerRect.left - mirrorRect.left;
+        const y = markerRect.top - mirrorRect.top;
 
         document.body.removeChild(mirror);
-        return { x, y, scaleFactor };
+        return { x, y };
     } catch (e) {
-        return { x: 0, y: 0, scaleFactor: 1 };
+        return { x: 0, y: 0 };
     }
 }
 
@@ -286,9 +312,9 @@ function createCursorElement(userId, color, emoji, username) {
     cursorEl.style.display = 'none';
     cursorEl.style.opacity = '0';
 
+    // username already includes the emoji (e.g. "🐼 Panda"), so don't render emoji separately
     cursorEl.innerHTML = `
         <div class="remote-cursor-label" style="background-color: ${color};">
-            <span>${emoji || '📍'}</span>
             <span>${username || 'Anonymous'}</span>
         </div>
         <div class="remote-cursor-caret" style="background-color: ${color};"></div>
