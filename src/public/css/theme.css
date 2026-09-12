@@ -117,17 +117,24 @@ textarea#notepad {
 
 /* Safe area padding for notched devices */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
-  body {
-    padding-bottom: env(safe-area-inset-bottom);
+  footer {
+    padding-bottom: max(4px, env(safe-area-inset-bottom));
   }
 }
 
 /* Mobile keyboard-aware layout */
 @media (max-width: 639px) {
+  html, body {
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow: hidden !important;
+  }
+
   /* Reduce editor padding on mobile */
   textarea#notepad {
-    padding: 12px !important;
-    line-height: 1.5 !important;
+    padding: 10px !important;
+    line-height: 1.45 !important;
+    font-size: 13px !important;
   }
   
   /* Smaller toast on mobile */
