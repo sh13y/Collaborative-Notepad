@@ -1,4 +1,4 @@
-# 🗺️ Collaborative Notepad — Roadmap
+# �-�️ Collaborative Notepad — Roadmap
 
 > Tracking what's done, what's next, and what's coming in future versions.
 
