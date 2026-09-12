@@ -1,6 +1,6 @@
 /**
  * Collaborative Notepad - Real-time client script
- * Handles WebSocket synchronization, collaborative cursors, presence, and UI interactions.
+ * Handles WebSocket synchronization, collaborative cursors, presence, and responsive UI interactions.
  */
 
 // Initialize Browser UUID for session tracking
@@ -10,16 +10,15 @@ if (!browserId) {
     localStorage.setItem('browserId', browserId);
 }
 
-// Current note URL slug from window location
-const url = window.location.pathname.split('/').filter(Boolean).pop() || 'default';
+// Current note URL slug (injected by server EJS or parsed from path)
+const url = (window.NOTE_URL && window.NOTE_URL.trim()) ? window.NOTE_URL.trim() : (window.location.pathname.split('/').filter(Boolean).pop() || 'default');
 
 // Initialize Socket.IO connection
 const socket = io({
     query: { browserId: browserId },
-    transports: ['websocket'],
-    upgrade: false,
+    transports: ['websocket', 'polling'],
     reconnection: true,
-    reconnectionAttempts: 10,
+    reconnectionAttempts: 15,
     reconnectionDelay: 1000
 });
 
@@ -28,10 +27,12 @@ const remoteCursors = new Map(); // userId -> { element, color, emoji, username,
 const userData = new Map();      // userId -> { username, emoji, color, status, lastActivity }
 let myCursorData = null;
 let lastContent = '';
-let typingTimeout = null;
+let syncTimer = null;
 
 // UI Elements
 const textarea = document.getElementById('notepad');
+const editorCard = document.getElementById('editorCard');
+const editorWrapper = document.getElementById('editorWrapper');
 const cursorContainer = document.getElementById('cursor-container');
 const charCountEl = document.getElementById('charCount');
 const wordCountEl = document.getElementById('wordCount');
@@ -49,7 +50,7 @@ function showToast(message) {
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => {
         toastEl.classList.add('hidden');
-    }, 2800);
+    }, 2500);
 }
 
 // ============================================
@@ -59,7 +60,7 @@ function updateStats() {
     if (!textarea) return;
     const text = textarea.value || '';
     if (charCountEl) {
-        charCountEl.textContent = `${text.length.toLocaleString()} characters`;
+        charCountEl.textContent = `${text.length.toLocaleString()} chars`;
     }
     if (wordCountEl) {
         const words = text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -100,7 +101,7 @@ if (themeToggleBtn) {
 // Socket.IO Real-Time Synchronization
 // ============================================
 socket.on('connect', () => {
-    console.log('✅ Connected to real-time sync server:', socket.id);
+    console.log('✅ Connected to real-time server:', socket.id, 'Room:', url);
     socket.emit('joinNote', url);
 });
 
@@ -112,52 +113,97 @@ socket.on('loadNote', (note) => {
     }
 });
 
+// Broadcasted note text updates from collaborators
 socket.on('noteUpdated', (content) => {
-    if (!textarea) return;
-    const currentCursor = textarea.selectionStart;
+    if (!textarea || typeof content !== 'string') return;
     if (textarea.value !== content) {
+        const isFocused = document.activeElement === textarea;
+        const currentStart = textarea.selectionStart;
+        const currentEnd = textarea.selectionEnd;
+
         textarea.value = content;
         lastContent = content;
-        textarea.selectionStart = currentCursor;
-        textarea.selectionEnd = currentCursor;
+
+        // Restore caret safely only if user is actively focused on textarea
+        if (isFocused && typeof currentStart === 'number') {
+            try {
+                textarea.selectionStart = Math.min(currentStart, content.length);
+                textarea.selectionEnd = Math.min(currentEnd, content.length);
+            } catch (e) {}
+        }
         updateStats();
+
+        // Reposition remote cursors to match updated text layout
+        remoteCursors.forEach((cursorData, userId) => {
+            if (cursorData.lastPosition !== undefined && cursorData.lastPosition !== null) {
+                updateCursorPosition(userId, cursorData.lastPosition);
+            }
+        });
     }
 });
 
-// Debounce helper
-function debounce(func, delay) {
-    return function(...args) {
-        clearTimeout(typingTimeout);
-        typingTimeout = setTimeout(() => func.apply(this, args), delay);
-    };
+// Emit note updates with low latency (25ms) for instantaneous collaboration
+function sendNoteUpdate() {
+    if (!textarea) return;
+    const content = textarea.value;
+    if (content !== lastContent) {
+        lastContent = content;
+        socket.emit('updateNote', { url, content });
+    }
 }
 
 if (textarea) {
+    // Initial content setup
+    lastContent = textarea.value || '';
+    updateStats();
+
     textarea.addEventListener('input', () => {
         updateStats();
         emitCursorPositionImmediate();
+        
+        clearTimeout(syncTimer);
+        syncTimer = setTimeout(sendNoteUpdate, 25);
     });
+}
 
-    textarea.addEventListener('input', debounce(() => {
-        const content = textarea.value;
-        if (content !== lastContent) {
-            lastContent = content;
-            socket.emit('updateNote', { url, content });
+// ============================================
+// Click / Tap Blank Area to Focus Textarea
+// ============================================
+if (editorWrapper && textarea) {
+    const handleBlankClick = (e) => {
+        // Do not intercept clicks on buttons, inputs or links
+        if (e.target.closest('button, a, input, [role="button"]')) return;
+        
+        if (document.activeElement !== textarea) {
+            textarea.focus();
+            // If user clicked empty space, set caret at the end
+            if (e.target !== textarea) {
+                const len = textarea.value.length;
+                try {
+                    textarea.setSelectionRange(len, len);
+                } catch (err) {}
+            }
+            emitCursorPositionImmediate();
         }
-    }, 100));
+    };
+
+    editorWrapper.addEventListener('click', handleBlankClick);
+    editorWrapper.addEventListener('touchend', (e) => {
+        if (e.target.closest('button, a, input, [role="button"]')) return;
+        if (document.activeElement !== textarea) {
+            textarea.focus();
+        }
+    }, { passive: true });
 }
 
 // ============================================
 // User Presence & Count
 // ============================================
 const userCountEl = document.getElementById('userCount');
-const statusIndicator = document.getElementById('statusIndicator');
-const usersDropdown = document.getElementById('usersDropdown');
-const dropdownContent = document.getElementById('dropdownContent');
 
 socket.on('userCount', (count) => {
     if (userCountEl) {
-        userCountEl.textContent = `${count} Online`;
+        userCountEl.textContent = count;
     }
 });
 
@@ -189,10 +235,9 @@ function renderUserAvatars() {
         }
     });
 
-    // Render up to 4 circular avatar bubbles
     allUsers.slice(0, 4).forEach(u => {
         const bubble = document.createElement('div');
-        bubble.className = 'w-6 h-6 rounded-full ring-2 ring-white dark:ring-earth-darkCard flex items-center justify-center text-[10px] font-bold text-white shadow-sm';
+        bubble.className = 'w-5 h-5 rounded-full ring-1 ring-white dark:ring-earth-darkCard flex items-center justify-center text-[9px] font-bold text-white shadow-sm shrink-0';
         bubble.style.backgroundColor = u.color;
         bubble.title = u.isSelf ? `${u.username} (You)` : u.username;
         bubble.textContent = u.emoji || u.username.substring(0, 2).toUpperCase();
@@ -271,13 +316,14 @@ function createCursorElement(userId, color, emoji, username) {
     cursorEl.id = `cursor-${userId}`;
     cursorEl.style.display = 'none';
     cursorEl.style.opacity = '0';
+    cursorEl.style.pointerEvents = 'none';
 
     cursorEl.innerHTML = `
-        <div class="remote-cursor-label" style="background-color: ${color};">
+        <div class="remote-cursor-label" style="background-color: ${color}; pointer-events: none;">
             <span>${emoji || '📍'}</span>
-            <span>${username || 'Anonymous'}</span>
+            <span>${username || 'Collaborator'}</span>
         </div>
-        <div class="remote-cursor-caret" style="background-color: ${color};"></div>
+        <div class="remote-cursor-caret" style="background-color: ${color}; pointer-events: none;"></div>
     `;
 
     cursorContainer.appendChild(cursorEl);
@@ -349,10 +395,9 @@ if (textarea) {
     textarea.addEventListener('mouseup', emitCursorPositionImmediate);
     textarea.addEventListener('click', emitCursorPositionImmediate);
     textarea.addEventListener('focus', emitCursorPositionImmediate);
-    textarea.addEventListener('keydown', (e) => {
-        if (e.key.includes('Arrow') || e.key === 'Home' || e.key === 'End' || e.key === 'PageUp' || e.key === 'PageDown') {
-            setTimeout(emitCursorPositionImmediate, 0);
-        }
+    textarea.addEventListener('keyup', emitCursorPositionImmediate);
+    textarea.addEventListener('touchend', () => {
+        setTimeout(emitCursorPositionImmediate, 50);
     });
 
     textarea.addEventListener('scroll', () => {
@@ -453,13 +498,23 @@ const urlSlugInput = document.getElementById('urlSlugInput');
 
 if (setUrlBtn && urlSlugInput) {
     setUrlBtn.addEventListener('click', async () => {
-        const newSlug = urlSlugInput.value.trim();
-        if (!newSlug) {
-            showToast('Please enter a valid room name');
+        let rawInput = urlSlugInput.value.trim();
+        if (!rawInput) {
+            showToast('Please enter a note name');
             return;
         }
+
+        // Clean any accidental domain or slashes pasted by user
+        rawInput = rawInput.replace(/^(https?:\/\/)?([^\/]+)?\/?/, '').replace(/^\/+/, '');
+        const newSlug = rawInput.split('/')[0].trim();
+
+        if (!newSlug) {
+            showToast('Invalid room name');
+            return;
+        }
+
         if (newSlug === url) {
-            showToast('You are already using this URL');
+            showToast('Already using this URL');
             return;
         }
 
@@ -493,9 +548,19 @@ if (copyLinkBtn) {
     copyLinkBtn.addEventListener('click', async () => {
         try {
             await navigator.clipboard.writeText(window.location.href);
-            showToast('Room link copied to clipboard!');
+            showToast('Link copied to clipboard!');
+            
+            // Icon feedback: temporarily swap icon
+            const copyIcon = document.getElementById('copyLinkIcon');
+            if (copyIcon) {
+                const originalHtml = copyIcon.innerHTML;
+                copyIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>';
+                setTimeout(() => {
+                    copyIcon.innerHTML = originalHtml;
+                }, 1800);
+            }
         } catch (err) {
-            showToast('Failed to copy room link');
+            showToast('Failed to copy link');
         }
     });
 }
@@ -507,7 +572,7 @@ if (copyContentFloatingBtn) {
         if (!textarea) return;
         try {
             await navigator.clipboard.writeText(textarea.value);
-            showToast('Notepad content copied!');
+            showToast('Text copied to clipboard!');
         } catch (err) {
             showToast('Failed to copy content');
         }
@@ -540,7 +605,7 @@ if (clearBtn) {
 
 // Keyboard shortcut: Ctrl/Cmd + S to trigger manual save feedback
 window.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
         if (textarea) {
             socket.emit('updateNote', { url, content: textarea.value });

@@ -195,16 +195,13 @@ const setupSocket = (io) => {
 
     socket.on('updateNote', async (data) => {
       try {
-        // First broadcast the update to all other clients
-        socket.to(data.url).emit('noteUpdated', data.content);
-        console.log("update call")
-        // Then save to database
-        noteMap.set(data.url, data.content)
-        // await Note.findOneAndUpdate(
-        //   { url: data.url },
-        //   { content: data.content },
-        //   { new: true }
-        // );
+        const targetRoom = (data && data.url) ? data.url : currentNoteUrl;
+        if (!targetRoom) return;
+        const content = (data && typeof data.content !== 'undefined') ? data.content : (typeof data === 'string' ? data : '');
+        // First broadcast the update to all other clients in this room
+        socket.to(targetRoom).emit('noteUpdated', content);
+        // Then save to database flush map
+        noteMap.set(targetRoom, content);
       } catch (error) {
         console.error('Error updating note:', error);
         socket.emit('error', 'Failed to update note');

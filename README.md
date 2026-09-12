@@ -10,7 +10,7 @@
 
 **A free, open-source real-time collaborative notepad. No sign-up. No friction. Just paste a link and start writing together.**
 
-[Live Demo](https://collabnote.link/) &nbsp;|&nbsp; [Roadmap](ROADMAP.md) &nbsp;|&nbsp; [Contributing](CONTRIBUTING.md) &nbsp;|&nbsp; [Report a Bug](https://github.com/sh13y/collaborative-notepad/issues)
+[Live Demo](https://collabnote.app/) &nbsp;|&nbsp; [Roadmap](ROADMAP.md) &nbsp;|&nbsp; [Contributing](CONTRIBUTING.md) &nbsp;|&nbsp; [Report a Bug](https://github.com/sh13y/collaborative-notepad/issues)
 
 ---
 
