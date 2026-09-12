@@ -81,9 +81,9 @@
 
   <!-- Main Top Header -->
   <header class="sticky top-0 z-40 bg-earth-cream/90 dark:bg-earth-darkBg/90 backdrop-blur-md border-b border-earth-olive/20 dark:border-earth-darkBorder transition-colors flex-shrink-0">
-    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3 flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
       
-      <!-- Brand (compact on mobile) -->
+      <!-- Brand (centered on mobile, left on desktop) -->
       <a href="/" class="flex items-center gap-2 group text-decoration-none flex-shrink-0">
         <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-earth-olive text-earth-cream flex items-center justify-center shadow-md shadow-earth-olive/20 ring-2 ring-earth-olive/30 group-hover:scale-105 transition-transform">
           <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -99,69 +99,71 @@
         </div>
       </a>
 
-      <!-- Custom URL Slug Bar (flexible, no domain prefix) -->
-      <div class="flex-1 max-w-xs sm:max-w-lg min-w-0">
-        <div class="relative flex items-center rounded-xl bg-white/80 dark:bg-earth-darkCard/80 border border-earth-olive/25 dark:border-earth-darkBorder shadow-sm focus-within:border-earth-olive focus-within:ring-2 focus-within:ring-earth-olive/20 transition-all p-0.5 sm:p-1">
-          <div class="pl-2 pr-1 flex items-center pointer-events-none text-earth-forest/50 dark:text-earth-cream/40">
-            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-earth-olive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+      <!-- Controls Row (URL bar + actions) -->
+      <div class="flex items-center gap-2 sm:gap-4 w-full sm:w-auto sm:flex-1 justify-between sm:justify-end">
+
+        <!-- Custom URL Slug Bar -->
+        <div class="flex-1 max-w-xs sm:max-w-lg min-w-0">
+          <div class="relative flex items-center rounded-xl bg-white/80 dark:bg-earth-darkCard/80 border border-earth-olive/25 dark:border-earth-darkBorder shadow-sm focus-within:border-earth-olive focus-within:ring-2 focus-within:ring-earth-olive/20 transition-all p-0.5 sm:p-1">
+            <div class="pl-2 pr-1 flex items-center pointer-events-none text-earth-forest/50 dark:text-earth-cream/40">
+              <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-earth-olive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+              </svg>
+            </div>
+            <input type="text" id="urlSlugInput" value="<%= note.url %>" class="w-full bg-transparent border-0 font-mono text-xs font-medium text-earth-forest dark:text-earth-cream focus:outline-none focus:ring-0 px-1 py-1" placeholder="room-name">
+            <div class="flex items-center gap-0.5 flex-shrink-0">
+              <!-- Set URL (icon-only) -->
+              <button id="setUrlBtn" class="p-1.5 sm:p-2 rounded-lg bg-earth-olive/10 hover:bg-earth-olive text-earth-olive hover:text-white dark:bg-earth-olive/30 dark:hover:bg-earth-olive transition-colors" title="Set URL">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+              </button>
+              <!-- Copy Link (icon-only) -->
+              <button id="copyLinkBtn" class="p-1.5 sm:p-2 rounded-lg bg-earth-burnt/10 hover:bg-earth-burnt text-earth-burnt hover:text-white dark:bg-earth-burnt/20 dark:hover:bg-earth-burnt transition-colors" title="Copy link">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Items & Presence -->
+        <div class="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+          <!-- Online active users indicator pill -->
+          <div id="statusIndicator" class="flex items-center bg-white/80 dark:bg-earth-darkCard border border-earth-olive/20 dark:border-earth-darkBorder rounded-full pl-2 pr-2 sm:pr-3 py-1 gap-1.5 shadow-sm">
+            <span class="flex h-2 w-2 relative">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span id="userCount" class="text-[10px] sm:text-xs font-semibold text-earth-forest dark:text-earth-cream whitespace-nowrap">1</span>
+            
+            <!-- Collaborator Avatars list -->
+            <div id="collaboratorAvatars" class="hidden sm:flex -space-x-1.5 ml-0.5">
+              <!-- Avatars injected dynamically by notepad.js -->
+            </div>
+          </div>
+
+          <!-- New Note Action Button -->
+          <button id="newNoteBtn" class="inline-flex items-center gap-1.5 p-2 sm:px-3.5 sm:py-1.5 rounded-xl bg-earth-olive hover:bg-earth-oliveDark text-earth-cream font-medium text-xs shadow-sm hover:shadow transition-all active:scale-95">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4"/>
             </svg>
-          </div>
-          <input type="text" id="urlSlugInput" value="<%= note.url %>" class="w-full bg-transparent border-0 font-mono text-xs font-medium text-earth-forest dark:text-earth-cream focus:outline-none focus:ring-0 px-1 py-1" placeholder="room-name">
-          <div class="flex items-center gap-0.5 flex-shrink-0">
-            <!-- Set URL (icon-only) -->
-            <button id="setUrlBtn" class="p-1.5 sm:p-2 rounded-lg bg-earth-olive/10 hover:bg-earth-olive text-earth-olive hover:text-white dark:bg-earth-olive/30 dark:hover:bg-earth-olive transition-colors" title="Set URL">
-              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-              </svg>
-            </button>
-            <!-- Copy Link (icon-only) -->
-            <button id="copyLinkBtn" class="p-1.5 sm:p-2 rounded-lg bg-earth-burnt/10 hover:bg-earth-burnt text-earth-burnt hover:text-white dark:bg-earth-burnt/20 dark:hover:bg-earth-burnt transition-colors" title="Copy link">
-              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
+            <span class="hidden sm:inline">New Note</span>
+          </button>
 
-      <!-- Action Items & Presence -->
-      <div class="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
-        <!-- Online active users indicator pill -->
-        <div id="statusIndicator" class="flex items-center bg-white/80 dark:bg-earth-darkCard border border-earth-olive/20 dark:border-earth-darkBorder rounded-full pl-2 pr-2 sm:pr-3 py-1 gap-1.5 shadow-sm">
-          <span class="flex h-2 w-2 relative">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span id="userCount" class="text-[10px] sm:text-xs font-semibold text-earth-forest dark:text-earth-cream whitespace-nowrap">1</span>
-          
-          <!-- Collaborator Avatars list (hidden on very small screens) -->
-          <div id="collaboratorAvatars" class="hidden sm:flex -space-x-1.5 ml-0.5">
-            <!-- Avatars injected dynamically by notepad.js -->
-          </div>
+          <!-- Dark / Light Mode Toggle -->
+          <button id="themeToggle" aria-label="Toggle Theme" class="p-1.5 sm:p-2 rounded-xl border border-earth-olive/20 dark:border-earth-darkBorder bg-white/80 dark:bg-earth-darkCard text-earth-forest dark:text-earth-cream hover:bg-earth-olive/10 dark:hover:bg-earth-olive/20 transition-colors">
+            <svg class="w-4 h-4 hidden dark:block text-earth-terracotta" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+            <svg class="w-4 h-4 block dark:hidden text-earth-forest" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+          </button>
         </div>
 
-        <!-- New Note Action Button (icon-only on mobile) -->
-        <button id="newNoteBtn" class="inline-flex items-center gap-1.5 p-2 sm:px-3.5 sm:py-1.5 rounded-xl bg-earth-olive hover:bg-earth-oliveDark text-earth-cream font-medium text-xs shadow-sm hover:shadow transition-all active:scale-95">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4"/>
-          </svg>
-          <span class="hidden sm:inline">New Note</span>
-        </button>
-
-        <!-- Dark / Light Mode Toggle -->
-        <button id="themeToggle" aria-label="Toggle Theme" class="p-1.5 sm:p-2 rounded-xl border border-earth-olive/20 dark:border-earth-darkBorder bg-white/80 dark:bg-earth-darkCard text-earth-forest dark:text-earth-cream hover:bg-earth-olive/10 dark:hover:bg-earth-olive/20 transition-colors">
-          <!-- Sun Icon (Active when dark) -->
-          <svg class="w-4 h-4 hidden dark:block text-earth-terracotta" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
-          </svg>
-          <!-- Moon Icon (Active when light) -->
-          <svg class="w-4 h-4 block dark:hidden text-earth-forest" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
-          </svg>
-        </button>
       </div>
-
     </div>
   </header>
 
