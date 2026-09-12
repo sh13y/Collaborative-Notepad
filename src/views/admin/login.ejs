@@ -1,227 +1,207 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <title>Admin Login - Collaborative Notepad</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%23fefae0' d='M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z'/></svg>"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%23606c38' d='M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z'/></svg>"/>
+
+    <!-- Google Fonts & Tailwind CDN -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              earth: {
+                cream: '#fefae0',
+                creamDark: '#f7f4d3',
+                olive: '#606c38',
+                oliveDark: '#4d572c',
+                forest: '#283618',
+                burnt: '#bc6c25',
+                terracotta: '#dda15e',
+                muted: '#737f51',
+                darkBg: '#182012',
+                darkCard: '#212c1a',
+                darkEditor: '#1c2616',
+                darkBorder: '#354522',
+              }
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="/css/theme.css">
     <style>
-        body {
-            min-height: 100vh;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0; /* Remove padding to allow full-screen on mobile */
-            box-sizing: border-box;
-        }
-
-        .login-container {
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            padding: clamp(2rem, 5vw, 3rem);
-            background: var(--eggshell);
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            text-align: center;
-            box-sizing: border-box;
-        }
-        .login-container h2 {
-            margin-bottom: 2rem;
-            color: var(--delft-blue);
-            font-size: clamp(1.8rem, 5vw, 2.2rem);
-        }
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-            width: 100%;
-        }
-        .login-form input {
-            width: 100%;
-            padding: 1.2rem;
-            font-size: 1.1rem;
-            border: 2px solid var(--cambridge-blue);
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            background: var(--eggshell);
-            text-align: left;
-        }
-        .login-form input:focus {
-            outline: none;
-            border-color: var(--delft-blue);
-            box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.1);
-        }
-        .login-form input::placeholder {
-            text-align: center;
-            color: var(--cambridge-blue);
-            opacity: 0.7;
-        }
-        .login-form button {
-            background: var(--cambridge-blue);
-            color: var(--eggshell);
-            padding: 1.2rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .login-form button:hover {
-            background: var(--delft-blue);
-            transform: translateY(-1px);
-        }
-        .login-form button:active {
-            transform: translateY(1px);
-        }
-        .error {
-            color: var(--burnt-sienna);
-            margin-bottom: 1rem;
-            padding: 0.8rem;
-            border-radius: 8px;
-            background: rgba(188, 108, 37, 0.1);
-            font-size: clamp(0.8rem, 2vw, 0.9rem);
-        }
-        .password-container {
-            position: relative;
-            width: 100%;
-            display: flex;
-            align-items: center;
-        }
-        
-        .password-toggle {
-            position: absolute;
-            right: 15px;  /* Adjusted position */
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: var(--cambridge-blue);
-            opacity: 0.7;
-            transition: all 0.3s ease;
-            font-size: 1.2rem;  /* Fixed size */
-            padding: 8px;  /* Larger click area */
-            z-index: var(--z-content);  /* Ensure icon stays above input */
-        }
-        
-        .password-toggle:hover {
-            opacity: 1;
-            color: var(--delft-blue);
-        }
-        
-        /* Dark mode adjustments */
-        body.dark-mode .login-container {
-            background: var(--delft-blue);
-        }
-        body.dark-mode .login-container h2 {
-            color: var(--eggshell);
-        }
-        body.dark-mode .login-form input {
-            background: var(--delft-blue);
-            border-color: var(--cambridge-blue);
-            color: var(--eggshell);
-        }
-        body.dark-mode .login-form input::placeholder {
-            color: var(--cambridge-blue);
-        }
-        body.dark-mode .password-toggle {
-            color: var(--cambridge-blue);
-        }
-        body.dark-mode .password-toggle:hover {
-            color: var(--eggshell);
-        }
-        /* Mobile optimizations */
-        @media (max-width: 480px) {
-            body {
-                padding: 0;
-                background: var(--eggshell);
-            }
-            
-            .login-container {
-                min-height: 100vh;
-                height: 100vh;
-                max-width: 100%;
-                border-radius: 0;
-                padding: 2rem;
-                margin: 0;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                gap: 2rem;
-            }
-
-            .login-form {
-                gap: 2rem;
-                flex: 0 1 auto;
-            }
-
-            .login-form input {
-                padding: 1.2rem;
-                font-size: 16px;
-                height: 3.5rem;
-            }
-
-            .login-form button {
-                padding: 1.2rem;
-                height: 3.5rem;
-                font-size: 1.1rem;
-            }
-
-            .password-container {
-                height: 3.5rem;
-            }
-
-            .password-toggle {
-                font-size: 1.4rem;
-                padding: 1rem;
-            }
-        }
-
-        @media (max-height: 600px) {
-            body {
-                align-items: center;
-                padding: 0;
-            }
-
-            .login-container {
-                min-height: auto;
-                height: auto;
-                padding: 2rem;
-            }
-        }
+      .bg-tactile-grid {
+        background-color: #fefae0;
+        background-image: radial-gradient(rgba(96, 108, 56, 0.12) 1px, transparent 0);
+        background-size: 24px 24px;
+        background-position: -19px -19px;
+      }
+      .dark .bg-tactile-grid {
+        background-color: #182012;
+        background-image: radial-gradient(rgba(221, 161, 94, 0.08) 1px, transparent 0);
+      }
     </style>
 </head>
-<body class="light-mode">
-    <div class="login-container">
-        <h2><%= firstTime ? 'Set Admin Password' : 'Admin Login' %></h2>
-        <% if (locals.error) { %>
-            <div class="error"><%= error %></div>
-        <% } %>
-        <form class="login-form" method="POST" action="/<%= secretAdminPath %>/login">
-            <div class="password-container">
-                <input type="password" name="password" id="password" placeholder="Enter password" required>
-                <i class="fas fa-eye password-toggle" id="togglePassword"></i>
-            </div>
-            <button type="submit"><%= firstTime ? 'Set Password' : 'Login' %></button>
-        </form>
+<body class="bg-tactile-grid text-earth-forest dark:text-earth-cream font-sans min-h-screen flex flex-col justify-between transition-colors duration-300 antialiased selection:bg-earth-terracotta/30 selection:text-earth-forest">
+
+  <!-- Top Auxiliary Bar -->
+  <header class="w-full px-4 sm:px-8 py-4 flex justify-between items-center z-10">
+    <a href="/" class="inline-flex items-center gap-1.5 text-xs text-earth-forest/70 dark:text-earth-cream/70 hover:text-earth-olive dark:hover:text-earth-terracotta transition-colors group">
+      <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+      </svg>
+      <span class="font-medium">Return to scratchpad</span>
+    </a>
+    <div class="inline-flex items-center gap-2 bg-white/80 dark:bg-earth-darkCard/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-earth-olive/20 dark:border-earth-darkBorder shadow-sm">
+      <span class="relative flex h-2 w-2">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+      </span>
+      <span class="text-[11px] font-medium text-earth-forest/80 dark:text-earth-cream/80">System Status: Operational</span>
     </div>
+  </header>
 
-    <script>
-        const togglePassword = document.querySelector('#togglePassword');
-        const password = document.querySelector('#password');
+  <!-- Center Auth Card Container -->
+  <main class="w-full flex-1 flex items-center justify-center px-4 py-8">
+    <div class="w-full max-w-md">
+      <div class="relative bg-white/90 dark:bg-earth-darkCard/90 backdrop-blur-md rounded-2xl p-6 sm:p-8 border border-earth-olive/25 dark:border-earth-darkBorder shadow-xl shadow-earth-olive/5 dark:shadow-black/50 overflow-hidden">
+        
+        <!-- Top Tone Strip Accent -->
+        <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-earth-olive via-earth-terracotta to-earth-burnt"></div>
 
-        togglePassword.addEventListener('click', function (e) {
-            // Toggle the type attribute
-            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-            password.setAttribute('type', type);
-            
-            // Toggle the eye icon
-            this.classList.toggle('fa-eye');
-            this.classList.toggle('fa-eye-slash');
-        });
-    </script>
+        <!-- Header inside Card -->
+        <div class="flex flex-col items-center text-center mb-6 mt-2">
+          <div class="flex items-center justify-center w-12 h-12 rounded-2xl bg-earth-cream dark:bg-earth-darkEditor border border-earth-olive/20 dark:border-earth-darkBorder shadow-sm mb-3.5 text-earth-olive dark:text-earth-terracotta">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+          </div>
+          
+          <div class="flex items-center gap-2 mb-1.5">
+            <span class="font-bold text-sm text-earth-olive dark:text-earth-cream tracking-tight">Collaborative Notepad</span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-earth-olive/15 text-earth-oliveDark dark:bg-earth-olive/30 dark:text-earth-terracotta text-[10px] font-semibold border border-earth-olive/20">
+              Admin Portal
+            </span>
+          </div>
+          
+          <h1 class="text-xl font-bold text-earth-forest dark:text-earth-cream mt-1 mb-1">
+            <%= firstTime ? 'Set Admin Password' : 'Admin Authentication' %>
+          </h1>
+          <p class="text-xs text-earth-forest/70 dark:text-earth-cream/70 max-w-xs">
+            <%= firstTime ? 'Create master administrative credentials to protect the management dashboard.' : 'Enter master administrative password to manage active notes and storage.' %>
+          </p>
+        </div>
+
+        <!-- Error Notification -->
+        <% if (locals.error) { %>
+          <div class="mb-5 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs flex items-center gap-2">
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span><%= error %></span>
+          </div>
+        <% } %>
+
+        <!-- Master Password Form -->
+        <form class="space-y-4" method="POST" action="/<%= secretAdminPath %>/login">
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="text-xs font-semibold text-earth-forest dark:text-earth-cream" for="adminPassword">
+                Master Security Key
+              </label>
+              <span class="text-[10px] text-earth-forest/50 dark:text-earth-cream/50">Single Authority</span>
+            </div>
+
+            <!-- Composite Input with Eye Toggle -->
+            <div class="relative flex items-center rounded-xl border border-earth-olive/25 dark:border-earth-darkBorder focus-within:border-earth-olive focus-within:ring-2 focus-within:ring-earth-olive/20 transition-all bg-white dark:bg-earth-darkEditor">
+              <span class="pl-3.5 flex items-center pointer-events-none text-earth-forest/40 dark:text-earth-cream/40">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+              </span>
+              <input type="password" id="adminPassword" name="password" autocomplete="current-password" placeholder="••••••••••••••••" required class="w-full bg-transparent border-0 py-2.5 pl-2.5 pr-11 font-mono text-xs text-earth-forest dark:text-earth-cream placeholder:text-earth-forest/30 dark:placeholder:text-earth-cream/30 focus:outline-none focus:ring-0">
+              <button type="button" id="togglePasswordBtn" class="absolute right-2.5 p-1 rounded-lg text-earth-forest/50 dark:text-earth-cream/50 hover:text-earth-olive dark:hover:text-earth-terracotta hover:bg-earth-cream dark:hover:bg-earth-darkCard transition-colors" title="Toggle password visibility">
+                <!-- Eye open -->
+                <svg id="eyeOpenIcon" class="w-4 h-4 block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                <!-- Eye closed -->
+                <svg id="eyeClosedIcon" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>
+                </svg>
+              </button>
+            </div>
+            <p class="mt-2 text-[11px] text-earth-forest/60 dark:text-earth-cream/50 flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-earth-olive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              Session expires after 60 minutes of inactivity.
+            </p>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="w-full py-2.5 px-4 bg-earth-olive hover:bg-earth-oliveDark text-earth-cream rounded-xl text-xs font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-95 cursor-pointer">
+            <span><%= firstTime ? 'Set Password & Enter' : 'Log In' %></span>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
+          </button>
+        </form>
+
+        <!-- Cryptographic Session Strip -->
+        <div class="mt-6 pt-4 border-t border-earth-olive/15 dark:border-earth-darkBorder flex items-center justify-center gap-2 text-center text-[10px] text-earth-forest/60 dark:text-earth-cream/50 font-mono">
+          <svg class="w-3.5 h-3.5 text-earth-burnt" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+          <span>256-bit encrypted session • Zero persistent tracking</span>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Discreet Base Bar -->
+  <footer class="w-full px-4 sm:px-8 py-3.5 flex flex-col sm:flex-row justify-between items-center text-earth-forest/60 dark:text-earth-cream/50 gap-2 text-[11px] border-t border-earth-olive/15 dark:border-earth-darkBorder bg-earth-cream/70 dark:bg-earth-darkBg/70 backdrop-blur-sm">
+    <div class="flex items-center gap-1.5">
+      <span>Secured Node: production-gateway</span>
+    </div>
+    <div>
+      <span>Built with care by Collaborative Notepad Team • Open Source (MIT)</span>
+    </div>
+  </footer>
+
+  <script>
+    const passwordInput = document.getElementById('adminPassword');
+    const toggleBtn = document.getElementById('togglePasswordBtn');
+    const eyeOpen = document.getElementById('eyeOpenIcon');
+    const eyeClosed = document.getElementById('eyeClosedIcon');
+
+    toggleBtn.addEventListener('click', () => {
+      const isPassword = passwordInput.getAttribute('type') === 'password';
+      if (isPassword) {
+        passwordInput.setAttribute('type', 'text');
+        eyeOpen.classList.add('hidden');
+        eyeClosed.classList.remove('hidden');
+      } else {
+        passwordInput.setAttribute('type', 'password');
+        eyeOpen.classList.remove('hidden');
+        eyeClosed.classList.add('hidden');
+      }
+    });
+  </script>
 </body>
-</html> 
+</html>

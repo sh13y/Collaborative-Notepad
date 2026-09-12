@@ -1,244 +1,284 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
-    <title><%= typeof statusCode !== 'undefined' ? statusCode + ' - ' : '' %>Error - Collaborative Notepad</title>
+    <title><%= typeof statusCode !== 'undefined' ? statusCode + ' - ' : '404 - ' %>Not Found - Collaborative Notepad</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="noindex, nofollow">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%23fefae0' d='M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z'/></svg>"/>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path fill='%23606c38' d='M471.6 21.7c-21.9-21.9-57.3-21.9-79.2 0L362.3 51.7l97.9 97.9 30.1-30.1c21.9-21.9 21.9-57.3 0-79.2L471.6 21.7zm-299.2 220c-6.1 6.1-10.8 13.6-13.5 21.9l-29.6 88.8c-2.9 8.6-.6 18.1 5.8 24.6s15.9 8.7 24.6 5.8l88.8-29.6c8.2-2.7 15.7-7.4 21.9-13.5L437.7 172.3 339.7 74.3 172.4 241.7zM96 64C43 64 0 107 0 160V416c0 53 43 96 96 96H352c53 0 96-43 96-96V320c0-17.7-14.3-32-32-32s-32 14.3-32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V160c0-17.7 14.3-32 32-32h96c17.7 0 32-14.3 32-32s-14.3-32-32-32H96z'/></svg>"/>
+
+    <!-- Google Fonts & Tailwind CDN -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              earth: {
+                cream: '#fefae0',
+                creamDark: '#f7f4d3',
+                olive: '#606c38',
+                oliveDark: '#4d572c',
+                forest: '#283618',
+                burnt: '#bc6c25',
+                terracotta: '#dda15e',
+                muted: '#737f51',
+                darkBg: '#182012',
+                darkCard: '#212c1a',
+                darkEditor: '#1c2616',
+                darkBorder: '#354522',
+              }
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+              mono: ['"JetBrains Mono"', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="/css/theme.css">
     <style>
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .not-found-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex: 1;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .error-code {
-            font-size: 6rem;
-            font-weight: bold;
-            color: var(--burnt-sienna);
-            margin-bottom: 0.5rem;
-            font-family: 'Fira Code', monospace;
-        }
-
-        .error-details {
-            background: var(--light-delft);
-            padding: 1rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.9rem;
-            text-align: left;
-            max-width: 600px;
-            overflow-x: auto;
-        }
-
-        .help-section {
-            margin: 2rem 0;
-            padding: 1.5rem;
-            background: var(--light-cambridge);
-            border-radius: 12px;
-            max-width: 500px;
-        }
-
-        .help-section h3 {
-            color: var(--delft-blue);
-            margin-bottom: 1rem;
-        }
-
-        .help-section ul {
-            text-align: left;
-            color: var(--cambridge-blue);
-        }
-
-        .help-section li {
-            margin: 0.5rem 0;
-        }
-
-        .action-buttons {
-            margin: 2rem 0;
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-block;
-        }
-
-        .btn-primary {
-            background: var(--cambridge-blue);
-            color: var(--eggshell);
-        }
-
-        .btn-primary:hover {
-            background: var(--delft-blue);
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: var(--light-delft);
-            color: var(--delft-blue);
-            border: 2px solid var(--cambridge-blue);
-        }
-
-        .btn-secondary:hover {
-            background: var(--cambridge-blue);
-            color: var(--eggshell);
-        }
-
-        .not-found-message {
-            font-size: 1.5rem;
-            color: var(--delft-blue);
-            margin-bottom: 1rem;
-        }
-
-        .redirect-message {
-            font-size: 1rem;
-            color: var(--cambridge-blue);
-        }
-
-        .countdown {
-            font-weight: bold;
-            color: var(--burnt-sienna);
-        }
-
-        footer {
-            margin-top: auto;
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-20px);
-            }
-            60% {
-                transform: translateY(-10px);
-            }
-        }
-
-        body.dark-mode .not-found-message {
-            color: var(--eggshell);
-        }
-
-        body.dark-mode .redirect-message {
-            color: var(--sunset);
-        }
+      @keyframes gentle-drift {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-6px) rotate(1deg); }
+      }
+      .floating-card {
+        animation: gentle-drift 5s ease-in-out infinite;
+      }
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+      }
+      .caret-blink {
+        animation: blink 1s step-start infinite;
+      }
     </style>
 </head>
-<body class="light-mode">
+<body class="bg-earth-cream text-earth-forest font-sans min-h-screen flex flex-col transition-colors duration-300 antialiased selection:bg-earth-terracotta/30 selection:text-earth-forest dark:bg-earth-darkBg dark:text-earth-cream">
 
-    <header>
-        <div class="header-content">
-            <div class="logo">
-                <i class="fas fa-edit"></i>
-                <h1>Collaborative Notepad</h1>
+  <!-- Top Realtime Status Strip -->
+  <header class="w-full bg-earth-olive/10 border-b border-earth-olive/15 py-1.5 px-4 text-xs text-earth-oliveDark dark:text-earth-terracotta">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-earth-olive animate-pulse"></span>
+        <span>Gateway active • Ephemeral session routing</span>
+      </div>
+      <div class="hidden sm:flex items-center gap-3">
+        <span class="opacity-70">Room: <code class="font-mono font-bold text-earth-forest dark:text-earth-cream">#error-dereference</code></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Bar -->
+  <div class="bg-earth-cream/85 dark:bg-earth-darkBg/85 backdrop-blur-md border-b border-earth-olive/20 dark:border-earth-darkBorder sticky top-0 z-40">
+    <nav class="flex items-center justify-between w-full px-4 md:px-6 lg:px-8 max-w-7xl mx-auto h-16">
+      <!-- Brand & Left Links -->
+      <a class="flex items-center gap-2.5 group text-decoration-none" href="/">
+        <div class="w-9 h-9 rounded-xl bg-earth-olive flex items-center justify-center text-earth-cream shadow-sm group-hover:scale-105 transition-transform">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+        </div>
+        <div class="flex flex-col">
+          <div class="flex items-center gap-2">
+            <span class="text-base font-bold text-earth-forest dark:text-earth-cream tracking-tight">Collaborative Notepad</span>
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-500/15 text-red-600 dark:bg-red-500/30 dark:text-red-400">404</span>
+          </div>
+          <span class="hidden sm:block text-[11px] text-earth-forest/70 dark:text-earth-cream/60">Instant real-time ephemeral markdown &amp; plain text</span>
+        </div>
+      </a>
+
+      <!-- Right Action CTAs -->
+      <div class="flex items-center gap-3">
+        <button id="themeToggle" aria-label="Toggle Theme" class="p-2 rounded-xl border border-earth-olive/20 dark:border-earth-darkBorder bg-white/80 dark:bg-earth-darkCard text-earth-forest dark:text-earth-cream hover:bg-earth-olive/10 dark:hover:bg-earth-olive/20 transition-colors">
+          <svg class="w-4 h-4 hidden dark:block text-earth-terracotta" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+          <svg class="w-4 h-4 block dark:hidden text-earth-forest" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+          </svg>
+        </button>
+        <a href="/new" class="bg-earth-olive hover:bg-earth-oliveDark text-earth-cream active:scale-95 transition-all px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span>New Note</span>
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Main 404 Canvas -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12 flex flex-col items-center justify-center">
+    <!-- Elevated Window Container -->
+    <div class="w-full max-w-2xl bg-white/90 dark:bg-earth-darkCard border border-earth-olive/25 dark:border-earth-darkBorder rounded-2xl md:rounded-3xl shadow-xl shadow-earth-olive/5 dark:shadow-black/40 overflow-hidden transition-all">
+      
+      <!-- Window Titlebar -->
+      <div class="bg-earth-cream/60 dark:bg-earth-darkEditor px-4 md:px-6 py-3 border-b border-earth-olive/15 dark:border-earth-darkBorder flex items-center justify-between select-none">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-red-400/80 inline-block"></span>
+          <span class="w-3 h-3 rounded-full bg-amber-400/80 inline-block"></span>
+          <span class="w-3 h-3 rounded-full bg-emerald-400/80 inline-block"></span>
+          <div class="ml-3 flex items-center gap-1.5 font-mono text-xs text-earth-forest/70 dark:text-earth-cream/70">
+            <span>404-lost-note.md</span>
+            <span class="text-red-500 font-bold">[missing]</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-earth-forest/50 dark:text-earth-cream/50">
+          <span class="px-2 py-0.5 rounded bg-earth-olive/10 dark:bg-earth-olive/20 text-earth-olive font-mono text-[10px] uppercase font-bold tracking-wider">Read Only</span>
+        </div>
+      </div>
+
+      <!-- Card Internal Canvas -->
+      <div class="p-6 md:p-10 flex flex-col items-center text-center">
+        <!-- Whimsical Missing Document Badge -->
+        <div class="floating-card mb-6 relative">
+          <div class="w-24 h-24 rounded-3xl bg-earth-cream dark:bg-earth-darkEditor border border-earth-olive/25 dark:border-earth-darkBorder flex items-center justify-center shadow-inner relative overflow-hidden">
+            <svg class="w-12 h-12 text-earth-olive dark:text-earth-terracotta" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <div class="absolute bottom-2 right-2 bg-red-500 text-white rounded-full p-1 shadow-sm flex items-center justify-center">
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
             </div>
+          </div>
+          <!-- Ghost Author badge -->
+          <div class="absolute -top-2 -right-4 bg-earth-burnt text-white text-[10px] font-mono font-medium px-2 py-0.5 rounded-full shadow-md flex items-center gap-1 border border-white dark:border-earth-darkCard">
+            <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+            <span>Ghost Author</span>
+          </div>
         </div>
-    </header>
 
-    <div class="not-found-container">
-        <% if (typeof statusCode !== 'undefined') { %>
-            <div class="error-code"><%= statusCode %></div>
-        <% } else { %>
-            <i class="fas fa-file-circle-question not-found-icon"></i>
-        <% } %>
-        
-        <div class="not-found-message"><%= message %></div>
-        
-        <% if (typeof error !== 'undefined' && error) { %>
-            <details class="error-details">
-                <summary>Technical Details (Development Mode)</summary>
-                <pre><%= error %></pre>
+        <!-- Headline & Error Message -->
+        <h1 class="text-2xl sm:text-3xl font-bold text-earth-forest dark:text-earth-cream tracking-tight mb-2">
+          <%= typeof statusCode !== 'undefined' ? statusCode + ' - ' : '' %><%= typeof message !== 'undefined' ? message : 'Oops! Page not found' %>
+        </h1>
+        <p class="text-sm text-earth-forest/75 dark:text-earth-cream/70 max-w-lg mb-6">
+          The note you are looking for might have vanished, expired after inactivity, or never existed in the first place.
+        </p>
+
+        <!-- Technical Diagnostic Snippet -->
+        <div class="w-full max-w-lg bg-earth-cream/70 dark:bg-earth-darkEditor border border-earth-olive/20 dark:border-earth-darkBorder rounded-xl p-4 text-left mb-6 shadow-inner font-mono text-xs">
+          <div class="flex items-center justify-between text-earth-forest/50 dark:text-earth-cream/40 pb-2 border-b border-earth-olive/15 mb-2 text-[11px]">
+            <span>SYNCHRONIZER_DIAGNOSTICS</span>
+            <span class="text-red-500 font-semibold">ERR_NOTE_DEREFERENCE</span>
+          </div>
+          <p class="text-earth-burnt font-semibold"># Error: Document Reference Null</p>
+          <p class="text-earth-forest/80 dark:text-earth-cream/80">&gt; Status: <span class="text-red-500 font-bold"><%= typeof statusCode !== 'undefined' ? statusCode : '404' %></span> / Room undefined</p>
+          <p class="text-earth-forest/80 dark:text-earth-cream/80">&gt; Suggestion: Check URL slug or create a fresh scratchpad</p>
+          <p class="text-earth-forest/50 dark:text-earth-cream/50">&gt; Line 404: <span class="caret-blink inline-block w-2 h-3.5 bg-earth-olive align-middle ml-1"></span></p>
+
+          <% if (typeof error !== 'undefined' && error) { %>
+            <details class="mt-3 pt-2 border-t border-earth-olive/15 text-red-600 dark:text-red-400">
+              <summary class="cursor-pointer text-[11px] font-medium">Stack Trace (Development Mode)</summary>
+              <pre class="mt-1 p-2 bg-black/5 dark:bg-black/30 rounded overflow-x-auto text-[10px]"><%= error %></pre>
             </details>
-        <% } %>
-
-        <div class="help-section">
-            <h3>What you can do:</h3>
-            <ul>
-                <li>Check the URL for typos</li>
-                <li>Create a new collaborative note</li>
-                <li>Visit the homepage</li>
-                <li>Contact support if this is unexpected</li>
-            </ul>
+          <% } %>
         </div>
 
-        <div class="action-buttons">
-            <a href="/new" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Create New Note
-            </a>
-            <a href="/" class="btn btn-secondary">
-                <i class="fas fa-home"></i> Go Home
-            </a>
+        <!-- Action CTAs -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-sm mb-4">
+          <a href="/" class="w-full sm:w-auto flex-1 bg-earth-olive hover:bg-earth-oliveDark text-earth-cream active:scale-95 transition-all py-2.5 px-5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-md">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            </svg>
+            <span>Return to Home</span>
+          </a>
+          <a href="/new" class="w-full sm:w-auto flex-1 bg-earth-burnt hover:bg-earth-burnt/90 text-white active:scale-95 transition-all py-2.5 px-5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            <span>Create New Note</span>
+          </a>
         </div>
 
         <% if (typeof redirectUrl !== 'undefined' && redirectUrl) { %>
-            <div class="redirect-message">
-                Auto-redirecting in <span class="countdown">5</span> seconds...
-            </div>
+          <div class="text-xs text-earth-forest/70 dark:text-earth-cream/70 mt-2">
+            Auto-redirecting in <span class="countdown font-bold text-earth-burnt">5</span> seconds...
+          </div>
         <% } %>
-    </div>
 
-    <footer>
-        <div class="footer-content">
-            <div class="copyright">
-                © 2025 | made in ceylon with ❤️ by sh13y
-            </div>
-            <div class="footer-links">
-                <a href="http://paypal.me/shieyz" target="_blank">
-                    <i class="fab fa-paypal"></i>
-                    Fix My Back Pain
-                </a>
-            </div>
+      </div>
+
+      <!-- Bottom Card Status -->
+      <div class="bg-earth-cream/40 dark:bg-earth-darkEditor/50 px-6 py-2.5 border-t border-earth-olive/15 dark:border-earth-darkBorder flex items-center justify-between text-[11px] text-earth-forest/60 dark:text-earth-cream/50">
+        <span>Encoding: <strong>UTF-8</strong></span>
+        <div class="flex items-center gap-1.5 text-earth-olive font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span>Ephemeral Session Ready</span>
         </div>
-    </footer>
+      </div>
 
-    <script>
-        // Check for saved theme
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            document.body.classList.remove('light-mode', 'dark-mode');
-            document.body.classList.add(savedTheme);
-        }
+    </div>
+  </main>
 
-        // Countdown and redirect
-        const countdownElement = document.querySelector('.countdown');
-        if (countdownElement) {
-            let count = 5;
-            const redirectUrl = '<%= typeof redirectUrl !== "undefined" && redirectUrl ? redirectUrl : "/new" %>';
-            
-            const interval = setInterval(() => {
-                count--;
-                countdownElement.textContent = count;
-                if (count <= 0) {
-                    clearInterval(interval);
-                    window.location.href = redirectUrl;
-                }
-            }, 1000);
+  <!-- Clean Footer -->
+  <footer class="mt-auto border-t border-earth-olive/15 dark:border-earth-darkBorder py-5 bg-earth-cream/60 dark:bg-earth-darkBg/60 backdrop-blur-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-earth-forest/70 dark:text-earth-cream/70">
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full bg-earth-burnt"></div>
+        <span>2025 | Made with ❤️ by <a href="https://github.com/sh13y" target="_blank" class="font-semibold hover:underline text-earth-forest dark:text-earth-cream">sh13y</a></span>
+        <span class="text-earth-forest/40 dark:text-earth-cream/40">•</span>
+        <span>Open Source (MIT)</span>
+      </div>
+      <div class="flex items-center gap-4 font-medium">
+        <a href="/" class="hover:text-earth-burnt transition-colors">Home</a>
+        <a href="/new" class="hover:text-earth-burnt transition-colors">New Note</a>
+        <a href="https://github.com/sh13y/Collaborative-Notepad" target="_blank" class="hover:text-earth-burnt transition-colors">GitHub</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Theme Management
+    const themeBtn = document.getElementById('themeToggle');
+    function applySavedTheme() {
+      const saved = localStorage.getItem('theme') || 'light-mode';
+      if (saved === 'dark-mode' || saved === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.body.classList.add('dark-mode');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark-mode');
+      }
+    }
+    applySavedTheme();
+
+    if (themeBtn) {
+      themeBtn.addEventListener('click', () => {
+        const isDark = document.documentElement.classList.contains('dark');
+        if (isDark) {
+          document.documentElement.classList.remove('dark');
+          document.body.classList.remove('dark-mode');
+          localStorage.setItem('theme', 'light-mode');
+        } else {
+          document.documentElement.classList.add('dark');
+          document.body.classList.add('dark-mode');
+          localStorage.setItem('theme', 'dark-mode');
         }
-    </script>
+      });
+    }
+
+    // Auto-redirect countdown if specified
+    const countdownEl = document.querySelector('.countdown');
+    if (countdownEl) {
+      let count = 5;
+      const targetUrl = '<%= typeof redirectUrl !== "undefined" && redirectUrl ? redirectUrl : "/new" %>';
+      const timer = setInterval(() => {
+        count--;
+        countdownEl.textContent = count;
+        if (count <= 0) {
+          clearInterval(timer);
+          window.location.href = targetUrl;
+        }
+      }, 1000);
+    }
+  </script>
 </body>
-</html> 
+</html>
