@@ -123,25 +123,27 @@ socket.on('connect', () => {
 });
 
 // Measure latency with custom ping/pong
-function startLatencyPing() {
-    setInterval(() => {
-        const start = Date.now();
-        socket.volatile.emit('ping-latency', () => {
-            currentLatency = Date.now() - start;
-            if (latencyEl) {
-                latencyEl.textContent = `${currentLatency}ms`;
-                // Color code: green < 100ms, yellow < 300ms, red >= 300ms
-                latencyEl.className = latencyEl.className.replace(/text-\S+/g, '');
-                if (currentLatency < 100) {
-                    latencyEl.classList.add('text-emerald-500');
-                } else if (currentLatency < 300) {
-                    latencyEl.classList.add('text-amber-500');
-                } else {
-                    latencyEl.classList.add('text-red-400');
-                }
+function measureLatency() {
+    const start = Date.now();
+    socket.emit('ping-latency', () => {
+        currentLatency = Date.now() - start;
+        if (latencyEl) {
+            latencyEl.textContent = `${currentLatency}ms`;
+            // Color code: green < 100ms, yellow < 300ms, red >= 300ms
+            if (currentLatency < 100) {
+                latencyEl.style.color = '#10b981';
+            } else if (currentLatency < 300) {
+                latencyEl.style.color = '#f59e0b';
+            } else {
+                latencyEl.style.color = '#f87171';
             }
-        });
-    }, 3000);
+        }
+    });
+}
+
+function startLatencyPing() {
+    measureLatency(); // immediate first ping
+    setInterval(measureLatency, 3000);
 }
 
 socket.on('loadNote', (note) => {
