@@ -30,39 +30,10 @@
   background: rgba(188, 108, 37, 0.65);
 }
 
-/* Zero outer window scroll on all devices */
-html, body {
-  height: 100%;
-  height: 100dvh;
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
-  -webkit-overflow-scrolling: touch;
-}
-
 /* Collaborative Remote Cursor Styles */
-#cursor-container,
-#cursor-container *,
-.remote-cursor,
-.remote-cursor * {
-  pointer-events: none !important;
-  user-select: none !important;
-  -webkit-user-select: none !important;
-  touch-action: none !important;
-}
-
-#notepad {
-  touch-action: auto !important;
-  -webkit-user-select: text !important;
-  user-select: text !important;
-  cursor: text;
-  -webkit-tap-highlight-color: transparent;
-  outline: none !important;
-}
-
 .remote-cursor {
   position: absolute;
-  pointer-events: none !important;
+  pointer-events: none;
   z-index: 30;
   display: flex;
   flex-direction: column;

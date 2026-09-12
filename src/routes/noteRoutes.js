@@ -81,7 +81,7 @@ Allow: /
 Disallow: /new
 Disallow: /*/*
 
-Sitemap: https://collabnote.app/sitemap.xml`);
+Sitemap: https://collabnote.link/sitemap.xml`);
 });
 
 // Serve the root route
