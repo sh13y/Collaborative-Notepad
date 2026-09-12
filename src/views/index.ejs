@@ -9,18 +9,18 @@
     <meta name="keywords" content="collaborative notepad, real-time notes, shared notepad, online notepad, team collaboration, note sharing, free notepad, open source notepad, markdown editor">
     <meta name="author" content="sh13y">
     <meta name="robots" content="index, follow">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://collabnote.link/<%= note.url %>">
+    <link rel="canonical" href="https://collabnote.app/<%= note.url %>">
     
     <!-- Open Graph & Social Cards -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="Collaborative Notepad - Real-Time Note Sharing">
     <meta property="og:description" content="Free real-time collaborative notepad. Share notes instantly, no sign-up required.">
-    <meta property="og:url" content="https://collabnote.link/<%= note.url %>">
+    <meta property="og:url" content="https://collabnote.app/<%= note.url %>">
     <meta property="og:site_name" content="Collaborative Notepad">
-    <meta property="og:image" content="https://collabnote.link/assets/og-image.png">
+    <meta property="og:image" content="https://collabnote.app/assets/og-image.png">
     
     <!-- Theme & Icons -->
     <meta name="theme-color" content="#606c38">
@@ -68,7 +68,7 @@
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "Collaborative Notepad",
-      "url": "https://collabnote.link/",
+      "url": "https://collabnote.app/",
       "description": "Free real-time collaborative notepad with live cursor synchronization.",
       "applicationCategory": "ProductivityApplication",
       "operatingSystem": "Web Browser",
@@ -77,32 +77,32 @@
     }
     </script>
 </head>
-<body class="bg-earth-cream text-earth-forest font-sans min-h-screen flex flex-col transition-colors duration-300 antialiased selection:bg-earth-terracotta/30 selection:text-earth-forest dark:bg-earth-darkBg dark:text-earth-cream">
+<body class="bg-earth-cream text-earth-forest font-sans h-screen flex flex-col overflow-hidden transition-colors duration-300 antialiased selection:bg-earth-terracotta/30 selection:text-earth-forest dark:bg-earth-darkBg dark:text-earth-cream">
 
-  <!-- Realtime Network Status Banner -->
-  <div class="bg-earth-olive/10 border-b border-earth-olive/15 px-4 py-1.5 text-xs text-earth-oliveDark dark:text-earth-terracotta flex items-center justify-between">
+  <!-- Realtime Network Status Banner (hidden on mobile) -->
+  <div class="hidden sm:block bg-earth-olive/10 border-b border-earth-olive/15 px-4 py-1 text-xs text-earth-oliveDark dark:text-earth-terracotta">
     <div class="flex items-center gap-2 max-w-7xl mx-auto w-full">
       <span class="flex h-2 w-2 relative">
         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
         <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
       </span>
-      <span class="font-medium tracking-tight">Connected via WebSocket to room: <code class="font-mono font-semibold text-earth-forest dark:text-earth-cream"><%= note.url %></code></span>
-      <span class="text-earth-muted text-[11px] hidden sm:inline ml-auto">End-to-end synchronized • Changes saved automatically</span>
+      <span class="font-medium tracking-tight">Connected to room: <code class="font-mono font-semibold text-earth-forest dark:text-earth-cream"><%= note.url %></code></span>
+      <span class="text-earth-muted text-[11px] hidden md:inline ml-auto">End-to-end synchronized &bull; Auto-saved</span>
     </div>
   </div>
 
   <!-- Main Top Header -->
-  <header class="sticky top-0 z-40 bg-earth-cream/85 dark:bg-earth-darkBg/85 backdrop-blur-md border-b border-earth-olive/20 dark:border-earth-darkBorder transition-colors">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+  <header class="sticky top-0 z-40 bg-earth-cream/90 dark:bg-earth-darkBg/90 backdrop-blur-md border-b border-earth-olive/20 dark:border-earth-darkBorder transition-colors flex-shrink-0">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
       
-      <!-- Brand & Title -->
-      <a href="/" class="flex items-center gap-3 group text-decoration-none">
-        <div class="w-10 h-10 rounded-xl bg-earth-olive text-earth-cream flex items-center justify-center shadow-md shadow-earth-olive/20 ring-2 ring-earth-olive/30 group-hover:scale-105 transition-transform">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <!-- Brand (compact on mobile) -->
+      <a href="/" class="flex items-center gap-2 group text-decoration-none flex-shrink-0">
+        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-earth-olive text-earth-cream flex items-center justify-center shadow-md shadow-earth-olive/20 ring-2 ring-earth-olive/30 group-hover:scale-105 transition-transform">
+          <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
           </svg>
         </div>
-        <div>
+        <div class="hidden sm:block">
           <div class="flex items-center gap-2">
             <h1 class="text-lg font-bold tracking-tight text-earth-forest dark:text-earth-cream">Collaborative Notepad</h1>
             <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-earth-olive/15 text-earth-oliveDark dark:bg-earth-olive/30 dark:text-earth-terracotta uppercase tracking-wider">v3.0</span>
@@ -111,48 +111,50 @@
         </div>
       </a>
 
-      <!-- Custom URL Slug Bar -->
-      <div class="flex-1 max-w-lg min-w-[280px]">
-        <div class="relative flex items-center rounded-xl bg-white/80 dark:bg-earth-darkCard/80 border border-earth-olive/25 dark:border-earth-darkBorder shadow-sm focus-within:border-earth-olive focus-within:ring-2 focus-within:ring-earth-olive/20 transition-all p-1">
-          <div class="pl-2.5 pr-1.5 flex items-center pointer-events-none text-earth-forest/50 dark:text-earth-cream/40">
-            <svg class="w-4 h-4 mr-1 text-earth-olive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <!-- Custom URL Slug Bar (flexible, no domain prefix) -->
+      <div class="flex-1 max-w-xs sm:max-w-lg min-w-0">
+        <div class="relative flex items-center rounded-xl bg-white/80 dark:bg-earth-darkCard/80 border border-earth-olive/25 dark:border-earth-darkBorder shadow-sm focus-within:border-earth-olive focus-within:ring-2 focus-within:ring-earth-olive/20 transition-all p-0.5 sm:p-1">
+          <div class="pl-2 pr-1 flex items-center pointer-events-none text-earth-forest/50 dark:text-earth-cream/40">
+            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-earth-olive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
             </svg>
-            <span class="text-xs font-mono text-earth-forest/60 dark:text-earth-cream/50">collab.note/</span>
           </div>
-          <input type="text" id="urlSlugInput" value="<%= note.url %>" class="w-full bg-transparent border-0 font-mono text-xs font-medium text-earth-forest dark:text-earth-cream focus:outline-none focus:ring-0 px-1 py-1" placeholder="enter-room-name">
-          <div class="flex items-center gap-1">
-            <button id="setUrlBtn" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-earth-olive/10 hover:bg-earth-olive text-earth-olive hover:text-white dark:bg-earth-olive/30 dark:hover:bg-earth-olive transition-colors flex items-center gap-1" title="Change note room">
-              Set URL
+          <input type="text" id="urlSlugInput" value="<%= note.url %>" class="w-full bg-transparent border-0 font-mono text-xs font-medium text-earth-forest dark:text-earth-cream focus:outline-none focus:ring-0 px-1 py-1" placeholder="room-name">
+          <div class="flex items-center gap-0.5 flex-shrink-0">
+            <!-- Set URL (icon-only) -->
+            <button id="setUrlBtn" class="p-1.5 sm:p-2 rounded-lg bg-earth-olive/10 hover:bg-earth-olive text-earth-olive hover:text-white dark:bg-earth-olive/30 dark:hover:bg-earth-olive transition-colors" title="Set URL">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
             </button>
-            <button id="copyLinkBtn" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-earth-burnt/10 hover:bg-earth-burnt text-earth-burnt hover:text-white dark:bg-earth-burnt/20 dark:hover:bg-earth-burnt transition-colors flex items-center gap-1" title="Copy room link">
+            <!-- Copy Link (icon-only) -->
+            <button id="copyLinkBtn" class="p-1.5 sm:p-2 rounded-lg bg-earth-burnt/10 hover:bg-earth-burnt text-earth-burnt hover:text-white dark:bg-earth-burnt/20 dark:hover:bg-earth-burnt transition-colors" title="Copy link">
               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
               </svg>
-              <span>Copy link</span>
             </button>
           </div>
         </div>
       </div>
 
       <!-- Action Items & Presence -->
-      <div class="flex items-center gap-2 sm:gap-3">
+      <div class="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
         <!-- Online active users indicator pill -->
-        <div id="statusIndicator" class="flex items-center bg-white/80 dark:bg-earth-darkCard border border-earth-olive/20 dark:border-earth-darkBorder rounded-full pl-2.5 pr-3 py-1 gap-2 shadow-sm">
-          <span class="flex h-2.5 w-2.5 relative">
+        <div id="statusIndicator" class="flex items-center bg-white/80 dark:bg-earth-darkCard border border-earth-olive/20 dark:border-earth-darkBorder rounded-full pl-2 pr-2 sm:pr-3 py-1 gap-1.5 shadow-sm">
+          <span class="flex h-2 w-2 relative">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
-          <span id="userCount" class="text-xs font-semibold text-earth-forest dark:text-earth-cream whitespace-nowrap">1 Online</span>
+          <span id="userCount" class="text-[10px] sm:text-xs font-semibold text-earth-forest dark:text-earth-cream whitespace-nowrap">1</span>
           
-          <!-- Collaborator Avatars list -->
-          <div id="collaboratorAvatars" class="flex -space-x-1.5 ml-1">
+          <!-- Collaborator Avatars list (hidden on very small screens) -->
+          <div id="collaboratorAvatars" class="hidden sm:flex -space-x-1.5 ml-0.5">
             <!-- Avatars injected dynamically by notepad.js -->
           </div>
         </div>
 
-        <!-- New Note Action Button -->
-        <button id="newNoteBtn" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-earth-olive hover:bg-earth-oliveDark text-earth-cream font-medium text-xs shadow-sm hover:shadow transition-all active:scale-95">
+        <!-- New Note Action Button (icon-only on mobile) -->
+        <button id="newNoteBtn" class="inline-flex items-center gap-1.5 p-2 sm:px-3.5 sm:py-1.5 rounded-xl bg-earth-olive hover:bg-earth-oliveDark text-earth-cream font-medium text-xs shadow-sm hover:shadow transition-all active:scale-95">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4"/>
           </svg>
@@ -160,7 +162,7 @@
         </button>
 
         <!-- Dark / Light Mode Toggle -->
-        <button id="themeToggle" aria-label="Toggle Theme" class="p-2 rounded-xl border border-earth-olive/20 dark:border-earth-darkBorder bg-white/80 dark:bg-earth-darkCard text-earth-forest dark:text-earth-cream hover:bg-earth-olive/10 dark:hover:bg-earth-olive/20 transition-colors">
+        <button id="themeToggle" aria-label="Toggle Theme" class="p-1.5 sm:p-2 rounded-xl border border-earth-olive/20 dark:border-earth-darkBorder bg-white/80 dark:bg-earth-darkCard text-earth-forest dark:text-earth-cream hover:bg-earth-olive/10 dark:hover:bg-earth-olive/20 transition-colors">
           <!-- Sun Icon (Active when dark) -->
           <svg class="w-4 h-4 hidden dark:block text-earth-terracotta" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9h-1m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
@@ -175,15 +177,15 @@
     </div>
   </header>
 
-  <!-- Document Meta Sub-header -->
-  <div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-4 pb-2 flex flex-wrap items-center justify-between gap-3 text-xs text-earth-forest/70 dark:text-earth-cream/70">
+  <!-- Document Meta Sub-header (hidden on mobile) -->
+  <div class="hidden sm:flex max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-2 pb-1 items-center justify-between gap-3 text-xs text-earth-forest/70 dark:text-earth-cream/70 flex-shrink-0">
     <div class="flex items-center gap-3">
       <span class="inline-flex items-center gap-1 font-mono text-[11px] bg-earth-olive/10 dark:bg-earth-olive/20 text-earth-oliveDark dark:text-earth-terracotta px-2 py-0.5 rounded-md font-semibold">
         UTF-8
       </span>
       <span class="flex items-center gap-1.5">
         <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-        <span id="charCount">0 characters</span> • <span id="wordCount">0 words</span>
+        <span id="charCount">0 characters</span> &bull; <span id="wordCount">0 words</span>
       </span>
       <span class="hidden md:inline text-earth-forest/40 dark:text-earth-cream/30">|</span>
       <span class="hidden md:inline text-earth-muted dark:text-earth-cream/60">
@@ -202,18 +204,18 @@
   </div>
 
   <!-- Center Expansive Editor Canvas -->
-  <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-2 pb-6 flex flex-col">
-    <div class="relative flex-1 flex flex-col rounded-2xl bg-white/90 dark:bg-earth-darkEditor border border-earth-olive/25 dark:border-earth-darkBorder shadow-xl shadow-earth-olive/5 dark:shadow-black/40 backdrop-blur-sm overflow-hidden transition-all">
+  <main class="flex-1 max-w-7xl mx-auto w-full px-2 sm:px-6 lg:px-8 py-1 sm:py-2 pb-2 sm:pb-6 flex flex-col min-h-0 overflow-hidden">
+    <div class="relative flex-1 flex flex-col rounded-xl sm:rounded-2xl bg-white/90 dark:bg-earth-darkEditor border border-earth-olive/25 dark:border-earth-darkBorder shadow-xl shadow-earth-olive/5 dark:shadow-black/40 backdrop-blur-sm overflow-hidden transition-all min-h-0">
 
       <!-- Editor Window Header Bar -->
-      <div class="h-11 px-4 bg-earth-cream/50 dark:bg-earth-darkCard border-b border-earth-olive/15 dark:border-earth-darkBorder flex items-center justify-between">
+      <div class="h-9 sm:h-11 px-3 sm:px-4 bg-earth-cream/50 dark:bg-earth-darkCard border-b border-earth-olive/15 dark:border-earth-darkBorder flex items-center justify-between flex-shrink-0">
         <div class="flex items-center gap-2">
           <!-- Window Dots -->
-          <span class="w-3 h-3 rounded-full bg-red-400/80 inline-block"></span>
-          <span class="w-3 h-3 rounded-full bg-amber-400/80 inline-block"></span>
-          <span class="w-3 h-3 rounded-full bg-emerald-400/80 inline-block"></span>
-          <span class="ml-3 font-mono text-xs text-earth-forest/60 dark:text-earth-cream/50 flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-earth-olive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-400/80 inline-block"></span>
+          <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-amber-400/80 inline-block"></span>
+          <span class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400/80 inline-block"></span>
+          <span class="ml-2 sm:ml-3 font-mono text-[10px] sm:text-xs text-earth-forest/60 dark:text-earth-cream/50 flex items-center gap-1">
+            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5 text-earth-olive" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
             <%= note.url %>.md
@@ -221,28 +223,38 @@
         </div>
 
         <!-- Floating Action Items inside Editor Toolbar -->
-        <div class="flex items-center gap-2">
-          <!-- Floating 'Copy content' button -->
-          <button id="copyContentFloatingBtn" class="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg bg-earth-forest text-earth-cream hover:bg-earth-olive dark:bg-earth-olive dark:hover:bg-earth-oliveDark shadow-sm hover:shadow transition-all active:scale-95" title="Copy note text">
+        <div class="flex items-center gap-1 sm:gap-2">
+          <!-- Mobile-only: char/word count compact -->
+          <span class="sm:hidden text-[9px] text-earth-forest/50 dark:text-earth-cream/40 font-mono">
+            <span id="charCountMobile">0</span>c / <span id="wordCountMobile">0</span>w
+          </span>
+          <!-- Mobile-only: Clear button -->
+          <button id="clearBtnMobile" class="sm:hidden p-1 rounded-lg hover:bg-red-500/10 hover:text-red-600 text-earth-forest/50 dark:text-earth-cream/50 transition-colors" title="Clear">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </button>
+          <!-- Floating 'Copy content' button -->
+          <button id="copyContentFloatingBtn" class="flex items-center gap-1 px-2 sm:px-3 py-1 text-[10px] sm:text-xs font-semibold rounded-lg bg-earth-forest text-earth-cream hover:bg-earth-olive dark:bg-earth-olive dark:hover:bg-earth-oliveDark shadow-sm hover:shadow transition-all active:scale-95" title="Copy note text">
+            <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
             </svg>
-            <span>Copy content</span>
+            <span class="hidden sm:inline">Copy content</span>
           </button>
         </div>
       </div>
 
       <!-- Editor Content & Collaborative Cursors Overlay Container -->
-      <div class="relative flex-1 flex overflow-hidden min-h-[500px]">
+      <div class="relative flex-1 flex overflow-hidden min-h-0">
         <!-- Collaborative Cursor Layer Container -->
         <div id="cursor-container" class="absolute inset-0 pointer-events-none overflow-hidden z-20"></div>
 
         <!-- Editable Code/Text Area -->
-        <textarea id="notepad" spellcheck="false" class="w-full h-full p-5 font-mono text-sm leading-relaxed bg-transparent text-earth-forest dark:text-earth-cream resize-none focus:outline-none focus:ring-0 border-0 selection:bg-earth-terracotta/30 selection:text-earth-forest dark:selection:text-earth-cream" placeholder="Start typing your notes here... Everyone on this link can collaborate and edit simultaneously."><%= note.content %></textarea>
+        <textarea id="notepad" spellcheck="false" class="w-full h-full p-3 sm:p-5 font-mono text-sm leading-relaxed bg-transparent text-earth-forest dark:text-earth-cream resize-none focus:outline-none focus:ring-0 border-0 selection:bg-earth-terracotta/30 selection:text-earth-forest dark:selection:text-earth-cream" placeholder="Start typing your notes here... Everyone on this link can collaborate in real-time."><%= note.content %></textarea>
       </div>
 
       <!-- Live Notification Toast Bar -->
-      <div id="toastNotification" class="hidden absolute bottom-4 right-4 bg-earth-forest text-earth-cream dark:bg-earth-olive dark:text-white px-4 py-2 rounded-xl shadow-lg border border-earth-terracotta/30 text-xs flex items-center gap-2 z-50 transition-all">
+      <div id="toastNotification" class="hidden absolute bottom-3 right-3 sm:bottom-4 sm:right-4 bg-earth-forest text-earth-cream dark:bg-earth-olive dark:text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl shadow-lg border border-earth-terracotta/30 text-xs flex items-center gap-2 z-50 transition-all">
         <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
         </svg>
@@ -252,22 +264,22 @@
     </div>
   </main>
 
-  <!-- Minimal Clean Footer -->
-  <footer class="mt-auto border-t border-earth-olive/15 dark:border-earth-darkBorder py-5 bg-earth-cream/60 dark:bg-earth-darkBg/60 backdrop-blur-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-earth-forest/70 dark:text-earth-cream/70">
+  <!-- Minimal Clean Footer (hidden on mobile) -->
+  <footer class="hidden sm:block mt-auto border-t border-earth-olive/15 dark:border-earth-darkBorder py-3 bg-earth-cream/60 dark:bg-earth-darkBg/60 backdrop-blur-sm flex-shrink-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-earth-forest/70 dark:text-earth-cream/70">
       
       <!-- Left: Credit -->
       <div class="flex items-center gap-2">
         <div class="w-2 h-2 rounded-full bg-earth-burnt"></div>
-        <span>2025 | Made with ❤️ by <a href="https://github.com/sh13y" target="_blank" class="font-semibold hover:underline text-earth-forest dark:text-earth-cream">sh13y</a></span>
-        <span class="text-earth-forest/40 dark:text-earth-cream/40">•</span>
+        <span>2025 | Made with love by <a href="https://github.com/sh13y" target="_blank" class="font-semibold hover:underline text-earth-forest dark:text-earth-cream">sh13y</a></span>
+        <span class="text-earth-forest/40 dark:text-earth-cream/40">&bull;</span>
         <span>Open Source (MIT)</span>
       </div>
 
       <!-- Center / Right Links -->
       <div class="flex items-center gap-5 font-medium">
         <span class="flex items-center gap-1">
-          <kbd class="px-1.5 py-0.5 rounded bg-earth-olive/10 dark:bg-earth-olive/20 font-mono text-[10px]">⌘S</kbd> Auto-saves
+          <kbd class="px-1.5 py-0.5 rounded bg-earth-olive/10 dark:bg-earth-olive/20 font-mono text-[10px]">Ctrl+S</kbd> Auto-saves
         </span>
         <a href="https://github.com/sh13y/Collaborative-Notepad" target="_blank" class="hover:text-earth-burnt transition-colors flex items-center gap-1">
           <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">

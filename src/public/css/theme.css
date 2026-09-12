@@ -84,3 +84,63 @@
   background: rgba(188, 108, 37, 0.25);
   color: inherit;
 }
+
+/* ===== Mobile Responsive Styles ===== */
+
+/* Use dynamic viewport height for mobile browsers (accounts for address bar) */
+html, body {
+  height: 100vh;
+  height: 100dvh;
+}
+
+/* Prevent iOS zoom on input focus */
+input[type="text"],
+textarea {
+  font-size: 16px !important; /* Prevents iOS auto-zoom */
+}
+
+@media (min-width: 640px) {
+  input[type="text"] {
+    font-size: 12px !important;
+  }
+  textarea {
+    font-size: 14px !important;
+  }
+}
+
+/* Touch-friendly textarea */
+textarea#notepad {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Safe area padding for notched devices */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Mobile keyboard-aware layout */
+@media (max-width: 639px) {
+  /* Reduce editor padding on mobile */
+  textarea#notepad {
+    padding: 12px !important;
+    line-height: 1.5 !important;
+  }
+  
+  /* Smaller toast on mobile */
+  #toastNotification {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* Smooth transitions for theme changes */
+body, header, main, footer {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}

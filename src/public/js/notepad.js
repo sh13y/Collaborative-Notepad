@@ -55,15 +55,29 @@ function showToast(message) {
 // ============================================
 // Word & Character Counter
 // ============================================
+// Mobile element references
+const charCountMobileEl = document.getElementById('charCountMobile');
+const wordCountMobileEl = document.getElementById('wordCountMobile');
+const clearBtnMobile = document.getElementById('clearBtnMobile');
+
 function updateStats() {
     if (!textarea) return;
     const text = textarea.value || '';
+    const charLen = text.length;
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+
     if (charCountEl) {
-        charCountEl.textContent = `${text.length.toLocaleString()} characters`;
+        charCountEl.textContent = `${charLen.toLocaleString()} characters`;
     }
     if (wordCountEl) {
-        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
         wordCountEl.textContent = `${words.toLocaleString()} words`;
+    }
+    // Mobile compact counters
+    if (charCountMobileEl) {
+        charCountMobileEl.textContent = charLen.toLocaleString();
+    }
+    if (wordCountMobileEl) {
+        wordCountMobileEl.textContent = words.toLocaleString();
     }
 }
 
@@ -344,11 +358,21 @@ function emitCursorPositionImmediate() {
     });
 }
 
-// Cursor event listeners on textarea
+// Cursor event listeners on textarea (mouse + touch)
 if (textarea) {
     textarea.addEventListener('mouseup', emitCursorPositionImmediate);
     textarea.addEventListener('click', emitCursorPositionImmediate);
     textarea.addEventListener('focus', emitCursorPositionImmediate);
+
+    // Touch events for mobile cursor tracking
+    textarea.addEventListener('touchend', (e) => {
+        // Small delay to let the browser update selectionStart after touch
+        setTimeout(emitCursorPositionImmediate, 50);
+    });
+    textarea.addEventListener('touchstart', (e) => {
+        setTimeout(emitCursorPositionImmediate, 50);
+    });
+
     textarea.addEventListener('keydown', (e) => {
         if (e.key.includes('Arrow') || e.key === 'Home' || e.key === 'End' || e.key === 'PageUp' || e.key === 'PageDown') {
             setTimeout(emitCursorPositionImmediate, 0);
@@ -522,20 +546,24 @@ if (newNoteBtn) {
     });
 }
 
-// Clear Notepad Button
+// Clear Notepad Button (desktop + mobile)
 const clearBtn = document.getElementById('clearBtn');
-if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-        if (confirm('Are you sure you want to clear this notepad?')) {
-            if (textarea) {
-                textarea.value = '';
-                lastContent = '';
-                socket.emit('updateNote', { url, content: '' });
-                updateStats();
-                showToast('Notepad cleared');
-            }
+function handleClear() {
+    if (confirm('Are you sure you want to clear this notepad?')) {
+        if (textarea) {
+            textarea.value = '';
+            lastContent = '';
+            socket.emit('updateNote', { url, content: '' });
+            updateStats();
+            showToast('Notepad cleared');
         }
-    });
+    }
+}
+if (clearBtn) {
+    clearBtn.addEventListener('click', handleClear);
+}
+if (clearBtnMobile) {
+    clearBtnMobile.addEventListener('click', handleClear);
 }
 
 // Keyboard shortcut: Ctrl/Cmd + S to trigger manual save feedback
