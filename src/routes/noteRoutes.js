@@ -73,17 +73,6 @@ router.get('/favicon.ico', (req, res) => {
     res.status(204).end();
 });
 
-// Robots.txt to guide crawlers
-router.get('/robots.txt', (req, res) => {
-    res.type('text/plain');
-    res.send(`User-agent: *
-Allow: /
-Disallow: /new
-Disallow: /*/*
-
-Sitemap: https://collabnote.link/sitemap.xml`);
-});
-
 // Serve the root route
 router.get('/', (req, res) => {
     res.redirect('/new');

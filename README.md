@@ -34,7 +34,8 @@ The deployment journey - from `npm start` to "success" - felt like a chiropracto
 - **Custom URLs** - create memorable links like `my-back-is-killing-me`
 - **Dark / Light mode** - for vampires, developers, and people who've lost track of day and night
 - **User presence counter** - see how many people are enjoying this
-- **Auto-save** - because we all have trust issues after losing work that one time
+- **Conflict-free editing** - Yjs CRDT synchronization keeps concurrent edits instead of overwriting them
+- **Auto-save** - durable updates are written to MongoDB as they arrive
 - **Responsive design** - works on everything from your fancy phone to that potato you call a laptop
 
 ### Security and Admin
@@ -72,7 +73,7 @@ The deployment journey - from `npm start` to "success" - felt like a chiropracto
 |---|---|
 | **Runtime** | Node.js 20.x |
 | **Framework** | Express.js |
-| **Real-time** | Socket.IO |
+| **Real-time** | Socket.IO + Yjs CRDT |
 | **Database** | MongoDB + Mongoose |
 | **Templating** | EJS |
 | **Auth** | bcrypt + express-session + connect-mongo |
@@ -115,6 +116,14 @@ npm run dev
 ```
 
 Visit `http://localhost:3000` and prepare to be amazed.
+
+MongoDB is required for startup because notes and collaboration updates are persisted there.
+
+Run the automated tests with:
+
+```bash
+npm test
+```
 
 ---
 

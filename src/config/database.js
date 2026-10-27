@@ -4,15 +4,13 @@ require('dotenv').config();
 const connectDB = async () => {
     try {
         if (!process.env.MONGODB_URI) {
-            console.log('No MongoDB URI provided, running without database');
-            return;
+            throw new Error('MONGODB_URI is required to start Collaborative Notepad');
         }
         await mongoose.connect(process.env.MONGODB_URI);
         console.log('MongoDB connected');
     } catch (err) {
         console.log('MongoDB connection error:', err.message);
-        console.log('Continuing without database connection...');
-        // Don't exit, continue without database
+        throw err;
     }
 };
 

@@ -7,6 +7,8 @@ const compression = require('compression');
 const helmet = require('helmet');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
+const mongoose = require('mongoose');
+const { createAdapter } = require('@socket.io/mongo-adapter');
 require('dotenv').config();
 
 console.log('🚀 Starting Collaborative Notepad...');
@@ -121,9 +123,6 @@ const io = socketIo(server, {
 // Make io available app-wide
 app.set('io', io);
 
-// Connect to MongoDB
-connectDB();
-
 // Middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -218,15 +217,20 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Setup WebSocket
-setupSocket.setupSocket(io);
-
-setupSocket.addNotesToDatabase()
-// Start automatic cleanup service
-cleanupService.start();
-
 // Start server
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+async function startServer() {
+  await connectDB();
+  const mongoClient = mongoose.connection.getClient();
+  io.adapter(createAdapter(mongoClient.db().collection('socket.io-adapter-events')));
+  setupSocket.setupSocket(io);
+  cleanupService.start();
+  server.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+}
+
+startServer().catch(error => {
+  console.error('Server startup failed:', error.message);
+  process.exitCode = 1;
+});
 
 module.exports = app; 

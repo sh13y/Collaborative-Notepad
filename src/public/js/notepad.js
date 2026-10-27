@@ -27,8 +27,9 @@ const socket = io({
 const remoteCursors = new Map(); // userId -> { element, color, emoji, username, lastPosition, inactivityTimer }
 const userData = new Map();      // userId -> { username, emoji, color, status, lastActivity }
 let myCursorData = null;
-let lastContent = '';
-let typingTimeout = null;
+const collaborationDoc = new Y.Doc();
+const collaborationText = collaborationDoc.getText('content');
+let applyingRemoteUpdate = false;
 
 // UI Elements
 const textarea = document.getElementById('notepad');
@@ -146,47 +147,72 @@ function startLatencyPing() {
     setInterval(measureLatency, 3000);
 }
 
-socket.on('loadNote', (note) => {
-    if (textarea && note) {
-        textarea.value = note.content || '';
-        lastContent = note.content || '';
+socket.on('loadNoteState', (noteState) => {
+    if (textarea && noteState && typeof noteState.state === 'string') {
+        applyingRemoteUpdate = true;
+        Y.applyUpdate(collaborationDoc, Uint8Array.from(atob(noteState.state), character => character.charCodeAt(0)));
+        textarea.value = collaborationText.toString();
         updateStats();
+        applyingRemoteUpdate = false;
     }
 });
 
-socket.on('noteUpdated', (content) => {
-    if (!textarea) return;
-    const currentCursor = textarea.selectionStart;
-    if (textarea.value !== content) {
-        textarea.value = content;
-        lastContent = content;
-        textarea.selectionStart = currentCursor;
-        textarea.selectionEnd = currentCursor;
+socket.on('crdt-update', (encodedUpdate) => {
+    if (typeof encodedUpdate !== 'string') return;
+    const bytes = Uint8Array.from(atob(encodedUpdate), character => character.charCodeAt(0));
+    applyingRemoteUpdate = true;
+    Y.applyUpdate(collaborationDoc, bytes);
+    if (textarea && textarea.value !== collaborationText.toString()) {
+        const currentCursor = textarea.selectionStart;
+        textarea.value = collaborationText.toString();
+        textarea.selectionStart = Math.min(currentCursor, textarea.value.length);
+        textarea.selectionEnd = textarea.selectionStart;
         updateStats();
     }
+    applyingRemoteUpdate = false;
 });
 
-// Debounce helper
-function debounce(func, delay) {
-    return function(...args) {
-        clearTimeout(typingTimeout);
-        typingTimeout = setTimeout(() => func.apply(this, args), delay);
-    };
-}
+collaborationDoc.on('update', update => {
+    if (applyingRemoteUpdate) return;
+    socket.emit('updateNote', {
+        url,
+        updateId: crypto.randomUUID(),
+        update: btoa(String.fromCharCode(...update))
+    });
+});
 
 if (textarea) {
     textarea.addEventListener('input', () => {
         updateStats();
         emitCursorPositionImmediate();
-    });
+        if (applyingRemoteUpdate) return;
 
-    textarea.addEventListener('input', debounce(() => {
-        const content = textarea.value;
-        if (content !== lastContent) {
-            lastContent = content;
-            socket.emit('updateNote', { url, content });
+        const previousContent = collaborationText.toString();
+        const nextContent = textarea.value;
+        let start = 0;
+        while (start < previousContent.length &&
+            start < nextContent.length &&
+            previousContent[start] === nextContent[start]) {
+            start++;
         }
-    }, 100));
+
+        let previousEnd = previousContent.length;
+        let nextEnd = nextContent.length;
+        while (previousEnd > start && nextEnd > start &&
+            previousContent[previousEnd - 1] === nextContent[nextEnd - 1]) {
+            previousEnd--;
+            nextEnd--;
+        }
+
+        collaborationDoc.transact(() => {
+            if (previousEnd > start) {
+                collaborationText.delete(start, previousEnd - start);
+            }
+            if (nextEnd > start) {
+                collaborationText.insert(start, nextContent.slice(start, nextEnd));
+            }
+        });
+    });
 }
 
 // ============================================
@@ -580,8 +606,12 @@ function handleClear() {
     if (confirm('Are you sure you want to clear this notepad?')) {
         if (textarea) {
             textarea.value = '';
-            lastContent = '';
-            socket.emit('updateNote', { url, content: '' });
+            const currentLength = collaborationText.length;
+            collaborationDoc.transact(() => {
+                if (currentLength > 0) {
+                    collaborationText.delete(0, currentLength);
+                }
+            });
             updateStats();
             showToast('Notepad cleared');
         }
