@@ -122,7 +122,7 @@ router.get('/new', createNoteLimit, async (req, res) => {
         const note = new Note({ 
             content: '', 
             url: uniqueUrl,
-            activeUsers: 0 
+            activeUsers: 0
         });
         await note.save();
         console.log('New note saved successfully:', uniqueUrl);

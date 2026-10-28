@@ -30,6 +30,15 @@ let myCursorData = null;
 const collaborationDoc = new Y.Doc();
 const collaborationText = collaborationDoc.getText('content');
 let applyingRemoteUpdate = false;
+let canEdit = true;
+let canView = true;
+let lockSettings = {
+    viewRequiresPin: false,
+    editRequiresPin: false,
+    isOwner: false,
+    authenticated: false
+};
+let lockStatusReady = false;
 
 // UI Elements
 const textarea = document.getElementById('notepad');
@@ -157,6 +166,57 @@ socket.on('loadNoteState', (noteState) => {
     }
 });
 
+socket.on('lockStatus', status => {
+    lockSettings = { ...lockSettings, ...status };
+    lockStatusReady = true;
+    canEdit = Boolean(status.canEdit);
+    canView = Boolean(status.canView);
+    if (textarea) textarea.readOnly = !canEdit;
+    if (editLockNotice) editLockNotice.classList.toggle('hidden', canEdit || !canView);
+    if (!canView) {
+        openUnlockModal('view');
+    }
+});
+
+socket.on('lockChanged', status => {
+    lockSettings = { ...lockSettings, ...status };
+    canEdit = Boolean(status.canEdit);
+    canView = Boolean(status.canView);
+    if (textarea) textarea.readOnly = !canEdit;
+    if (editLockNotice) editLockNotice.classList.toggle('hidden', canEdit || !canView);
+    if (!canView) {
+        if (textarea) textarea.value = '';
+        openUnlockModal('view');
+    }
+});
+
+socket.on('lockRequired', ({ access }) => {
+    if (access === 'edit') {
+        if (editLockNotice) editLockNotice.classList.remove('hidden');
+        showToast('Editing is locked. Use Unlock editing or the lock icon to enter the PIN.');
+        return;
+    }
+    openUnlockModal('view');
+});
+
+socket.on('lockError', message => {
+    if (unlockModal && !unlockModal.classList.contains('hidden')) {
+        unlockModalMessage.textContent = message;
+        unlockModalMessage.classList.remove('hidden');
+    } else {
+        showToast(message);
+    }
+});
+socket.on('lockAuthenticated', () => {
+    lockSettings.authenticated = true;
+    closeUnlockModal();
+    if (editLockNotice) editLockNotice.classList.add('hidden');
+});
+socket.on('lockSaved', () => {
+    closeLockModal();
+    showToast('Note access settings saved');
+});
+
 socket.on('crdt-update', (encodedUpdate) => {
     if (typeof encodedUpdate !== 'string') return;
     const bytes = Uint8Array.from(atob(encodedUpdate), character => character.charCodeAt(0));
@@ -174,6 +234,7 @@ socket.on('crdt-update', (encodedUpdate) => {
 
 collaborationDoc.on('update', update => {
     if (applyingRemoteUpdate) return;
+    if (!canEdit) return;
     socket.emit('updateNote', {
         url,
         updateId: crypto.randomUUID(),
@@ -597,6 +658,141 @@ const newNoteBtn = document.getElementById('newNoteBtn');
 if (newNoteBtn) {
     newNoteBtn.addEventListener('click', () => {
         window.location.href = '/new';
+    });
+}
+
+const lockNoteBtn = document.getElementById('lockNoteBtn');
+const editLockNotice = document.getElementById('editLockNotice');
+const unlockEditBtn = document.getElementById('unlockEditBtn');
+const unlockModal = document.getElementById('unlockModal');
+const unlockPin = document.getElementById('unlockPin');
+const unlockModalMessage = document.getElementById('unlockModalMessage');
+const confirmUnlockBtn = document.getElementById('confirmUnlockBtn');
+const cancelUnlockBtn = document.getElementById('cancelUnlockBtn');
+const lockModal = document.getElementById('lockModal');
+const closeLockModalBtn = document.getElementById('closeLockModalBtn');
+const cancelLockBtn = document.getElementById('cancelLockBtn');
+const confirmLockBtn = document.getElementById('confirmLockBtn');
+const lockViewToggle = document.getElementById('lockViewToggle');
+const lockEditToggle = document.getElementById('lockEditToggle');
+const currentPinSection = document.getElementById('currentPinSection');
+const currentLockPin = document.getElementById('currentLockPin');
+const newLockPin = document.getElementById('newLockPin');
+const lockModalMessage = document.getElementById('lockModalMessage');
+
+function closeLockModal() {
+    if (!lockModal) return;
+    lockModal.classList.add('hidden');
+    lockModal.classList.remove('flex');
+    if (lockModalMessage) lockModalMessage.classList.add('hidden');
+}
+
+function closeUnlockModal() {
+    if (!unlockModal) return;
+    unlockModal.classList.add('hidden');
+    unlockModal.classList.remove('flex');
+    unlockPin.value = '';
+    unlockModalMessage.classList.add('hidden');
+}
+
+function openUnlockModal(access = 'edit') {
+    unlockModal.dataset.access = access;
+    document.getElementById('unlockModalTitle').textContent = access === 'view' ? 'Unlock note' : 'Unlock editing';
+    document.getElementById('unlockModalDescription').textContent =
+        access === 'view' ? 'Enter the PIN to view this note.' : 'Enter the PIN to enable editing.';
+    unlockModal.classList.remove('hidden');
+    unlockModal.classList.add('flex');
+    unlockPin.focus();
+}
+
+function openLockModal() {
+    if (!lockStatusReady) {
+        showToast('Loading note access settings...');
+        return;
+    }
+    if (!lockSettings.isOwner) {
+        if (lockSettings.authenticated) {
+            showToast('This note is already unlocked for this connection');
+            return;
+        }
+        if (lockSettings.viewRequiresPin || lockSettings.editRequiresPin) {
+            openUnlockModal(lockSettings.canView ? 'edit' : 'view');
+        } else {
+            showToast('This note is not locked');
+        }
+        return;
+    }
+    lockViewToggle.checked = Boolean(lockSettings.viewRequiresPin);
+    lockEditToggle.checked = Boolean(lockSettings.editRequiresPin);
+    currentPinSection.classList.toggle('hidden', !(lockSettings.viewRequiresPin || lockSettings.editRequiresPin));
+    currentLockPin.value = '';
+    newLockPin.value = '';
+    lockModalMessage.classList.add('hidden');
+    lockModal.classList.remove('hidden');
+    lockModal.classList.add('flex');
+}
+
+if (lockNoteBtn) {
+    lockNoteBtn.addEventListener('click', openLockModal);
+}
+if (unlockEditBtn) unlockEditBtn.addEventListener('click', () => openUnlockModal('edit'));
+if (cancelUnlockBtn) cancelUnlockBtn.addEventListener('click', closeUnlockModal);
+if (unlockModal) {
+    unlockModal.addEventListener('click', event => {
+        if (event.target === unlockModal) closeUnlockModal();
+    });
+}
+if (confirmUnlockBtn) {
+    confirmUnlockBtn.addEventListener('click', () => {
+        const pin = unlockPin.value.trim();
+        if (!/^\d{4}$/.test(pin)) {
+            unlockModalMessage.textContent = 'Enter a valid 4-digit PIN.';
+            unlockModalMessage.classList.remove('hidden');
+            return;
+        }
+        socket.emit('authenticateNote', { pin });
+    });
+}
+if (unlockPin) {
+    unlockPin.addEventListener('keydown', event => {
+        if (event.key === 'Enter') confirmUnlockBtn.click();
+    });
+}
+if (closeLockModalBtn) closeLockModalBtn.addEventListener('click', closeLockModal);
+if (cancelLockBtn) cancelLockBtn.addEventListener('click', closeLockModal);
+if (lockModal) {
+    lockModal.addEventListener('click', event => {
+        if (event.target === lockModal) closeLockModal();
+    });
+}
+if (lockViewToggle && lockEditToggle) {
+    const updateCurrentPinVisibility = () => {
+        currentPinSection.classList.toggle('hidden', !(lockViewToggle.checked || lockEditToggle.checked));
+    };
+    lockViewToggle.addEventListener('change', updateCurrentPinVisibility);
+    lockEditToggle.addEventListener('change', updateCurrentPinVisibility);
+}
+if (confirmLockBtn) {
+    confirmLockBtn.addEventListener('click', () => {
+        const lockingEnabled = lockViewToggle.checked || lockEditToggle.checked;
+        const oldPin = currentLockPin.value.trim();
+        const pin = newLockPin.value.trim();
+        if (lockingEnabled && !/^\d{4}$/.test(pin)) {
+            lockModalMessage.textContent = 'Enter a new 4-digit PIN.';
+            lockModalMessage.classList.remove('hidden');
+            return;
+        }
+        if ((lockSettings.viewRequiresPin || lockSettings.editRequiresPin) && !/^\d{4}$/.test(oldPin)) {
+            lockModalMessage.textContent = 'Enter the current 4-digit PIN.';
+            lockModalMessage.classList.remove('hidden');
+            return;
+        }
+        socket.emit('updateLock', {
+            oldPin,
+            pin,
+            viewRequiresPin: lockViewToggle.checked,
+            editRequiresPin: lockEditToggle.checked
+        });
     });
 }
 

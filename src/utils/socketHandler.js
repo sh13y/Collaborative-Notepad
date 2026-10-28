@@ -1,6 +1,7 @@
 const Note = require('../models/Note');
 const NoteUpdate = require('../models/NoteUpdate');
 const Y = require('yjs');
+const bcrypt = require('bcrypt');
 const { loadDocument, encodeState, decodeUpdate } = require('./collaborationState');
 
 const roomDocuments = new Map();
@@ -100,6 +101,16 @@ const setupSocket = (io) => {
     let currentNoteUrl = null;
     let userCursorData = null; // Store user's cursor info
     let currentDocument = null;
+    let canEdit = true;
+    let canView = true;
+    let isOwner = false;
+
+    const emitDocument = () => {
+      socket.emit('loadNoteState', {
+        content: currentDocument.getText('content').toString(),
+        state: encodeState(currentDocument)
+      });
+    };
 
     // Latency measurement: immediately acknowledge so client can measure RTT
     socket.on('ping-latency', (callback) => {
@@ -109,6 +120,7 @@ const setupSocket = (io) => {
     socket.on('joinNote', async (url) => {
       try {
         currentNoteUrl = url;
+        socket.data.currentNoteUrl = url;
         socket.join(url);
 
         // Initialize cursor map for this room if not exists
@@ -136,16 +148,36 @@ const setupSocket = (io) => {
         roomCursors.get(url).set(socket.id, userCursorData);
 
         // Get note content from MongoDB
-        const note = await Note.findOne({ url }).lean();
+        let note = await Note.findOne({ url });
         if (note) {
+          if (!note.ownerBrowserId) {
+            const claimedNote = await Note.findOneAndUpdate(
+              { _id: note._id, ownerBrowserId: null },
+              { ownerBrowserId: browserId },
+              { new: true }
+            );
+            note = claimedNote || await Note.findById(note._id);
+          }
+          isOwner = note.ownerBrowserId === browserId;
+          socket.data.noteAuthenticated = isOwner;
+          canView = isOwner || !note.viewRequiresPin;
+          canEdit = isOwner || !note.editRequiresPin;
+          socket.data.canView = canView;
+          socket.data.canEdit = canEdit;
+          socket.emit('lockStatus', {
+            viewRequiresPin: note.viewRequiresPin,
+            editRequiresPin: note.editRequiresPin,
+            isOwner,
+            authenticated: socket.data.noteAuthenticated,
+            canView,
+            canEdit
+          });
           if (!roomDocuments.has(url)) {
             roomDocuments.set(url, await loadDocument(url, note.content || ''));
           }
           currentDocument = roomDocuments.get(url);
-          socket.emit('loadNoteState', {
-            content: currentDocument.getText('content').toString(),
-            state: encodeState(currentDocument)
-          });
+          if (canView) emitDocument();
+          else socket.emit('lockRequired', { access: 'view' });
 
           // Get real-time count of users in the room
           const userCount = getRoomSize(url);
@@ -183,6 +215,10 @@ const setupSocket = (io) => {
         if (!currentDocument || data.url !== currentNoteUrl) {
           throw new Error('Socket has not joined this note');
         }
+        if (!socket.data.canEdit) {
+          socket.emit('lockRequired', { access: 'edit' });
+          return;
+        }
 
         const update = decodeUpdate(data.update);
         const updateId = typeof data.updateId === 'string' ? data.updateId : null;
@@ -208,6 +244,90 @@ const setupSocket = (io) => {
       } catch (error) {
         console.error('Error updating note:', error);
         socket.emit('error', 'Failed to update note');
+      }
+    });
+
+    socket.on('authenticateNote', async ({ pin } = {}) => {
+      try {
+        if (!currentNoteUrl || !/^\d{4}$/.test(pin || '')) {
+          socket.emit('lockError', 'Enter a valid 4-digit PIN');
+          return;
+        }
+        const note = await Note.findOne({ url: currentNoteUrl }).select('pinHash viewRequiresPin editRequiresPin');
+        if (!note || !note.pinHash || !(await bcrypt.compare(pin, note.pinHash))) {
+          socket.emit('lockError', 'Incorrect PIN');
+          return;
+        }
+        canView = true;
+        canEdit = true;
+        socket.data.canView = true;
+        socket.data.canEdit = true;
+        socket.data.noteAuthenticated = true;
+        socket.emit('lockStatus', {
+          viewRequiresPin: note.viewRequiresPin,
+          editRequiresPin: note.editRequiresPin,
+          isOwner: false,
+          authenticated: true,
+          canView,
+          canEdit
+        });
+        socket.emit('lockAuthenticated');
+        if (currentDocument) emitDocument();
+      } catch (error) {
+        console.error('Error authenticating note:', error);
+        socket.emit('lockError', 'Unable to verify PIN');
+      }
+    });
+
+    socket.on('updateLock', async ({ pin, oldPin, viewRequiresPin = false, editRequiresPin = false } = {}) => {
+      try {
+        const note = await Note.findOne({ url: currentNoteUrl });
+        if (!note || note.ownerBrowserId !== browserId) {
+          socket.emit('lockError', 'Only the note creator can change lock settings');
+          return;
+        }
+        const noteIsLocked = note.viewRequiresPin || note.editRequiresPin;
+        if (noteIsLocked && (!note.pinHash || !/^\d{4}$/.test(oldPin || '') || !(await bcrypt.compare(oldPin, note.pinHash)))) {
+          socket.emit('lockError', 'Current PIN is incorrect');
+          return;
+        }
+        if ((viewRequiresPin || editRequiresPin) && !/^\d{4}$/.test(pin || '')) {
+          socket.emit('lockError', 'A 4-digit PIN is required');
+          return;
+        }
+        note.viewRequiresPin = Boolean(viewRequiresPin);
+        note.editRequiresPin = Boolean(editRequiresPin);
+        note.pinHash = note.viewRequiresPin || note.editRequiresPin ? await bcrypt.hash(pin, 10) : null;
+        await note.save();
+        canView = true;
+        canEdit = true;
+        for (const roomSocket of io.sockets.sockets.values()) {
+          if (roomSocket.data.currentNoteUrl === currentNoteUrl) {
+            const isOwner = roomSocket.handshake.query.browserId === note.ownerBrowserId;
+            roomSocket.data.canView = isOwner || note.viewRequiresPin === false;
+            roomSocket.data.canEdit = isOwner || note.editRequiresPin === false;
+            roomSocket.data.noteAuthenticated = isOwner;
+            roomSocket.emit('lockChanged', {
+              viewRequiresPin: note.viewRequiresPin,
+              editRequiresPin: note.editRequiresPin,
+              isOwner,
+              authenticated: roomSocket.data.noteAuthenticated,
+              canView: roomSocket.data.canView,
+              canEdit: roomSocket.data.canEdit
+            });
+          }
+        }
+        socket.emit('lockStatus', {
+          viewRequiresPin: note.viewRequiresPin,
+          editRequiresPin: note.editRequiresPin,
+          isOwner: true,
+          canView,
+          canEdit
+        });
+        socket.emit('lockSaved');
+      } catch (error) {
+        console.error('Error updating note lock:', error);
+        socket.emit('lockError', 'Unable to update lock settings');
       }
     });
 

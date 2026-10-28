@@ -151,6 +151,11 @@
             </svg>
             <span class="hidden sm:inline">New Note</span>
           </button>
+          <button id="lockNoteBtn" aria-label="Lock note" class="p-1.5 sm:p-2 rounded-lg sm:rounded-xl border border-earth-olive/20 dark:border-earth-darkBorder bg-white/80 dark:bg-earth-darkCard text-earth-forest dark:text-earth-cream hover:bg-earth-olive/10 transition-colors" title="Note lock">
+            <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4m-2 0h12v9H6v-9z"/>
+            </svg>
+          </button>
 
           <!-- Dark / Light Mode Toggle -->
           <button id="themeToggle" aria-label="Toggle Theme" class="p-1 sm:p-2 rounded-lg sm:rounded-xl border border-earth-olive/20 dark:border-earth-darkBorder bg-white/80 dark:bg-earth-darkCard text-earth-forest dark:text-earth-cream hover:bg-earth-olive/10 dark:hover:bg-earth-olive/20 transition-colors">
@@ -238,9 +243,14 @@
       <div class="relative flex-1 flex overflow-hidden min-h-0">
         <!-- Collaborative Cursor Layer Container -->
         <div id="cursor-container" class="absolute inset-0 pointer-events-none overflow-hidden z-20"></div>
+        <div id="editLockNotice" class="absolute left-1/2 top-4 z-30 hidden -translate-x-1/2 rounded-xl border border-earth-terracotta/40 bg-earth-cream/95 px-4 py-3 text-center shadow-lg dark:bg-earth-darkCard/95">
+          <p class="text-xs font-semibold text-earth-forest dark:text-earth-cream">Editing is locked</p>
+          <p class="mt-1 text-[11px] text-earth-forest/60 dark:text-earth-cream/60">Enter the PIN to unlock editing.</p>
+          <button id="unlockEditBtn" type="button" class="mt-2 rounded-lg bg-earth-olive px-3 py-1.5 text-[11px] font-semibold text-white hover:bg-earth-oliveDark">Unlock editing</button>
+        </div>
 
         <!-- Editable Code/Text Area -->
-        <textarea id="notepad" spellcheck="false" class="w-full h-full p-2.5 sm:p-5 font-mono text-xs sm:text-sm leading-relaxed bg-transparent text-earth-forest dark:text-earth-cream resize-none focus:outline-none focus:ring-0 border-0 selection:bg-earth-terracotta/30 selection:text-earth-forest dark:selection:text-earth-cream overflow-y-auto" placeholder="Start typing your notes here... Everyone on this link can collaborate in real-time."><%= note.content %></textarea>
+        <textarea id="notepad" spellcheck="false" class="w-full h-full p-2.5 sm:p-5 font-mono text-xs sm:text-sm leading-relaxed bg-transparent text-earth-forest dark:text-earth-cream resize-none focus:outline-none focus:ring-0 border-0 selection:bg-earth-terracotta/30 selection:text-earth-forest dark:selection:text-earth-cream overflow-y-auto" placeholder="Start typing your notes here... Everyone on this link can collaborate in real-time."><%= note.viewRequiresPin ? '' : note.content %></textarea>
       </div>
 
       <!-- Live Notification Toast Bar -->
@@ -253,6 +263,67 @@
 
     </div>
   </main>
+
+  <!-- Note lock settings modal -->
+  <div id="lockModal" class="hidden fixed inset-0 z-[60] items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
+    <div class="w-full max-w-sm rounded-2xl border border-earth-olive/20 bg-earth-cream p-5 shadow-2xl dark:border-earth-darkBorder dark:bg-earth-darkCard" role="dialog" aria-modal="true" aria-labelledby="lockModalTitle">
+      <div class="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <h2 id="lockModalTitle" class="text-base font-bold text-earth-forest dark:text-earth-cream">Note access</h2>
+          <p class="mt-1 text-xs text-earth-forest/60 dark:text-earth-cream/60">Choose who needs the 4-digit PIN.</p>
+        </div>
+        <button id="closeLockModalBtn" type="button" class="rounded-lg p-1 text-lg text-earth-forest/50 hover:bg-earth-olive/10 dark:text-earth-cream/50" aria-label="Close lock settings">&times;</button>
+      </div>
+
+      <div class="space-y-2">
+        <label class="flex cursor-pointer items-center justify-between rounded-xl border border-earth-olive/15 px-3 py-2.5 dark:border-earth-darkBorder">
+          <span>
+            <span class="block text-sm font-semibold text-earth-forest dark:text-earth-cream">Require PIN to view</span>
+            <span class="block text-[11px] text-earth-forest/60 dark:text-earth-cream/60">Visitors must enter the PIN before seeing content.</span>
+          </span>
+          <input id="lockViewToggle" type="checkbox" class="h-4 w-4 accent-earth-olive">
+        </label>
+        <label class="flex cursor-pointer items-center justify-between rounded-xl border border-earth-olive/15 px-3 py-2.5 dark:border-earth-darkBorder">
+          <span>
+            <span class="block text-sm font-semibold text-earth-forest dark:text-earth-cream">Require PIN to edit</span>
+            <span class="block text-[11px] text-earth-forest/60 dark:text-earth-cream/60">Visitors can view, but need the PIN to edit.</span>
+          </span>
+          <input id="lockEditToggle" type="checkbox" class="h-4 w-4 accent-earth-olive">
+        </label>
+      </div>
+
+      <div id="currentPinSection" class="mt-4 hidden">
+        <label for="currentLockPin" class="mb-1 block text-xs font-semibold text-earth-forest dark:text-earth-cream">Current PIN</label>
+        <input id="currentLockPin" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" class="w-full rounded-lg border border-earth-olive/25 bg-white px-3 py-2 text-sm tracking-[0.3em] outline-none focus:border-earth-olive dark:border-earth-darkBorder dark:bg-earth-darkEditor dark:text-earth-cream" placeholder="4-digit PIN">
+      </div>
+
+      <div class="mt-4">
+        <label for="newLockPin" class="mb-1 block text-xs font-semibold text-earth-forest dark:text-earth-cream">PIN <span class="font-normal text-earth-forest/50 dark:text-earth-cream/50">(4 digits)</span></label>
+        <input id="newLockPin" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" class="w-full rounded-lg border border-earth-olive/25 bg-white px-3 py-2 text-sm tracking-[0.3em] outline-none focus:border-earth-olive dark:border-earth-darkBorder dark:bg-earth-darkEditor dark:text-earth-cream" placeholder="4-digit PIN">
+        <p class="mt-1 text-[11px] text-earth-forest/55 dark:text-earth-cream/55">Leave blank only when turning the lock off.</p>
+      </div>
+
+      <p id="lockModalMessage" class="mt-3 hidden text-xs text-red-600 dark:text-red-400"></p>
+      <div class="mt-5 flex justify-end gap-2">
+        <button id="cancelLockBtn" type="button" class="rounded-lg px-3 py-2 text-xs font-semibold text-earth-forest/70 hover:bg-earth-olive/10 dark:text-earth-cream/70">Cancel</button>
+        <button id="confirmLockBtn" type="button" class="rounded-lg bg-earth-olive px-4 py-2 text-xs font-semibold text-white hover:bg-earth-oliveDark">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Note unlock modal -->
+  <div id="unlockModal" class="hidden fixed inset-0 z-[70] items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
+    <div class="w-full max-w-xs rounded-2xl border border-earth-olive/20 bg-earth-cream p-5 shadow-2xl dark:border-earth-darkBorder dark:bg-earth-darkCard" role="dialog" aria-modal="true" aria-labelledby="unlockModalTitle">
+      <h2 id="unlockModalTitle" class="text-base font-bold text-earth-forest dark:text-earth-cream">Unlock note</h2>
+      <p id="unlockModalDescription" class="mt-1 text-xs text-earth-forest/60 dark:text-earth-cream/60">Enter the 4-digit PIN to continue.</p>
+      <input id="unlockPin" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" class="mt-4 w-full rounded-lg border border-earth-olive/25 bg-white px-3 py-2 text-center text-lg tracking-[0.3em] outline-none focus:border-earth-olive dark:border-earth-darkBorder dark:bg-earth-darkEditor dark:text-earth-cream" placeholder="4-digit PIN" aria-label="Note PIN">
+      <p id="unlockModalMessage" class="mt-2 hidden text-xs text-red-600 dark:text-red-400"></p>
+      <div class="mt-4 flex justify-end gap-2">
+        <button id="cancelUnlockBtn" type="button" class="rounded-lg px-3 py-2 text-xs font-semibold text-earth-forest/70 hover:bg-earth-olive/10 dark:text-earth-cream/70">Cancel</button>
+        <button id="confirmUnlockBtn" type="button" class="rounded-lg bg-earth-olive px-4 py-2 text-xs font-semibold text-white hover:bg-earth-oliveDark">Unlock</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Minimal Clean Footer -->
   <footer class="mt-auto border-t border-earth-olive/15 dark:border-earth-darkBorder py-1.5 sm:py-3 bg-earth-cream/60 dark:bg-earth-darkBg/60 backdrop-blur-sm flex-shrink-0">
@@ -281,7 +352,7 @@
 
   <!-- Socket.IO & Modular Client Script -->
   <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/yjs@13.6.27/dist/yjs.js"></script>
-  <script src="/js/notepad.js"></script>
+  <script src="/js/yjs.js?v=3.0.5"></script>
+  <script src="/js/notepad.js?v=3.0.5"></script>
 </body>
 </html>

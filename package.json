@@ -53,6 +53,7 @@
     "yjs": "^13.6.33"
   },
   "devDependencies": {
+    "esbuild": "^0.28.2",
     "nodemon": "^3.0.0"
   },
   "engines": {

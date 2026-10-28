@@ -35,6 +35,7 @@ The deployment journey - from `npm start` to "success" - felt like a chiropracto
 - **Dark / Light mode** - for vampires, developers, and people who've lost track of day and night
 - **User presence counter** - see how many people are enjoying this
 - **Conflict-free editing** - Yjs CRDT synchronization keeps concurrent edits instead of overwriting them
+- **Optional note locking** - configure no lock, PIN-required editing, or PIN-required viewing and editing
 - **Auto-save** - durable updates are written to MongoDB as they arrive
 - **Responsive design** - works on everything from your fancy phone to that potato you call a laptop
 
