@@ -248,7 +248,21 @@ body, header, main, footer {
   animation: pinSuccess 0.3s ease-out forwards;
 }
 
-/* Lock button active state (when note is locked) */
+/* Lock button states use the same earth palette in both themes. */
+#lockNoteBtn.lock-control {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+#lockNoteBtn.lock-control:hover {
+  transform: translateY(-1px);
+}
+
+#lockNoteBtn.is-unlocked {
+  background-color: rgba(96, 108, 56, 0.1) !important;
+  border-color: rgba(96, 108, 56, 0.35) !important;
+  color: var(--color-earth-olive) !important;
+}
+
 #lockNoteBtn.is-locked {
   background-color: rgba(188, 108, 37, 0.12) !important;
   border-color: var(--color-earth-burnt) !important;
@@ -256,8 +270,14 @@ body, header, main, footer {
 }
 
 .dark #lockNoteBtn.is-locked {
-  background-color: rgba(221, 161, 94, 0.18) !important;
-  border-color: var(--color-earth-terracotta) !important;
+  background-color: rgba(188, 108, 37, 0.2) !important;
+  border-color: var(--color-earth-burnt) !important;
+  color: var(--color-earth-terracotta) !important;
+}
+
+.dark #lockNoteBtn.is-unlocked {
+  background-color: rgba(96, 108, 56, 0.2) !important;
+  border-color: var(--color-earth-olive) !important;
   color: var(--color-earth-terracotta) !important;
 }
 

@@ -409,7 +409,9 @@ function updateLockUI() {
     const lockIconLocked = document.getElementById('lockIconLocked');
 
     if (lockBtn) {
+        lockBtn.classList.toggle('is-unlocked', !isLocked);
         lockBtn.classList.toggle('is-locked', isLocked);
+        lockBtn.setAttribute('aria-label', isLocked ? 'Note is locked' : 'Note is unlocked');
         if (isLocked) {
             lockBtn.setAttribute('title', lockSettings.isOwner ? 'Manage note lock' : (lockSettings.authenticated ? 'Note is protected (unlocked)' : 'Note is locked'));
         } else {
