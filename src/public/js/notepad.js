@@ -937,7 +937,11 @@ const setUrlBtn = document.getElementById('setUrlBtn');
 const urlSlugInput = document.getElementById('urlSlugInput');
 
 if (setUrlBtn && urlSlugInput) {
+    if (urlSlugInput.disabled || setUrlBtn.disabled) {
+        urlSlugInput.title = 'Custom URL cannot be changed again';
+    }
     setUrlBtn.addEventListener('click', async () => {
+        if (urlSlugInput.disabled || setUrlBtn.disabled) return;
         const newSlug = urlSlugInput.value.trim();
         if (!newSlug) {
             showToast('Please enter a valid room name');
@@ -956,6 +960,10 @@ if (setUrlBtn && urlSlugInput) {
             });
             const result = await response.json();
             if (result.success) {
+                urlSlugInput.disabled = true;
+                setUrlBtn.disabled = true;
+                urlSlugInput.title = 'Custom URL cannot be changed again';
+                setUrlBtn.title = 'Custom URL cannot be changed again';
                 window.location.href = `/${newSlug}`;
             } else {
                 alert(result.message || 'Failed to change note URL');

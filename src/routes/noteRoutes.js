@@ -205,6 +205,7 @@ router.get('/:url', async (req, res) => {
                 viewRequiresPin: Boolean(note.viewRequiresPin),
                 editRequiresPin: Boolean(note.editRequiresPin),
                 hasPin: Boolean(note.pinHash),
+                customUrlLocked: Boolean(note.customUrlLocked),
                 ownerBrowserId: note.ownerBrowserId || null,
                 isOwner: Boolean(isOwner)
             }
@@ -232,14 +233,23 @@ router.post('/setCustomUrl/:originalUrl', async (req, res) => {
         if (!currentNote) {
             return res.status(404).json({ success: false, message: 'Current note not found.' });
         }
+        if (currentNote.customUrlLocked) {
+            return res.status(409).json({ success: false, message: 'This note custom URL has already been set and cannot be changed again.' });
+        }
 
         const existingNote = await Note.findOne({ url });
         if (existingNote) {
             return res.json({ success: false, message: 'URL already taken. Please choose another.' });
         }
 
-        currentNote.url = url;
-        await currentNote.save();
+        const updatedNote = await Note.findOneAndUpdate(
+            { _id: currentNote._id, url: originalUrl, customUrlLocked: false },
+            { $set: { url, customUrlLocked: true } },
+            { new: true }
+        );
+        if (!updatedNote) {
+            return res.status(409).json({ success: false, message: 'This note custom URL has already been set and cannot be changed again.' });
+        }
         res.json({ success: true, message: 'Custom URL set successfully!' });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Server error' });
