@@ -14,6 +14,48 @@
   --color-dark-border: #354522;
 }
 
+.pin-digit {
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1.5px solid rgba(96, 108, 56, 0.3);
+  border-radius: 0.65rem;
+  background: #fff;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-earth-forest);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease, background 0.15s ease;
+  caret-color: var(--color-earth-olive);
+}
+
+.pin-digit:focus {
+  border-color: var(--color-earth-olive);
+  box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.2);
+  transform: translateY(-1px);
+}
+
+.pin-digit.has-value {
+  border-color: var(--color-earth-olive);
+  background: rgba(96, 108, 56, 0.05);
+}
+
+.dark .pin-digit {
+  border-color: var(--color-dark-border);
+  background: var(--color-dark-editor);
+  color: var(--color-earth-cream);
+}
+
+.dark .pin-digit:focus {
+  border-color: var(--color-earth-terracotta);
+  box-shadow: 0 0 0 3px rgba(221, 161, 94, 0.2);
+}
+
+.dark .pin-digit.has-value {
+  border-color: var(--color-earth-terracotta);
+  background: rgba(221, 161, 94, 0.08);
+}
+
 /* Base custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -150,4 +192,87 @@ textarea#notepad {
 /* Smooth transitions for theme changes */
 body, header, main, footer {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+
+/* ===== Lock Mechanism Enhanced Styles ===== */
+
+/* Larger PIN digits for unlock modal */
+.pin-digit-lg {
+  width: 3.25rem;
+  height: 3.25rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  border-width: 2px;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s, background 0.15s;
+}
+
+.pin-digit-lg:focus {
+  transform: scale(1.06);
+  border-color: var(--color-earth-olive);
+  box-shadow: 0 0 0 3px rgba(96, 108, 56, 0.25);
+}
+
+.dark .pin-digit-lg:focus {
+  border-color: var(--color-earth-terracotta);
+  box-shadow: 0 0 0 3px rgba(221, 161, 94, 0.25);
+}
+
+/* PIN digit error shake animation */
+@keyframes pinShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.pin-shake,
+.pin-shake .pin-digit,
+.pin-shake .pin-digit-lg {
+  animation: pinShake 0.4s ease-out;
+  border-color: #ef4444 !important;
+}
+
+/* PIN digit success pulse */
+@keyframes pinSuccess {
+  0% { transform: scale(1); border-color: rgba(96, 108, 56, 0.3); }
+  50% { transform: scale(1.08); border-color: #10b981; }
+  100% { transform: scale(1); border-color: #10b981; }
+}
+
+.pin-success,
+.pin-success .pin-digit,
+.pin-success .pin-digit-lg {
+  animation: pinSuccess 0.3s ease-out forwards;
+}
+
+/* Lock button active state (when note is locked) */
+#lockNoteBtn.is-locked {
+  background-color: rgba(188, 108, 37, 0.12) !important;
+  border-color: var(--color-earth-burnt) !important;
+  color: var(--color-earth-burnt) !important;
+}
+
+.dark #lockNoteBtn.is-locked {
+  background-color: rgba(221, 161, 94, 0.18) !important;
+  border-color: var(--color-earth-terracotta) !important;
+  color: var(--color-earth-terracotta) !important;
+}
+
+/* View lock overlay enter animation */
+#viewLockOverlay {
+  transition: opacity 0.25s ease, backdrop-filter 0.25s ease;
+}
+
+/* Unlock modal fade-in */
+#unlockModal:not(.hidden),
+#lockModal:not(.hidden) {
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
 }

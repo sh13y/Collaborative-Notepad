@@ -118,10 +118,19 @@ router.get('/new', createNoteLimit, async (req, res) => {
             noteExists = await Note.exists({ url: uniqueUrl });
         }
 
+        let browserId = null;
+        if (req.headers.cookie) {
+            const match = req.headers.cookie.match(/(?:^|;\s*)browserId=([^;]+)/);
+            if (match) {
+                try { browserId = decodeURIComponent(match[1]); } catch (e) { browserId = match[1]; }
+            }
+        }
+
         console.log('Creating new note with URL:', uniqueUrl);
         const note = new Note({ 
             content: '', 
             url: uniqueUrl,
+            ownerBrowserId: browserId || null,
             activeUsers: 0
         });
         await note.save();
@@ -173,7 +182,33 @@ router.get('/:url', async (req, res) => {
                 redirectUrl: '/new'
             });
         }
-        res.render('index', { note });
+
+        // Fast owner check via cookie if available
+        let browserId = null;
+        if (req.headers.cookie) {
+            const match = req.headers.cookie.match(/(?:^|;\s*)browserId=([^;]+)/);
+            if (match) {
+                try { browserId = decodeURIComponent(match[1]); } catch (e) { browserId = match[1]; }
+            }
+        }
+        if (!note.ownerBrowserId && browserId) {
+            note.ownerBrowserId = browserId;
+            await note.save();
+        }
+        const isOwner = Boolean(!note.ownerBrowserId || (browserId && note.ownerBrowserId === browserId));
+        const isViewLocked = Boolean(note.viewRequiresPin) && !isOwner;
+
+        res.render('index', {
+            // If view-locked and not verified owner, NEVER send content in HTML to prevent leaks/flashes
+            note: isViewLocked ? { ...note.toObject(), content: '' } : note,
+            lockInfo: {
+                viewRequiresPin: Boolean(note.viewRequiresPin),
+                editRequiresPin: Boolean(note.editRequiresPin),
+                hasPin: Boolean(note.pinHash),
+                ownerBrowserId: note.ownerBrowserId || null,
+                isOwner: Boolean(isOwner)
+            }
+        });
     } catch (error) {
         res.status(500).json({ error: 'Error fetching note' });
     }

@@ -167,6 +167,7 @@ const setupSocket = (io) => {
           socket.emit('lockStatus', {
             viewRequiresPin: note.viewRequiresPin,
             editRequiresPin: note.editRequiresPin,
+            hasPin: Boolean(note.pinHash),
             isOwner,
             authenticated: socket.data.noteAuthenticated,
             canView,
@@ -281,24 +282,51 @@ const setupSocket = (io) => {
 
     socket.on('updateLock', async ({ pin, oldPin, viewRequiresPin = false, editRequiresPin = false } = {}) => {
       try {
-        const note = await Note.findOne({ url: currentNoteUrl });
-        if (!note || note.ownerBrowserId !== browserId) {
-          socket.emit('lockError', 'Only the note creator can change lock settings');
+        let note = await Note.findOne({ url: currentNoteUrl });
+        if (!note) {
+          socket.emit('lockError', 'Note not found');
           return;
         }
-        const noteIsLocked = note.viewRequiresPin || note.editRequiresPin;
-        if (noteIsLocked && (!note.pinHash || !/^\d{4}$/.test(oldPin || '') || !(await bcrypt.compare(oldPin, note.pinHash)))) {
-          socket.emit('lockError', 'Current PIN is incorrect');
-          return;
+
+        // Claim ownership if not claimed yet
+        if (!note.ownerBrowserId) {
+          note.ownerBrowserId = browserId;
+          await note.save();
         }
-        if ((viewRequiresPin || editRequiresPin) && !/^\d{4}$/.test(pin || '')) {
-          socket.emit('lockError', 'A 4-digit PIN is required');
-          return;
+
+        const noteIsLocked = Boolean(note.pinHash && (note.viewRequiresPin || note.editRequiresPin));
+
+        // If note is already locked, verify current PIN:
+        if (noteIsLocked) {
+          if (!/^\d{4}$/.test(oldPin || '') || !(await bcrypt.compare(oldPin, note.pinHash))) {
+            socket.emit('lockError', 'Current PIN is incorrect');
+            return;
+          }
+          // Authorized by PIN verification -> claim/confirm ownership
+          note.ownerBrowserId = browserId;
+        } else if (note.ownerBrowserId !== browserId) {
+          // If note is unlocked, allow the current user to set a lock and claim ownership
+          note.ownerBrowserId = browserId;
+        }
+
+        const isEnabling = Boolean(viewRequiresPin || editRequiresPin);
+        let finalPin = pin;
+        if (isEnabling) {
+          // If note is already locked and owner didn't enter a new pin, keep the old verified pin
+          if (noteIsLocked && (!pin || !pin.trim()) && oldPin) {
+            finalPin = oldPin;
+          }
+          if (!/^\d{4}$/.test(finalPin || '')) {
+            socket.emit('lockError', 'A 4-digit PIN is required');
+            return;
+          }
         }
         note.viewRequiresPin = Boolean(viewRequiresPin);
         note.editRequiresPin = Boolean(editRequiresPin);
-        note.pinHash = note.viewRequiresPin || note.editRequiresPin ? await bcrypt.hash(pin, 10) : null;
+        note.pinHash = isEnabling ? await bcrypt.hash(finalPin, 10) : null;
         await note.save();
+
+        const hasPin = Boolean(note.pinHash);
         canView = true;
         canEdit = true;
         for (const roomSocket of io.sockets.sockets.values()) {
@@ -310,6 +338,7 @@ const setupSocket = (io) => {
             roomSocket.emit('lockChanged', {
               viewRequiresPin: note.viewRequiresPin,
               editRequiresPin: note.editRequiresPin,
+              hasPin,
               isOwner,
               authenticated: roomSocket.data.noteAuthenticated,
               canView: roomSocket.data.canView,
@@ -320,9 +349,11 @@ const setupSocket = (io) => {
         socket.emit('lockStatus', {
           viewRequiresPin: note.viewRequiresPin,
           editRequiresPin: note.editRequiresPin,
+          hasPin,
           isOwner: true,
-          canView,
-          canEdit
+          authenticated: true,
+          canView: true,
+          canEdit: true
         });
         socket.emit('lockSaved');
       } catch (error) {
