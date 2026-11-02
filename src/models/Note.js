@@ -7,7 +7,8 @@ const noteSchema = new mongoose.Schema({
     ownerBrowserId: { type: String, default: null },
     pinHash: { type: String, default: null },
     viewRequiresPin: { type: Boolean, default: false },
-    editRequiresPin: { type: Boolean, default: false }
+    editRequiresPin: { type: Boolean, default: false },
+    activeUsers: { type: Number, default: 0 }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Note', noteSchema); 

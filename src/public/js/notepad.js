@@ -454,6 +454,9 @@ socket.on('lockChanged', status => {
     canView = Boolean(status.canView);
     updateLockUI();
     if (!canView) {
+        applyingRemoteUpdate = true;
+        collaborationText.delete(0, collaborationText.length);
+        applyingRemoteUpdate = false;
         if (textarea) textarea.value = '';
         if (viewLockOverlay) {
             viewLockOverlay.classList.remove('hidden');
@@ -566,17 +569,61 @@ socket.on('lockSaved', () => {
 socket.on('crdt-update', (encodedUpdate) => {
     if (typeof encodedUpdate !== 'string') return;
     const bytes = Uint8Array.from(atob(encodedUpdate), character => character.charCodeAt(0));
+    const previousContent = collaborationText.toString();
+    const previousSelection = textarea ? {
+        start: textarea.selectionStart,
+        end: textarea.selectionEnd
+    } : null;
     applyingRemoteUpdate = true;
     Y.applyUpdate(collaborationDoc, bytes);
-    if (textarea && textarea.value !== collaborationText.toString()) {
-        const currentCursor = textarea.selectionStart;
-        textarea.value = collaborationText.toString();
-        textarea.selectionStart = Math.min(currentCursor, textarea.value.length);
-        textarea.selectionEnd = textarea.selectionStart;
+    const nextContent = collaborationText.toString();
+    if (canView && textarea && textarea.value !== nextContent) {
+        textarea.value = nextContent;
+        const adjustPosition = (position) => transformTextPosition(position, previousContent, nextContent);
+        textarea.selectionStart = Math.min(adjustPosition(previousSelection?.start ?? 0), nextContent.length);
+        textarea.selectionEnd = Math.min(adjustPosition(previousSelection?.end ?? 0), nextContent.length);
         updateStats();
     }
+    updateRemoteCursorPositions(previousContent, nextContent);
     applyingRemoteUpdate = false;
 });
+
+function transformTextPosition(position, previousContent, nextContent) {
+    let start = 0;
+    while (start < previousContent.length &&
+        start < nextContent.length &&
+        previousContent[start] === nextContent[start]) {
+        start++;
+    }
+
+    let previousEnd = previousContent.length;
+    let nextEnd = nextContent.length;
+    while (previousEnd > start && nextEnd > start &&
+        previousContent[previousEnd - 1] === nextContent[nextEnd - 1]) {
+        previousEnd--;
+        nextEnd--;
+    }
+
+    if (position <= start) return position;
+    if (position >= previousEnd) {
+        return position + (nextEnd - start) - (previousEnd - start);
+    }
+    return nextEnd;
+}
+
+function updateRemoteCursorPositions(previousContent, nextContent) {
+    remoteCursors.forEach((cursorData, userId) => {
+        if (cursorData.lastPosition === null || cursorData.lastPosition === undefined) return;
+        cursorData.lastPosition = Math.max(
+            0,
+            Math.min(
+                nextContent.length,
+                transformTextPosition(cursorData.lastPosition, previousContent, nextContent)
+            )
+        );
+        updateCursorPosition(userId, cursorData.lastPosition);
+    });
+}
 
 collaborationDoc.on('update', update => {
     if (applyingRemoteUpdate) return;
@@ -704,7 +751,7 @@ function getCursorCoordinates(textareaEl, caretPosition) {
         props.forEach(p => { mirror.style[p] = style[p]; });
 
         // Match textarea's content width exactly
-        mirror.style.width = textareaEl.clientWidth + 'px';
+        mirror.style.width = textareaEl.offsetWidth + 'px';
         mirror.style.whiteSpace = 'pre-wrap';
         mirror.style.wordWrap = 'break-word';
         mirror.style.overflowWrap = 'break-word';
@@ -912,8 +959,8 @@ socket.on('cursor-move', (data) => {
     if (!data || !data.userId || data.userId === socket.id) return;
     const cursorData = remoteCursors.get(data.userId);
     if (cursorData) {
-        cursorData.lastPosition = data.position;
-        updateCursorPosition(data.userId, data.position);
+        cursorData.lastPosition = Math.max(0, Math.min(collaborationText.length, Number(data.position) || 0));
+        updateCursorPosition(data.userId, cursorData.lastPosition);
     }
 });
 
@@ -1223,8 +1270,7 @@ window.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
         if (textarea) {
-            socket.emit('updateNote', { url, content: textarea.value });
-            showToast('All changes saved to server!');
+            showToast('Changes are saved automatically.');
         }
     }
 });

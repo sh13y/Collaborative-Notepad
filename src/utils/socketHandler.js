@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const { loadDocument, encodeState, decodeUpdate } = require('./collaborationState');
 
 const roomDocuments = new Map();
+const roomUpdateQueues = new Map();
 
 // Cursor management - maps room -> { userId -> cursor data }
 const roomCursors = new Map();
@@ -227,21 +228,41 @@ const setupSocket = (io) => {
           throw new Error('Missing collaboration update ID');
         }
 
-        try {
-          await NoteUpdate.create({
-            noteUrl: data.url,
-            updateId,
-            update
-          });
-        } catch (error) {
-          if (error.code === 11000) return;
-          throw error;
-        }
+        const previousQueue = roomUpdateQueues.get(data.url) || Promise.resolve();
+        const updateTask = previousQueue.then(async () => {
+          try {
+            await NoteUpdate.create({
+              noteUrl: data.url,
+              updateId,
+              update
+            });
+          } catch (error) {
+            if (error.code === 11000) return false;
+            throw error;
+          }
 
-        Y.applyUpdate(currentDocument, new Uint8Array(update));
-        const content = currentDocument.getText('content').toString();
-        await Note.findOneAndUpdate({ url: data.url }, { content });
-        socket.to(data.url).emit('crdt-update', data.update);
+          Y.applyUpdate(currentDocument, new Uint8Array(update));
+          const content = currentDocument.getText('content').toString();
+          await Note.findOneAndUpdate({ url: data.url }, { content });
+
+          for (const roomSocket of io.sockets.sockets.values()) {
+            if (roomSocket.id !== socket.id &&
+                roomSocket.data.currentNoteUrl === data.url &&
+                roomSocket.data.canView) {
+              roomSocket.emit('crdt-update', data.update);
+            }
+          }
+          return true;
+        });
+        const queuedTask = updateTask.catch(() => undefined);
+        roomUpdateQueues.set(data.url, queuedTask);
+                try {
+                  await updateTask;
+                } finally {
+                  if (roomUpdateQueues.get(data.url) === queuedTask) {
+                    roomUpdateQueues.delete(data.url);
+                  }
+                }
       } catch (error) {
         console.error('Error updating note:', error);
         socket.emit('error', 'Failed to update note');

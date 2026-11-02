@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const Y = require('yjs');
+const { decodeUpdate, toUint8Array } = require('../src/utils/collaborationState');
 
 function createDocument(content = '') {
     const document = new Y.Doc();
@@ -34,4 +35,13 @@ test('a document can be reconstructed from persisted CRDT updates', () => {
     Y.applyUpdate(restored, Y.encodeStateAsUpdate(source));
 
     assert.equal(restored.getText('content').toString(), 'durable note');
+});
+
+test('collaboration updates reject malformed payloads before persistence', () => {
+    assert.throws(() => decodeUpdate('not-base64'), /Invalid collaboration update/);
+    assert.throws(() => decodeUpdate(''), /Invalid collaboration update/);
+});
+
+test('persisted BSON-style update data is normalized to bytes', () => {
+    assert.deepEqual(Array.from(toUint8Array({ data: [1, 2, 3] })), [1, 2, 3]);
 });
