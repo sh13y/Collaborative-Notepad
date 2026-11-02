@@ -245,10 +245,10 @@ const setupSocket = (io) => {
             throw error;
           }
 
-          Y.applyUpdate(currentDocument, new Uint8Array(update));
-          const content = currentDocument.getText('content').toString();
-          await Note.findOneAndUpdate({ url: data.url }, { content });
-
+                  // Apply to in-memory document FIRST (immediate)
+                  Y.applyUpdate(currentDocument, new Uint8Array(update));
+          
+                  // Broadcast IMMEDIATELY to other clients (before DB write)
           for (const roomSocket of io.sockets.sockets.values()) {
             if (roomSocket.id !== socket.id &&
                 roomSocket.data.currentNoteUrl === data.url &&
@@ -256,10 +256,17 @@ const setupSocket = (io) => {
               roomSocket.emit('crdt-update', data.update);
             }
           }
-          return true;
-        });
-        const queuedTask = updateTask.catch(() => undefined);
-        roomUpdateQueues.set(data.url, queuedTask);
+
+                  // Then persist to DB asynchronously (non-blocking)
+                  const content = currentDocument.getText('content').toString();
+                  Note.findOneAndUpdate({ url: data.url }, { content }).catch(err => {
+                    console.error('Failed to persist note content:', err);
+                  });
+
+                  return true;
+                });
+                const queuedTask = updateTask.catch(() => undefined);
+                roomUpdateQueues.set(data.url, queuedTask);
                 try {
                   await updateTask;
                 } finally {

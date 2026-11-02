@@ -73,26 +73,6 @@ function emitCursorPositionThrottled() {
     }, 50);
 }
 
-// Batched CRDT update emission (16ms = ~60fps)
-let crdtEmitBatch = null;
-let pendingCrdtUpdate = null;
-function emitCrdtUpdateBatched(update) {
-    pendingCrdtUpdate = update;
-    
-    if (crdtEmitBatch) return;
-    
-    crdtEmitBatch = setTimeout(() => {
-        crdtEmitBatch = null;
-        if (pendingCrdtUpdate) {
-            socket.emit('updateNote', {
-                url,
-                updateId: crypto.randomUUID(),
-                update: btoa(String.fromCharCode(...pendingCrdtUpdate))
-            });
-            pendingCrdtUpdate = null;
-        }
-    }, 16);
-}
 
 // Cursor position interpolation for smooth remote cursors
 const cursorInterpolation = new Map(); // userId -> { from, to, startTime, duration }
@@ -752,7 +732,12 @@ function updateRemoteCursorPositions(previousContent, nextContent) {
 collaborationDoc.on('update', update => {
     if (applyingRemoteUpdate) return;
     if (!canEdit) return;
-    emitCrdtUpdateBatched(update);
+    // Send CRDT updates immediately for real-time sync
+    socket.emit('updateNote', {
+        url,
+        updateId: crypto.randomUUID(),
+        update: btoa(String.fromCharCode(...update))
+    });
 });
 
 if (textarea) {
@@ -1097,18 +1082,6 @@ socket.on('disconnect', () => {
         }
     }
     
-    // Flush any pending CRDT update
-    if (crdtEmitBatch) {
-        clearTimeout(crdtEmitBatch);
-        if (pendingCrdtUpdate) {
-            socket.emit('updateNote', {
-                url,
-                updateId: crypto.randomUUID(),
-                update: btoa(String.fromCharCode(...pendingCrdtUpdate))
-            });
-        }
-    }
-    
     remoteCursors.forEach((_, id) => removeCursor(id));
     
     // Clean up mirror div
@@ -1428,5 +1401,4 @@ window.addEventListener('beforeunload', () => {
         cursorMirror = null;
     }
     if (cursorEmitThrottle) clearTimeout(cursorEmitThrottle);
-    if (crdtEmitBatch) clearTimeout(crdtEmitBatch);
 });
