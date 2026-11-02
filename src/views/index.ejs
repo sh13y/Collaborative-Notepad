@@ -423,33 +423,33 @@
         <span class="hidden sm:inline">Open Source (MIT)</span>
       </div>
 
-      <!-- Center / Right Links -->
-      <div class="hidden sm:flex items-center gap-5 font-medium">
-              <a href="https://ko-fi.com/sh13y" target="_blank" class="hover:text-earth-burnt transition-colors flex items-center gap-1">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+        <!-- Right: Support Button -->
+        <div class="hidden sm:flex items-center gap-3">
+          <a href="https://ko-fi.com/sh13y" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-earth-olive hover:bg-earth-oliveDark text-earth-cream font-semibold text-xs transition-colors shadow-sm hover:shadow" aria-label="Support me on Ko-fi">
+            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
           </svg>
-                Back Pain Relief Fund 🏥
+            <span>Support me</span>
         </a>
       </div>
 
     </div>
   </footer>
 
-  <!-- Socket.IO & Modular Client Script -->
-  <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-  <script src="/js/yjs.js?v=3.0.5-lock2"></script>
-  <script src="/js/notepad.js?v=3.0.8-lock"></script>
-
-    <!-- Ko-fi Overlay Widget -->
+    <!-- Ko-fi Floating Widget -->
     <script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
     <script>
       kofiWidgetOverlay.draw('sh13y', {
         'type': 'floating-chat',
-        'floating-chat.donateButton.text': 'Back Pain Relief Fund 🏥',
+        'floating-chat.donateButton.text': 'Support me',
         'floating-chat.donateButton.background-color': '#606c38',
-        'floating-chat.donateButton.text-color': '#fefae0'
+        'floating-chat.donateButton.text-color': '#fff'
       });
     </script>
+
+    <!-- Socket.IO & Modular Client Script -->
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="/js/yjs.js?v=3.0.5-lock2"></script>
+    <script src="/js/notepad.js?v=3.0.8-lock"></script>
   </body>
   </html>
