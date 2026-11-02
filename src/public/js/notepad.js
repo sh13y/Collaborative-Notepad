@@ -306,6 +306,8 @@ function closeUnlockModal() {
     if (unlockModalMessage) unlockModalMessage.classList.add('hidden');
     if (unlockSpinner) unlockSpinner.classList.add('hidden');
     if (confirmUnlockBtn) confirmUnlockBtn.disabled = false;
+    // Also hide the "Editing is locked" notice when canceling unlock
+    if (editLockNotice) editLockNotice.classList.add('hidden');
 }
 
 function openUnlockModal(access = 'edit') {
