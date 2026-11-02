@@ -10,6 +10,10 @@ const roomUpdateQueues = new Map();
 // Cursor management - maps room -> { userId -> cursor data }
 const roomCursors = new Map();
 
+// Server-side cursor throttling (50ms = 20 broadcasts/sec max per user)
+const cursorThrottleTimers = new Map(); // socket.id -> timeout
+const pendingCursorPositions = new Map(); // socket.id -> { position, timestamp }
+
 // Color palette for user cursors
 const cursorColors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2'];
 
@@ -383,61 +387,96 @@ const setupSocket = (io) => {
       }
     });
 
-    // Handle cursor movement events
+    // Handle cursor movement events (with server-side throttling)
     socket.on('cursor-move', (data) => {
       try {
         if (!currentNoteUrl) return;
 
-        // Update cursor data in memory
-        const cursors = roomCursors.get(currentNoteUrl);
-        if (cursors && cursors.has(socket.id)) {
-          const cursorData = cursors.get(socket.id);
-          cursorData.lastPosition = data.position;
-          cursorData.timestamp = Date.now();
-          cursors.set(socket.id, cursorData);
-        }
+            const position = data.position;
+            const timestamp = data.timestamp || Date.now();
 
-        // Broadcast cursor position to all other users in room
-        socket.to(currentNoteUrl).emit('cursor-move', {
-          userId: socket.id,
-          browserId: browserId,
-          position: data.position,
-          room: currentNoteUrl,
-          timestamp: Date.now()
+            // Update cursor data in memory immediately
+            const cursors = roomCursors.get(currentNoteUrl);
+            if (cursors && cursors.has(socket.id)) {
+              const cursorData = cursors.get(socket.id);
+              cursorData.lastPosition = position;
+              cursorData.timestamp = timestamp;
+              cursors.set(socket.id, cursorData);
+            }
+
+            // Store pending position for throttled broadcast
+            pendingCursorPositions.set(socket.id, { position, timestamp, room: currentNoteUrl });
+
+            // If already throttling, skip - the timer will broadcast the latest position
+            if (cursorThrottleTimers.has(socket.id)) return;
+
+            // Set up throttle timer (50ms = 20 broadcasts/sec max)
+            const timer = setTimeout(() => {
+              cursorThrottleTimers.delete(socket.id);
+              const pending = pendingCursorPositions.get(socket.id);
+              if (pending) {
+                pendingCursorPositions.delete(socket.id);
+                socket.to(pending.room).emit('cursor-move', {
+                  userId: socket.id,
+                  browserId: browserId,
+                  position: pending.position,
+                  room: pending.room,
+                  timestamp: pending.timestamp
+                });
+              }
+            }, 50);
+
+            cursorThrottleTimers.set(socket.id, timer);
+          } catch (error) {
+            console.error('Error handling cursor move:', error);
+          }
         });
-      } catch (error) {
-        console.error('Error handling cursor move:', error);
-      }
-    });
 
     socket.on('disconnect', () => {
-      if (currentNoteUrl) {
-        // Broadcast cursor-leave to all users in room
-        socket.to(currentNoteUrl).emit('cursor-leave', {
-          userId: socket.id,
-          browserId: browserId,
-          room: currentNoteUrl,
-          timestamp: Date.now()
-        });
-
-        // Clean up cursor data
-        const cursors = roomCursors.get(currentNoteUrl);
-        if (cursors) {
-          cursors.delete(socket.id);
-          
-          // Clean up empty room maps
-          if (cursors.size === 0) {
-            roomCursors.delete(currentNoteUrl);
+          // Flush any pending cursor position before disconnect
+          if (cursorThrottleTimers.has(socket.id)) {
+            clearTimeout(cursorThrottleTimers.get(socket.id));
+            cursorThrottleTimers.delete(socket.id);
+            const pending = pendingCursorPositions.get(socket.id);
+            if (pending) {
+              pendingCursorPositions.delete(socket.id);
+              socket.to(pending.room).emit('cursor-move', {
+                userId: socket.id,
+                browserId: browserId,
+                position: pending.position,
+                room: pending.room,
+                timestamp: pending.timestamp
+              });
+            }
           }
-        }
 
-        const userCount = getRoomSize(currentNoteUrl);
-        io.to(currentNoteUrl).emit('userCount', userCount);
-      }
-      // Broadcast updated stats to admin after disconnect
-      broadcastAdminStats();
-      console.log('Client disconnected:', socket.id);
-    });
+          if (currentNoteUrl) {
+            // Broadcast cursor-leave to all users in room
+            socket.to(currentNoteUrl).emit('cursor-leave', {
+              userId: socket.id,
+              browserId: browserId,
+              room: currentNoteUrl,
+              timestamp: Date.now()
+            });
+
+            // Clean up cursor data
+            const cursors = roomCursors.get(currentNoteUrl);
+            if (cursors) {
+              cursors.delete(socket.id);
+          
+              // Clean up empty room maps
+              if (cursors.size === 0) {
+                roomCursors.delete(currentNoteUrl);
+              }
+            }
+
+            const userCount = getRoomSize(currentNoteUrl);
+            io.to(currentNoteUrl).emit('userCount', userCount);
+          }
+          // Broadcast updated stats to admin after disconnect
+          broadcastAdminStats();
+          console.log('Client disconnected:', socket.id);
+        });
 
     // Error handling
     socket.on('error', (error) => {

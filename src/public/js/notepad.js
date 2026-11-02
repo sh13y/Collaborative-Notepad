@@ -31,6 +31,130 @@ const collaborationDoc = new Y.Doc();
 const collaborationText = collaborationDoc.getText('content');
 let applyingRemoteUpdate = false;
 
+// ============================================
+// Performance Optimizations
+// ============================================
+
+// Reusable mirror div for cursor position calculation (avoids DOM thrashing)
+let cursorMirror = null;
+function getCursorMirror() {
+    if (!cursorMirror) {
+        cursorMirror = document.createElement('div');
+        cursorMirror.style.position = 'absolute';
+        cursorMirror.style.top = '-9999px';
+        cursorMirror.style.left = '-9999px';
+        cursorMirror.style.visibility = 'hidden';
+        cursorMirror.style.whiteSpace = 'pre-wrap';
+        cursorMirror.style.wordWrap = 'break-word';
+        cursorMirror.style.overflowWrap = 'break-word';
+        document.body.appendChild(cursorMirror);
+    }
+    return cursorMirror;
+}
+
+// Throttled cursor emission (50ms = 20 updates/sec max)
+let cursorEmitThrottle = null;
+let pendingCursorPosition = null;
+function emitCursorPositionThrottled() {
+    if (!textarea || typeof textarea.selectionStart !== 'number') return;
+    pendingCursorPosition = textarea.selectionStart;
+    
+    if (cursorEmitThrottle) return;
+    
+    cursorEmitThrottle = setTimeout(() => {
+        cursorEmitThrottle = null;
+        if (pendingCursorPosition !== null) {
+            socket.emit('cursor-move', {
+                position: pendingCursorPosition,
+                timestamp: Date.now()
+            });
+            pendingCursorPosition = null;
+        }
+    }, 50);
+}
+
+// Batched CRDT update emission (16ms = ~60fps)
+let crdtEmitBatch = null;
+let pendingCrdtUpdate = null;
+function emitCrdtUpdateBatched(update) {
+    pendingCrdtUpdate = update;
+    
+    if (crdtEmitBatch) return;
+    
+    crdtEmitBatch = setTimeout(() => {
+        crdtEmitBatch = null;
+        if (pendingCrdtUpdate) {
+            socket.emit('updateNote', {
+                url,
+                updateId: crypto.randomUUID(),
+                update: btoa(String.fromCharCode(...pendingCrdtUpdate))
+            });
+            pendingCrdtUpdate = null;
+        }
+    }, 16);
+}
+
+// Cursor position interpolation for smooth remote cursors
+const cursorInterpolation = new Map(); // userId -> { from, to, startTime, duration }
+function interpolateCursorPosition(userId, targetPosition) {
+    const cursorData = remoteCursors.get(userId);
+    if (!cursorData || cursorData.lastPosition === null || cursorData.lastPosition === undefined) {
+        cursorData.lastPosition = targetPosition;
+        return targetPosition;
+    }
+    
+    const from = cursorData.lastPosition;
+    const to = targetPosition;
+    const distance = Math.abs(to - from);
+    
+    // Only interpolate for small movements (< 50 chars), otherwise snap
+    if (distance > 50) {
+        cursorData.lastPosition = to;
+        return to;
+    }
+    
+    // Store interpolation data
+    cursorInterpolation.set(userId, {
+        from,
+        to,
+        startTime: Date.now(),
+        duration: Math.min(100, distance * 2) // 2ms per char, max 100ms
+    });
+    
+    // Start animation loop
+    animateCursorInterpolation(userId);
+    return from; // Return current position, animation will update
+}
+
+function animateCursorInterpolation(userId) {
+    const interp = cursorInterpolation.get(userId);
+    if (!interp) return;
+    
+    const elapsed = Date.now() - interp.startTime;
+    const progress = Math.min(1, elapsed / interp.duration);
+    
+    // Easing function (ease-out)
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const currentPos = Math.round(interp.from + (interp.to - interp.from) * eased);
+    
+    const cursorData = remoteCursors.get(userId);
+    if (cursorData) {
+        cursorData.lastPosition = currentPos;
+        updateCursorPosition(userId, currentPos);
+    }
+    
+    if (progress < 1) {
+        requestAnimationFrame(() => animateCursorInterpolation(userId));
+    } else {
+        cursorInterpolation.delete(userId);
+        const cursorData = remoteCursors.get(userId);
+        if (cursorData) {
+            cursorData.lastPosition = interp.to;
+            updateCursorPosition(userId, interp.to);
+        }
+    }
+}
+
 // Initial state from server injected lockInfo for 0ms delay
 const serverLockInfo = window.__lockInfo || {};
 const isOwnerInitial = Boolean(window.__isOwner || (serverLockInfo.ownerBrowserId && serverLockInfo.ownerBrowserId === browserId));
@@ -628,11 +752,7 @@ function updateRemoteCursorPositions(previousContent, nextContent) {
 collaborationDoc.on('update', update => {
     if (applyingRemoteUpdate) return;
     if (!canEdit) return;
-    socket.emit('updateNote', {
-        url,
-        updateId: crypto.randomUUID(),
-        update: btoa(String.fromCharCode(...update))
-    });
+    emitCrdtUpdateBatched(update);
 });
 
 if (textarea) {
@@ -727,6 +847,7 @@ function renderUserAvatars() {
 // ============================================
 
 // Calculate pixel coordinates from caret index using span-marker technique
+// Uses a reusable mirror div to avoid DOM thrashing
 function getCursorCoordinates(textareaEl, caretPosition) {
     try {
         if (!textareaEl || caretPosition < 0) {
@@ -734,13 +855,7 @@ function getCursorCoordinates(textareaEl, caretPosition) {
         }
 
         const style = window.getComputedStyle(textareaEl);
-
-        // Build a mirror div that exactly replicates the textarea's text layout
-        const mirror = document.createElement('div');
-        mirror.style.position = 'absolute';
-        mirror.style.top = '-9999px';
-        mirror.style.left = '-9999px';
-        mirror.style.visibility = 'hidden';
+        const mirror = getCursorMirror();
 
         // Copy all layout-critical styles
         const props = [
@@ -752,10 +867,10 @@ function getCursorCoordinates(textareaEl, caretPosition) {
 
         // Match textarea's content width exactly
         mirror.style.width = textareaEl.offsetWidth + 'px';
-        mirror.style.whiteSpace = 'pre-wrap';
-        mirror.style.wordWrap = 'break-word';
-        mirror.style.overflowWrap = 'break-word';
 
+        // Clear and rebuild content
+        mirror.innerHTML = '';
+        
         // Insert text before caret as a text node, then a span marker at the caret
         const textBefore = textareaEl.value.substring(0, caretPosition);
         const textAfter = textareaEl.value.substring(caretPosition) || ' ';
@@ -768,7 +883,6 @@ function getCursorCoordinates(textareaEl, caretPosition) {
         mirror.appendChild(beforeNode);
         mirror.appendChild(marker);
         mirror.appendChild(afterNode);
-        document.body.appendChild(mirror);
 
         const markerRect = marker.getBoundingClientRect();
         const mirrorRect = mirror.getBoundingClientRect();
@@ -777,7 +891,6 @@ function getCursorCoordinates(textareaEl, caretPosition) {
         const x = markerRect.left - mirrorRect.left;
         const y = markerRect.top - mirrorRect.top;
 
-        document.body.removeChild(mirror);
         return { x, y };
     } catch (e) {
         return { x: 0, y: 0 };
@@ -868,22 +981,22 @@ function emitCursorPositionImmediate() {
 
 // Cursor event listeners on textarea (mouse + touch)
 if (textarea) {
-    textarea.addEventListener('mouseup', emitCursorPositionImmediate);
-    textarea.addEventListener('click', emitCursorPositionImmediate);
-    textarea.addEventListener('focus', emitCursorPositionImmediate);
+    textarea.addEventListener('mouseup', emitCursorPositionThrottled);
+    textarea.addEventListener('click', emitCursorPositionThrottled);
+    textarea.addEventListener('focus', emitCursorPositionThrottled);
 
     // Touch events for mobile cursor tracking
     textarea.addEventListener('touchend', (e) => {
         // Small delay to let the browser update selectionStart after touch
-        setTimeout(emitCursorPositionImmediate, 50);
+        setTimeout(emitCursorPositionThrottled, 50);
     });
     textarea.addEventListener('touchstart', (e) => {
-        setTimeout(emitCursorPositionImmediate, 50);
+        setTimeout(emitCursorPositionThrottled, 50);
     });
 
     textarea.addEventListener('keydown', (e) => {
         if (e.key.includes('Arrow') || e.key === 'Home' || e.key === 'End' || e.key === 'PageUp' || e.key === 'PageDown') {
-            setTimeout(emitCursorPositionImmediate, 0);
+            setTimeout(emitCursorPositionThrottled, 0);
         }
     });
 
@@ -959,8 +1072,9 @@ socket.on('cursor-move', (data) => {
     if (!data || !data.userId || data.userId === socket.id) return;
     const cursorData = remoteCursors.get(data.userId);
     if (cursorData) {
-        cursorData.lastPosition = Math.max(0, Math.min(collaborationText.length, Number(data.position) || 0));
-        updateCursorPosition(data.userId, cursorData.lastPosition);
+        const targetPosition = Math.max(0, Math.min(collaborationText.length, Number(data.position) || 0));
+        // Use interpolation for smooth cursor movement
+        interpolateCursorPosition(data.userId, targetPosition);
     }
 });
 
@@ -972,7 +1086,36 @@ socket.on('cursor-leave', (data) => {
 });
 
 socket.on('disconnect', () => {
+    // Flush any pending cursor position
+    if (cursorEmitThrottle) {
+        clearTimeout(cursorEmitThrottle);
+        if (pendingCursorPosition !== null) {
+            socket.emit('cursor-move', {
+                position: pendingCursorPosition,
+                timestamp: Date.now()
+            });
+        }
+    }
+    
+    // Flush any pending CRDT update
+    if (crdtEmitBatch) {
+        clearTimeout(crdtEmitBatch);
+        if (pendingCrdtUpdate) {
+            socket.emit('updateNote', {
+                url,
+                updateId: crypto.randomUUID(),
+                update: btoa(String.fromCharCode(...pendingCrdtUpdate))
+            });
+        }
+    }
+    
     remoteCursors.forEach((_, id) => removeCursor(id));
+    
+    // Clean up mirror div
+    if (cursorMirror) {
+        cursorMirror.remove();
+        cursorMirror = null;
+    }
 });
 
 // ============================================
@@ -1277,3 +1420,13 @@ window.addEventListener('keydown', (e) => {
 
 // Initial stats update
 document.addEventListener('DOMContentLoaded', updateStats);
+
+// Clean up on page unload
+window.addEventListener('beforeunload', () => {
+    if (cursorMirror) {
+        cursorMirror.remove();
+        cursorMirror = null;
+    }
+    if (cursorEmitThrottle) clearTimeout(cursorEmitThrottle);
+    if (crdtEmitBatch) clearTimeout(crdtEmitBatch);
+});
