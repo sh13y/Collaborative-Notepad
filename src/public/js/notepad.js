@@ -898,7 +898,6 @@ function createCursorElement(userId, color, emoji, username) {
         <div class="remote-cursor-label" style="background-color: ${color};">
             <span>${username || 'Anonymous'}</span>
         </div>
-        <div class="remote-cursor-caret" style="background-color: ${color};"></div>
     `;
 
     cursorContainer.appendChild(cursorEl);
