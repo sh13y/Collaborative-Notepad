@@ -154,6 +154,7 @@ const lockNoteBtn = document.getElementById('lockNoteBtn');
 const lockIconUnlocked = document.getElementById('lockIconUnlocked');
 const lockIconLocked = document.getElementById('lockIconLocked');
 const editLockNotice = document.getElementById('editLockNotice');
+const closeEditLockNoticeBtn = document.getElementById('closeEditLockNoticeBtn');
 const unlockEditBtn = document.getElementById('unlockEditBtn');
 const unlockModal = document.getElementById('unlockModal');
 const unlockPin = document.getElementById('unlockPin');
@@ -1246,6 +1247,11 @@ if (lockNoteBtn) {
 }
 if (unlockEditBtn) {
     unlockEditBtn.addEventListener('click', () => openUnlockModal('edit'));
+}
+if (closeEditLockNoticeBtn) {
+    closeEditLockNoticeBtn.addEventListener('click', () => {
+        editLockNotice?.classList.add('hidden');
+    });
 }
 
 if (closeLockModalBtn) closeLockModalBtn.addEventListener('click', closeLockModal);
