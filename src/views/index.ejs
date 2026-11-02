@@ -423,14 +423,11 @@
         <span class="hidden sm:inline">Open Source (MIT)</span>
       </div>
 
-        <!-- Right: Support Button -->
-        <div class="hidden sm:flex items-center gap-3">
-          <button id="supportBtn" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-earth-olive hover:bg-earth-oliveDark text-earth-cream font-medium text-xs shadow-sm hover:shadow transition-all active:scale-95" title="Support this project">
-            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-          </svg>
-            <span>Support me</span>
-          </button>
+      <!-- Center / Right Links -->
+      <div class="hidden sm:flex items-center gap-5 font-medium">
+        <a href="https://ko-fi.com/O4O0Z81QR" target="_blank" rel="noopener noreferrer" class="flex items-center hover:opacity-90 transition-opacity" aria-label="Buy me a coffee on Ko-fi">
+          <img height="36" style="border:0;height:36px;" src="https://storage.ko-fi.com/cdn/kofi6.png?v=6" border="0" alt="Buy Me a Coffee at ko-fi.com" />
+        </a>
       </div>
 
     </div>
@@ -440,24 +437,5 @@
   <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
   <script src="/js/yjs.js?v=3.0.5-lock2"></script>
   <script src="/js/notepad.js?v=3.0.8-lock"></script>
-
-    <!-- Ko-fi Floating Chat Widget -->
-    <script src="https://storage.ko-fi.com/cdn/scripts/overlay-widget.js"></script>
-    <script>
-      kofiWidgetOverlay.draw('sh13y', {
-        'type': 'floating-chat',
-        'floating-chat.donateButton.text': 'Support me',
-        'floating-chat.donateButton.background-color': '#606c38',
-        'floating-chat.donateButton.text-color': '#fff'
-      });
-    </script>
-    <script>
-      // Trigger Ko-fi widget when footer button clicked
-      document.getElementById('supportBtn')?.addEventListener('click', () => {
-        if (window.kofiWidgetOverlay) {
-          window.kofiWidgetOverlay.open();
-        }
-      });
-    </script>
-  </body>
-  </html>
+</body>
+</html>
