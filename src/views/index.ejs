@@ -76,6 +76,17 @@
       "creator": { "@type": "Person", "name": "sh13y" }
     }
     </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WH07CK2H38"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-WH07CK2H38');
+    </script>
+
     <script>
       // Lock info injected server-side for instant lock state (no Socket.IO wait)
       window.__lockInfo = <%- JSON.stringify(typeof lockInfo !== 'undefined' ? lockInfo : { viewRequiresPin: false, editRequiresPin: false, hasPin: false, ownerBrowserId: null, isOwner: false }) %>;
