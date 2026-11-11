@@ -11,7 +11,7 @@ Disallow: /api/
 Crawl-delay: 1
 
 # Sitemap location
-Sitemap: https://collabnote.link/sitemap.xml
+Sitemap: https://colabnote.isuru.eu.org/sitemap.xml
 
 # Google bots
 User-agent: Googlebot

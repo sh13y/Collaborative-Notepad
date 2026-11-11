@@ -33,7 +33,7 @@ Allow: /js/
 # Each note has a unique URL like /your-note-name
 Crawl-delay: 10
 
-Sitemap: ${req.protocol}://${req.get('host')}/sitemap.xml`);
+Sitemap: https://colabnote.isuru.eu.org/sitemap.xml`);
 });
 
 // Security.txt for responsible disclosure
@@ -51,12 +51,12 @@ router.get('/sitemap.xml', (req, res) => {
     res.send(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-        <loc>${req.protocol}://${req.get('host')}/</loc>
+        <loc>https://colabnote.isuru.eu.org/</loc>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
     </url>
     <url>
-        <loc>${req.protocol}://${req.get('host')}/new</loc>
+        <loc>https://colabnote.isuru.eu.org/new</loc>
         <changefreq>daily</changefreq>
         <priority>0.8</priority>
     </url>

@@ -12,15 +12,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://collabnote.app/<%= note.url %>">
+    <link rel="canonical" href="https://colabnote.isuru.eu.org/<%= note.url %>">
     
     <!-- Open Graph & Social Cards -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="Collaborative Notepad - Real-Time Note Sharing">
     <meta property="og:description" content="Free real-time collaborative notepad. Share notes instantly, no sign-up required.">
-    <meta property="og:url" content="https://collabnote.app/<%= note.url %>">
+    <meta property="og:url" content="https://colabnote.isuru.eu.org/<%= note.url %>">
     <meta property="og:site_name" content="Collaborative Notepad">
-    <meta property="og:image" content="https://collabnote.app/assets/og-image.png">
+    <meta property="og:image" content="https://colabnote.isuru.eu.org/assets/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Collaborative Notepad - Real-Time Note Sharing">
+    <meta name="twitter:description" content="Free real-time collaborative notepad. Share notes instantly, no sign-up required.">
+    <meta name="twitter:image" content="https://colabnote.isuru.eu.org/assets/twitter-card.png">
     
     <!-- Theme & Icons -->
     <meta name="theme-color" content="#606c38">
@@ -68,7 +72,7 @@
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "Collaborative Notepad",
-      "url": "https://collabnote.app/",
+      "url": "https://colabnote.isuru.eu.org/",
       "description": "Free real-time collaborative notepad with live cursor synchronization.",
       "applicationCategory": "ProductivityApplication",
       "operatingSystem": "Web Browser",
@@ -90,7 +94,7 @@
 
     <script>
       // Lock info injected server-side for instant lock state (no Socket.IO wait)
-      window.__lockInfo = <%- JSON.stringify(typeof lockInfo !== 'undefined' ? lockInfo : { viewRequiresPin: false, editRequiresPin: false, hasPin: false, ownerBrowserId: null, isOwner: false }) %>;
+      window.__lockInfo = JSON.parse(document.getElementById('lock-info').textContent || '{}');
       window.__browserId = localStorage.getItem('browserId');
       if (!window.__browserId) {
         window.__browserId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'usr_' + Math.random().toString(36).substring(2, 9);
