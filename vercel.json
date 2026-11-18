@@ -30,6 +30,10 @@
       "dest": "/_vercel/insights/script.js"
     },
     {
+      "src": "/_vercel/speed-insights/(.*)",
+      "dest": "/_vercel/speed-insights/$1"
+    },
+    {
       "src": "/(.*)",
       "dest": "/src/server.js"
     }

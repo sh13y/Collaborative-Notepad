@@ -37,6 +37,7 @@
   "dependencies": {
     "@socket.io/mongo-adapter": "^0.3.2",
     "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.1.0",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.3",
     "compression": "^1.7.4",
