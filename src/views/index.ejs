@@ -1,3 +1,36 @@
+<%
+  /* Content for the sections below the notepad. Edit the text here. */
+  const steps = [
+    { t: "Open a note", d: "Visit the site and a fresh note is ready. Just start typing. No account needed." },
+    { t: "Share the link", d: "Copy the link from the address bar at the top and send it to anyone you want to write with." },
+    { t: "Write together", d: "Everyone on the link edits the same note, and changes appear for all of them live." }
+  ];
+  const features = [
+    { t: "Real-time sync", d: "Changes show up for everyone on the link within a moment. No refreshing, no files to send around.", i: "M13 10V3L4 14h7v7l9-11h-7z" },
+    { t: "Live cursors", d: "See who is connected and where they are typing, so you never write over each other.", i: "M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.12 2.122m-5.657 5.656l-2.12 2.122" },
+    { t: "Your own link", d: "Pick a readable address for your note, like a team or class name. It can be set once.", i: "M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" },
+    { t: "PIN lock", d: "Protect a note with a 4-digit PIN. Require it to view the note, to edit it, or both.", i: "M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" },
+    { t: "Light and dark mode", d: "A calm cream theme by day and an easy dark theme by night. Switch any time.", i: "M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" },
+    { t: "Works on your phone", d: "The notepad fits small screens, so you can write on your phone and pick it up on your laptop.", i: "M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" },
+    { t: "One-click copy", d: "Copy the whole note with one button and paste it wherever you need it.", i: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
+    { t: "Free and open source", d: "Free to use, with the code open under the MIT license. Read it, fork it, improve it.", i: "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" }
+  ];
+  const useCases = [
+    { t: "Meeting notes", d: "Everyone adds to one shared page while the meeting happens." },
+    { t: "Study groups", d: "Build shared revision notes with classmates, from any device." },
+    { t: "Code and snippets", d: "Share commands, config or code with a teammate in seconds." },
+    { t: "Move text between devices", d: "Paste on your phone, copy on your laptop. No email to yourself." }
+  ];
+  const faqs = [
+    { q: "Do I need an account or sign-up?", a: "No. Open the site, start typing and share the link. There is nothing to install and no sign-up." },
+    { q: "How many people can edit the same note?", a: "Anyone who has the link can join. The counter at the top shows how many people are connected right now." },
+    { q: "Can I stop other people from viewing or editing my note?", a: "Yes. Use the lock button to set a 4-digit PIN. You can require it to view the note, to edit it, or both." },
+    { q: "Is my note private?", a: "Anyone with the link can open a note, so share it only with people you trust and add a PIN lock for extra protection. Do not store passwords or other highly sensitive information in a shared note." },
+    { q: "Does it work offline?", a: "No. Changes sync live between people, so you need an internet connection." },
+    { q: "Can I write in Sinhala, Tamil or other languages?", a: "Yes. The editor uses UTF-8, so you can type in Sinhala, Tamil, English and many other languages." },
+    { q: "Is it free and open source?", a: "Yes. It is free to use and open source under the MIT license." }
+  ];
+%>
 <!DOCTYPE html>
 <html lang="en" class="light">
 <head>
@@ -81,6 +114,15 @@
     }
     </script>
 
+    <!-- JSON-LD FAQ (built from the same FAQ list shown on the page) -->
+    <script type="application/ld+json"><%- JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faqs.map(function (f) {
+        return { "@type": "Question", "name": f.q, "acceptedAnswer": { "@type": "Answer", "text": f.a } };
+      })
+    }) %></script>
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-WH07CK2H38"></script>
     <script>
@@ -103,7 +145,10 @@
       window.__isOwner = Boolean(window.__lockInfo.isOwner || (window.__lockInfo.ownerBrowserId && window.__lockInfo.ownerBrowserId === window.__browserId));
     </script>
 </head>
-<body class="bg-earth-cream text-earth-forest font-sans h-screen h-[100dvh] max-h-[100dvh] flex flex-col overflow-hidden transition-colors duration-300 antialiased selection:bg-earth-terracotta/30 selection:text-earth-forest dark:bg-earth-darkBg dark:text-earth-cream">
+<body class="bg-earth-cream text-earth-forest font-sans min-h-screen flex flex-col transition-colors duration-300 antialiased selection:bg-earth-terracotta/30 selection:text-earth-forest dark:bg-earth-darkBg dark:text-earth-cream">
+
+  <!-- App shell: the notepad fills the first screen exactly -->
+  <div id="appShell" class="flex flex-col flex-shrink-0 h-screen h-[100dvh] max-h-[100dvh] overflow-hidden">
 
   <!-- Main Top Header -->
   <header class="sticky top-0 z-40 bg-earth-cream/90 dark:bg-earth-darkBg/90 backdrop-blur-md border-b border-earth-olive/20 dark:border-earth-darkBorder transition-colors flex-shrink-0">
@@ -337,6 +382,13 @@
     </div>
   </main>
 
+  <!-- Scroll hint (links to the content below the notepad) -->
+  <a href="#how-it-works" class="flex-shrink-0 flex items-center justify-center gap-1 py-0.5 sm:py-1 text-[10px] sm:text-xs font-medium text-earth-forest/60 dark:text-earth-cream/60 hover:text-earth-olive dark:hover:text-earth-terracotta transition-colors">
+    How it works
+    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+  </a>
+  </div><!-- /#appShell -->
+
   <!-- Note lock settings modal (owner only) -->
   <div id="lockModal" class="hidden fixed inset-0 z-[60] items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
     <div class="w-full max-w-sm rounded-2xl border border-earth-olive/20 bg-earth-cream p-5 shadow-2xl dark:border-earth-darkBorder dark:bg-earth-darkCard" role="dialog" aria-modal="true" aria-labelledby="lockModalTitle">
@@ -426,6 +478,94 @@
     </div>
   </div>
 
+  <!-- ======================================================= -->
+  <!-- Content below the notepad (scroll down)                    -->
+  <!-- ======================================================= -->
+  <div id="about" class="flex-shrink-0 border-t border-earth-olive/15 dark:border-earth-darkBorder bg-earth-creamDark/60 dark:bg-earth-darkCard/40">
+
+    <!-- Intro -->
+    <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 sm:pt-20 pb-12 sm:pb-16 text-center">
+      <span class="inline-flex items-center rounded-full bg-earth-olive/10 dark:bg-earth-olive/25 px-3 py-1 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-earth-oliveDark dark:text-earth-terracotta">Free &bull; Open source &bull; No sign-up</span>
+      <h2 class="mt-5 text-3xl sm:text-5xl font-bold tracking-tight leading-tight text-earth-forest dark:text-earth-cream">Write together, <span class="text-earth-olive dark:text-earth-terracotta">in real time.</span></h2>
+      <p class="mt-5 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed text-earth-forest/70 dark:text-earth-cream/70">Collaborative Notepad is a free online notepad where everyone with the same link edits the same note at the same time. Share one link and your team, class or friends can write together instantly.</p>
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+        <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});setTimeout(function(){var n=document.getElementById('notepad');if(n){n.focus({preventScroll:true});}},400);return false;" class="inline-flex items-center rounded-xl bg-earth-olive px-6 py-3 text-sm font-semibold text-earth-cream shadow-md shadow-earth-olive/20 hover:bg-earth-oliveDark active:scale-95 transition-all">Start writing</a>
+        <a href="#how-it-works" class="inline-flex items-center rounded-xl border border-earth-olive/30 dark:border-earth-darkBorder bg-white/70 dark:bg-earth-darkCard px-6 py-3 text-sm font-semibold text-earth-forest dark:text-earth-cream hover:bg-earth-olive/10 transition-colors">How it works</a>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how-it-works" class="scroll-mt-4 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-center text-earth-forest dark:text-earth-cream">How it works</h2>
+      <p class="mt-2 text-center text-sm sm:text-base text-earth-forest/60 dark:text-earth-cream/60">Three steps. About ten seconds.</p>
+      <ol class="mt-10 grid gap-4 sm:gap-6 md:grid-cols-3">
+        <% steps.forEach(function (s, n) { %>
+        <li class="rounded-2xl border border-earth-olive/20 dark:border-earth-darkBorder bg-white/80 dark:bg-earth-darkCard p-6 shadow-sm">
+          <div class="flex h-9 w-9 items-center justify-center rounded-full bg-earth-olive text-sm font-bold text-earth-cream"><%= n + 1 %></div>
+          <h3 class="mt-4 text-base font-bold text-earth-forest dark:text-earth-cream"><%= s.t %></h3>
+          <p class="mt-2 text-sm leading-relaxed text-earth-forest/70 dark:text-earth-cream/70"><%= s.d %></p>
+        </li>
+        <% }); %>
+      </ol>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="scroll-mt-4 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-center text-earth-forest dark:text-earth-cream">Everything you need, nothing you don't</h2>
+      <p class="mt-2 text-center text-sm sm:text-base text-earth-forest/60 dark:text-earth-cream/60">A simple notepad with the features that matter for writing together.</p>
+      <div class="mt-10 grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <% features.forEach(function (f) { %>
+        <div class="rounded-2xl border border-earth-olive/20 dark:border-earth-darkBorder bg-white/80 dark:bg-earth-darkCard p-5 shadow-sm">
+          <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-earth-olive/10 text-earth-olive dark:bg-earth-olive/25 dark:text-earth-terracotta">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="<%= f.i %>"/></svg>
+          </div>
+          <h3 class="text-sm font-bold text-earth-forest dark:text-earth-cream"><%= f.t %></h3>
+          <p class="mt-1.5 text-sm leading-relaxed text-earth-forest/70 dark:text-earth-cream/70"><%= f.d %></p>
+        </div>
+        <% }); %>
+      </div>
+    </section>
+
+    <!-- Use cases -->
+    <section id="use-cases" class="scroll-mt-4 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-center text-earth-forest dark:text-earth-cream">What people use it for</h2>
+      <div class="mt-10 grid gap-4 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <% useCases.forEach(function (u) { %>
+        <div class="rounded-2xl bg-earth-olive/10 dark:bg-earth-olive/15 p-5">
+          <h3 class="text-sm font-bold text-earth-forest dark:text-earth-cream"><%= u.t %></h3>
+          <p class="mt-1.5 text-sm leading-relaxed text-earth-forest/70 dark:text-earth-cream/70"><%= u.d %></p>
+        </div>
+        <% }); %>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="scroll-mt-4 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+      <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-center text-earth-forest dark:text-earth-cream">Questions and answers</h2>
+      <div class="mt-10 space-y-3">
+        <% faqs.forEach(function (f) { %>
+        <details class="group rounded-xl border border-earth-olive/20 dark:border-earth-darkBorder bg-white/80 dark:bg-earth-darkCard px-5 py-4 shadow-sm">
+          <summary class="faq-summary flex cursor-pointer list-none items-center justify-between gap-4 text-sm sm:text-base font-semibold text-earth-forest dark:text-earth-cream">
+            <span><%= f.q %></span>
+            <svg class="h-4 w-4 flex-shrink-0 text-earth-olive dark:text-earth-terracotta transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <p class="mt-3 text-sm leading-relaxed text-earth-forest/70 dark:text-earth-cream/70"><%= f.a %></p>
+        </details>
+        <% }); %>
+      </div>
+    </section>
+
+    <!-- Final call to action -->
+    <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-16 sm:pb-20">
+      <div class="rounded-3xl bg-earth-olive dark:bg-earth-oliveDark px-6 py-10 sm:py-14 text-center text-earth-cream shadow-xl shadow-earth-olive/20">
+        <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">Ready to write together?</h2>
+        <p class="mt-3 text-sm sm:text-base text-earth-cream/80">Open a note, share the link and start typing. It takes a few seconds.</p>
+        <a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'});setTimeout(function(){var n=document.getElementById('notepad');if(n){n.focus({preventScroll:true});}},400);return false;" class="mt-7 inline-flex items-center rounded-xl bg-earth-cream px-6 py-3 text-sm font-semibold text-earth-forest shadow-md hover:bg-white active:scale-95 transition-all">Open the notepad</a>
+      </div>
+    </section>
+
+  </div>
+
   <!-- Minimal Clean Footer -->
   <footer class="mt-auto border-t border-earth-olive/15 dark:border-earth-darkBorder py-1.5 sm:py-3 bg-earth-cream/60 dark:bg-earth-darkBg/60 backdrop-blur-sm flex-shrink-0">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-center sm:justify-between gap-2 text-[11px] sm:text-xs text-earth-forest/70 dark:text-earth-cream/70 text-center">
@@ -452,12 +592,5 @@
   <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
   <script src="/js/yjs.js?v=3.0.5-lock2"></script>
   <script src="/js/notepad.js?v=3.0.8-lock"></script>
-  <!-- Vercel Web Analytics -->
-  <script src="/js/analytics.js"></script>
-  <!-- Vercel Speed Insights -->
-  <script>
-    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-  </script>
-  <script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
 </html>

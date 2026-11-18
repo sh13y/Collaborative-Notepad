@@ -130,9 +130,19 @@
 /* ===== Mobile Responsive Styles ===== */
 
 /* Use dynamic viewport height for mobile browsers (accounts for address bar) */
+/* The page now scrolls: the notepad fills the first screen (see #appShell in index.ejs),
+   and the content sections follow below it. */
+html {
+  scroll-behavior: smooth;
+}
+
 html, body {
-  height: 100vh;
-  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
 }
 
 /* Prevent iOS zoom on input focus */
@@ -166,11 +176,7 @@ textarea#notepad {
 
 /* Mobile keyboard-aware layout */
 @media (max-width: 639px) {
-  html, body {
-    height: 100dvh !important;
-    max-height: 100dvh !important;
-    overflow: hidden !important;
-  }
+  /* (page-level overflow lock removed so the content below the notepad can scroll) */
 
   /* Reduce editor padding on mobile */
   textarea#notepad {
@@ -295,4 +301,22 @@ body, header, main, footer {
 @keyframes modalFadeIn {
   from { opacity: 0; transform: scale(0.96); }
   to { opacity: 1; transform: scale(1); }
+}
+
+/* ===== Content sections below the notepad ===== */
+
+/* Hide the default disclosure marker on FAQ items (Safari) */
+.faq-summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Keyboard focus ring for FAQ items */
+.faq-summary:focus-visible {
+  outline: 2px solid var(--color-earth-olive);
+  outline-offset: 4px;
+  border-radius: 0.5rem;
+}
+
+.dark .faq-summary:focus-visible {
+  outline-color: var(--color-earth-terracotta);
 }
