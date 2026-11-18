@@ -36,6 +36,7 @@
   "description": "A real-time collaborative notepad application with Socket.IO for instant synchronization and MongoDB for persistent storage",
   "dependencies": {
     "@socket.io/mongo-adapter": "^0.3.2",
+    "@vercel/analytics": "^2.0.1",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.3",
     "compression": "^1.7.4",
